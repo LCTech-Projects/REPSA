@@ -10,12 +10,15 @@ class Config:
     FORECAST_API_KEY = os.environ.get('FORECAST_API_KEY')
     
     # Data paths
-    DATA_DIR = os.path.join(os.path.dirname(__file__), '../../data')
-    MODEL_DIR = os.path.join(os.path.dirname(__file__), '../../ml_models')
+    BASE_DIR = os.path.dirname(os.path.dirname(__file__))  # /api/app
+    DATA_DIR = os.path.join(BASE_DIR, '../data')           # /api/data
+    MODEL_DIR = os.path.join(BASE_DIR, '../ml_models')     # /api/ml_models
+
 
 class DevelopmentConfig(Config):
     DEBUG = True
     CACHE_TYPE = 'SimpleCache'
+
 
 class ProductionConfig(Config):
     DEBUG = False
