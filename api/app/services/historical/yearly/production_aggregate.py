@@ -5,7 +5,7 @@ from typing import List, Dict, Any, Optional
 from app.utils.config import Config
 from app.utils.cache import cache
 
-class HistoricalService:
+class ProductionAggregateService:
     def __init__(self):
         self.data_dir = Config.DATA_DIR
         self.yearly_data_path = os.path.join(self.data_dir, 'historical', 'yearly_historical_data.csv')
@@ -18,10 +18,10 @@ class HistoricalService:
         return pd.read_csv(self.yearly_data_path)
     
     @cache.memoize(timeout=3600)
-    def get_electricity_demand_by_year(self, year: int, country: Optional[str] = None) -> List[Dict[str, Any]]:
+    def get_production_aggregate_by_year(self, year: int, country: Optional[str] = None) -> List[Dict[str, Any]]:
         """
-        Get electricity demand data for a specific year
-        Returns: [{country, year, electricity_demand, electricity_demand_per_capita, electricity_demand_per_capita_with_access}]
+        Get production aggregate data for a specific year
+        Returns: [{country, year, electricity_generation, electricity_demand, electricity_production_aggregate}]
         """
         df = self._load_yearly_data()
         
@@ -44,18 +44,18 @@ class HistoricalService:
             result.append({
                 'country': row['country'],
                 'year': int(row['year']),
-                'electricity_demand': float(row['electricity_demand (TWh)']) if pd.notna(row['electricity_demand (TWh)']) else None,
-                'electricity_demand_per_capita': float(row['electricity_demand_per_capita (kWh)']) if pd.notna(row['electricity_demand_per_capita (kWh)']) else None,
-                'electricity_demand_per_capita_with_access': float(row['electricity_demand_per_capita_with_access (kWh)']) if pd.notna(row['electricity_demand_per_capita_with_access (kWh)']) else None
+                'electricity_generation': float(row['electricity_generation (TWh)']) if pd.notna(row.get('electricity_generation (TWh)')) else None,
+                'electricity_demand': float(row['electricity_demand (TWh)']) if pd.notna(row.get('electricity_demand (TWh)')) else None,
+                'electricity_production_aggregate': float(row['electricity_production_aggregate (TWh)']) if pd.notna(row.get('electricity_production_aggregate (TWh)')) else None
             })
         
         return result
     
     @cache.memoize(timeout=3600)
-    def get_electricity_demand_by_range(self, start_year: int, end_year: int, country: Optional[str] = None) -> List[Dict[str, Any]]:
+    def get_production_aggregate_by_range(self, start_year: int, end_year: int, country: Optional[str] = None) -> List[Dict[str, Any]]:
         """
-        Get electricity demand data for a year range
-        Returns: [{country, data: [{year, electricity_demand, ...}]}]
+        Get production aggregate data for a year range
+        Returns: [{country, data: [{year, electricity_generation, electricity_demand, electricity_production_aggregate}]}]
         """
         df = self._load_yearly_data()
         
@@ -81,9 +81,9 @@ class HistoricalService:
             for _, row in country_data.iterrows():
                 yearly_data.append({
                     'year': int(row['year']),
-                    'electricity_demand': float(row['electricity_demand (TWh)']) if pd.notna(row['electricity_demand (TWh)']) else None,
-                    'electricity_demand_per_capita': float(row['electricity_demand_per_capita (kWh)']) if pd.notna(row['electricity_demand_per_capita (kWh)']) else None,
-                    'electricity_demand_per_capita_with_access': float(row['electricity_demand_per_capita_with_access (kWh)']) if pd.notna(row['electricity_demand_per_capita_with_access (kWh)']) else None
+                    'electricity_generation': float(row['electricity_generation (TWh)']) if pd.notna(row.get('electricity_generation (TWh)')) else None,
+                    'electricity_demand': float(row['electricity_demand (TWh)']) if pd.notna(row.get('electricity_demand (TWh)')) else None,
+                    'electricity_production_aggregate': float(row['electricity_production_aggregate (TWh)']) if pd.notna(row.get('electricity_production_aggregate (TWh)')) else None
                 })
             
             # Sort by year
@@ -99,12 +99,12 @@ class HistoricalService:
         
         return result
     
-    def export_electricity_demand_by_year_to_csv(self, year: int, country: Optional[str] = None) -> str:
+    def export_production_aggregate_by_year_to_csv(self, year: int, country: Optional[str] = None) -> str:
         """
-        Export electricity demand data for a specific year to CSV
+        Export production aggregate data for a specific year to CSV
         Returns path to temporary CSV file
         """
-        data = self.get_electricity_demand_by_year(year, country)
+        data = self.get_production_aggregate_by_year(year, country)
         
         if not data:
             raise ValueError(f"No data found for year {year}" + (f" and country {country}" if country else ""))
@@ -118,12 +118,12 @@ class HistoricalService:
         
         return temp_file.name
     
-    def export_electricity_demand_by_range_to_csv(self, start_year: int, end_year: int, country: Optional[str] = None) -> str:
+    def export_production_aggregate_by_range_to_csv(self, start_year: int, end_year: int, country: Optional[str] = None) -> str:
         """
-        Export electricity demand data for a year range to CSV
+        Export production aggregate data for a year range to CSV
         Returns path to temporary CSV file
         """
-        data = self.get_electricity_demand_by_range(start_year, end_year, country)
+        data = self.get_production_aggregate_by_range(start_year, end_year, country)
         
         if not data:
             raise ValueError(f"No data found for range {start_year}-{end_year}" + (f" and country {country}" if country else ""))
@@ -135,9 +135,9 @@ class HistoricalService:
                 flattened_data.append({
                     'country': country_data['country'],
                     'year': year_data['year'],
+                    'electricity_generation': year_data['electricity_generation'],
                     'electricity_demand': year_data['electricity_demand'],
-                    'electricity_demand_per_capita': year_data['electricity_demand_per_capita'],
-                    'electricity_demand_per_capita_with_access': year_data['electricity_demand_per_capita_with_access']
+                    'electricity_production_aggregate': year_data['electricity_production_aggregate']
                 })
         
         # Convert to DataFrame for CSV export

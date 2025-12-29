@@ -1,14 +1,14 @@
 from flask import Blueprint, request, jsonify, send_file
-from app.services.historical.yearly.electricity_demand import HistoricalService
+from app.services.historical.yearly.production_aggregate import ProductionAggregateService
 from app.utils.validators import validate_year, validate_year_range, validate_country
 
-electricity_demand_bp = Blueprint('electricity_demand', __name__)  # Changed from historical_bp
-service = HistoricalService()
+production_aggregate_bp = Blueprint('production_aggregate', __name__)
+service = ProductionAggregateService()
 
-@electricity_demand_bp.route('/electricity-demand', methods=['GET'])  # Changed from @historical_bp.route
-def get_electricity_demand():
+@production_aggregate_bp.route('/production-aggregate', methods=['GET'])
+def get_production_aggregate():
     """
-    Get electricity demand data for countries
+    Get production aggregate data for countries
     Query parameters:
     - country (optional): Specific country
     - year (optional): Single year
@@ -50,8 +50,8 @@ def get_electricity_demand():
             
             if format_type == 'csv':
                 # Return CSV file for single year
-                csv_path = service.export_electricity_demand_by_year_to_csv(year, country)
-                filename = f"electricity_demand_{year}"
+                csv_path = service.export_production_aggregate_by_year_to_csv(year, country)
+                filename = f"production_aggregate_{year}"
                 if country:
                     filename += f"_{country.replace(' ', '_')}"
                 filename += ".csv"
@@ -64,7 +64,7 @@ def get_electricity_demand():
                 )
             else:
                 # Return JSON for single year
-                data = service.get_electricity_demand_by_year(year, country)
+                data = service.get_production_aggregate_by_year(year, country)
                 return jsonify({
                     'success': True,
                     'data': data,
@@ -81,8 +81,8 @@ def get_electricity_demand():
             
             if format_type == 'csv':
                 # Return CSV file for year range
-                csv_path = service.export_electricity_demand_by_range_to_csv(start_year, end_year, country)
-                filename = f"electricity_demand_{start_year}_to_{end_year}"
+                csv_path = service.export_production_aggregate_by_range_to_csv(start_year, end_year, country)
+                filename = f"production_aggregate_{start_year}_to_{end_year}"
                 if country:
                     filename += f"_{country.replace(' ', '_')}"
                 filename += ".csv"
@@ -95,7 +95,7 @@ def get_electricity_demand():
                 )
             else:
                 # Return JSON for year range
-                data = service.get_electricity_demand_by_range(start_year, end_year, country)
+                data = service.get_production_aggregate_by_range(start_year, end_year, country)
                 return jsonify({
                     'success': True,
                     'data': data,
