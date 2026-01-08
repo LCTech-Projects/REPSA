@@ -4,3 +4,15 @@ Flask-Caching==2.3.1
 pandas==2.0.3
 numpy==2.4.0
 python-dotenv==1.2.1
+requests==2.31.0
+beautifulsoup4==4.12.2
+
+# NLP dependencies for improved policy extraction (Option 1: spaCy - Recommended)
+spacy>=3.7.0  # For local transformer-based NLP
+# After installing, download model: python -m spacy download en_core_web_trf
+
+# Optional: Other NLP backends (uncomment if needed)
+# transformers>=4.30.0  # For HuggingFace models
+# torch>=2.0.0  # Required for transformers
+# openai>=1.0.0  # For OpenAI GPT API
+# anthropic>=0.18.0  # For Anthropic Claude API

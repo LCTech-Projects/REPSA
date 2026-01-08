@@ -9,6 +9,11 @@ class Config:
     REALTIME_API_KEY = os.environ.get('REALTIME_API_KEY')
     FORECAST_API_KEY = os.environ.get('FORECAST_API_KEY')
     
+    # NLP Configuration for Policy Analyzer
+    USE_NLP = os.environ.get('USE_NLP', 'false').lower() == 'true'  # Default: disabled (set to 'true' in .env to enable)
+    NLP_BACKEND = os.environ.get('NLP_BACKEND', 'spacy')  # Options: spacy, openai, anthropic, huggingface
+    NLP_MODEL_NAME = os.environ.get('NLP_MODEL_NAME', 'en_core_web_trf')  # spaCy model name
+    
     # Data paths
     BASE_DIR = os.path.dirname(os.path.dirname(__file__))  # /api/app
     DATA_DIR = os.path.join(BASE_DIR, '../data')           # /api/data
