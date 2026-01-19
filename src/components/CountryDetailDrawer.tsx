@@ -145,10 +145,10 @@ export const CountryDetailDrawer = ({ countryName, onClose, selectedYear }: Coun
         const margin = { top: 30, right: 30, bottom: 60, left: 70 };
 
         // Create or select tooltip div
-        let tooltip = d3.select("body").select(".chart-tooltip");
+        let tooltip = d3.select("body").select<HTMLDivElement>(".chart-tooltip");
         if (tooltip.empty()) {
             tooltip = d3.select("body")
-                .append("div")
+                .append<HTMLDivElement>("div")
                 .attr("class", "chart-tooltip")
                 .style("position", "absolute")
                 .style("background", "rgba(0, 0, 0, 0.8)")
@@ -514,7 +514,7 @@ export const CountryDetailDrawer = ({ countryName, onClose, selectedYear }: Coun
                 const traditional = 100 - clean;
 
                 g.append("rect")
-                    .attr("x", x(d.year?.toString() || ''))
+                    .attr("x", x(d.year?.toString() || '') || 0)
                     .attr("y", y(100))
                     .attr("width", x.bandwidth())
                     .attr("height", 0)
@@ -539,7 +539,7 @@ export const CountryDetailDrawer = ({ countryName, onClose, selectedYear }: Coun
                     .attr("height", chartHeight - y(clean));
 
                 g.append("rect")
-                    .attr("x", x(d.year?.toString() || ''))
+                    .attr("x", x(d.year?.toString() || '') || 0)
                     .attr("y", y(100))
                     .attr("width", x.bandwidth())
                     .attr("height", 0)
@@ -611,7 +611,7 @@ export const CountryDetailDrawer = ({ countryName, onClose, selectedYear }: Coun
 
             details.time_series.forEach((d, i) => {
                 g.append("rect")
-                    .attr("x", x((d.year?.toString() || '0')))
+                    .attr("x", x((d.year?.toString() || '0')) || 0)
                     .attr("y", chartHeight)
                     .attr("width", x.bandwidth())
                     .attr("height", 0)

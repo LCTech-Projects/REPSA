@@ -105,7 +105,7 @@ export const Simulation = () => {
     });
 
     const [analyzePolicy, { isLoading: isAnalyzing }] = useAnalyzePolicyMutation();
-    const [simulateScenario, { isLoading: isSimulatingScenario }] = useSimulateScenarioMutation();
+    const [simulateScenario] = useSimulateScenarioMutation();
     const { data: countriesData } = useGetAvailableCountriesQuery();
     const availableCountries = countriesData?.data || [];
 
@@ -134,13 +134,6 @@ export const Simulation = () => {
     const WindIcon = () => (
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
             <path d="M9.59 4.59A2 2 0 1 1 11 8H2M10 12h10M9.59 15.41A2 2 0 1 0 11 20H2" stroke="#3B82F6" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-        </svg>
-    );
-
-    const BatteryIcon = () => (
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <rect x="2" y="7" width="16" height="10" rx="2" stroke="#DC2626" strokeWidth="2" />
-            <line x1="18" y1="10" x2="20" y2="10" stroke="#DC2626" strokeWidth="2" strokeLinecap="round" />
         </svg>
     );
 
@@ -377,10 +370,6 @@ export const Simulation = () => {
         }
     };
 
-    const formatCurrency = (value: number) => {
-        if (value >= 1000) return `$${(value / 1000).toFixed(0)}B`;
-        return `$${value}M`;
-    };
 
     const formatPercentage = (value: number) => `${value.toFixed(1)}%`;
 
@@ -583,7 +572,7 @@ export const Simulation = () => {
                 .y((d: any) => y(d.electricity_generation || 0))
                 .curve(d3.curveMonotoneX);
 
-            const demandPath = g.append("path")
+            g.append("path")
                 .datum(timeSeries)
                 .attr("fill", "none")
                 .attr("stroke", "#1E3A8A")
@@ -601,7 +590,7 @@ export const Simulation = () => {
                 .ease(d3.easeCubicInOut)
                 .attr("stroke-dashoffset", 0);
 
-            const generationPath = g.append("path")
+            g.append("path")
                 .datum(timeSeries)
                 .attr("fill", "none")
                 .attr("stroke", "#10B981")
@@ -706,7 +695,7 @@ export const Simulation = () => {
                 .y((d: any) => y(d.carbon_intensity || 0))
                 .curve(d3.curveMonotoneX);
 
-            const co2Path = g.append("path")
+            g.append("path")
                 .datum(timeSeries)
                 .attr("fill", "none")
                 .attr("stroke", "#DC2626")
@@ -787,7 +776,7 @@ export const Simulation = () => {
                 .y((d: any) => y(d.clean_cooking_access || 0))
                 .curve(d3.curveMonotoneX);
 
-            const cleanCookingPath = g.append("path")
+            g.append("path")
                 .datum(timeSeries)
                 .attr("fill", "none")
                 .attr("stroke", "#10B981")
@@ -876,7 +865,7 @@ export const Simulation = () => {
                 .y((d: any) => y(d.electricity_demand_per_capita_with_access || 0))
                 .curve(d3.curveMonotoneX);
 
-            const perCapitaPath = g.append("path")
+            g.append("path")
                 .datum(timeSeries)
                 .attr("fill", "none")
                 .attr("stroke", "#9333EA")
@@ -894,7 +883,7 @@ export const Simulation = () => {
                 .ease(d3.easeCubicInOut)
                 .attr("stroke-dashoffset", 0);
 
-            const withAccessPath = g.append("path")
+            g.append("path")
                 .datum(timeSeries)
                 .attr("fill", "none")
                 .attr("stroke", "#1E3A8A")
@@ -1013,7 +1002,7 @@ export const Simulation = () => {
                 .defined((d: any) => d.energy_poverty_multidimensional !== null && d.energy_poverty_multidimensional !== undefined)
                 .curve(d3.curveMonotoneX);
 
-            const electricityPath = g.append("path")
+            g.append("path")
                 .datum(timeSeries)
                 .attr("fill", "none")
                 .attr("stroke", "#DC2626")
@@ -1031,7 +1020,7 @@ export const Simulation = () => {
                 .ease(d3.easeCubicInOut)
                 .attr("stroke-dashoffset", 0);
 
-            const multidimensionalPath = g.append("path")
+            g.append("path")
                 .datum(timeSeries)
                 .attr("fill", "none")
                 .attr("stroke", "#9333EA")
@@ -1150,7 +1139,7 @@ export const Simulation = () => {
                 .defined((d: any) => d.energy_poverty_urban !== null && d.energy_poverty_urban !== undefined)
                 .curve(d3.curveMonotoneX);
 
-            const ruralPath = g.append("path")
+            g.append("path")
                 .datum(timeSeries)
                 .attr("fill", "none")
                 .attr("stroke", "#F97316")
@@ -1168,7 +1157,7 @@ export const Simulation = () => {
                 .ease(d3.easeCubicInOut)
                 .attr("stroke-dashoffset", 0);
 
-            const urbanPath = g.append("path")
+            g.append("path")
                 .datum(timeSeries)
                 .attr("fill", "none")
                 .attr("stroke", "#10B981")

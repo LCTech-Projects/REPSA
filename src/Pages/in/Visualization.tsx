@@ -111,7 +111,7 @@ export const Visualization = () => {
         selectedCountry &&
         selectedDate;
 
-    const { data: hourlyData, isLoading: hourlyLoading, error: hourlyError } = useGetHourlyElectricityDemandQuery(
+    const { data: hourlyData } = useGetHourlyElectricityDemandQuery(
         {
             country: selectedCountry,
             date: selectedDate || undefined,
@@ -616,7 +616,7 @@ const YearlyCharts = ({ data }: { data: any }) => {
                 .curve(d3.curveMonotoneX);
 
             // Add animated paths
-            const demandPath = g.append("path")
+            g.append("path")
                 .datum(timeSeries)
                 .attr("fill", "none")
                 .attr("stroke", "#1E3A8A")
@@ -634,7 +634,7 @@ const YearlyCharts = ({ data }: { data: any }) => {
                 .ease(d3.easeCubicInOut)
                 .attr("stroke-dashoffset", 0);
 
-            const generationPath = g.append("path")
+            g.append("path")
                 .datum(timeSeries)
                 .attr("fill", "none")
                 .attr("stroke", "#10B981")
@@ -751,7 +751,7 @@ const YearlyCharts = ({ data }: { data: any }) => {
                 .y((d: any) => y(d.carbon_intensity || 0))
                 .curve(d3.curveMonotoneX);
 
-            const co2Path = g.append("path")
+            g.append("path")
                 .datum(timeSeries)
                 .attr("fill", "none")
                 .attr("stroke", "#DC2626")
@@ -844,7 +844,7 @@ const YearlyCharts = ({ data }: { data: any }) => {
                 .y1((d: any) => y((d.population || 0) / 1000000))
                 .curve(d3.curveMonotoneX);
 
-            const areaPath = g.append("path")
+            g.append("path")
                 .datum(timeSeries)
                 .attr("fill", "#9333EA")
                 .attr("fill-opacity", 0)
@@ -934,7 +934,7 @@ const YearlyCharts = ({ data }: { data: any }) => {
                 const clean = d.clean_cooking_access || 0;
                 const traditional = 100 - clean;
 
-                const cleanRect = g.append("rect")
+                g.append("rect")
                     .attr("x", x(d.year.toString()) || 0)
                     .attr("y", y(100))
                     .attr("width", x.bandwidth())
@@ -959,7 +959,7 @@ const YearlyCharts = ({ data }: { data: any }) => {
                     .attr("y", y(clean))
                     .attr("height", chartHeight - y(clean));
 
-                const traditionalRect = g.append("rect")
+                g.append("rect")
                     .attr("x", x(d.year.toString()) || 0)
                     .attr("y", y(100))
                     .attr("width", x.bandwidth())
@@ -1112,7 +1112,7 @@ const YearlyCharts = ({ data }: { data: any }) => {
                 .y((d: any) => y(d.electricity_demand_per_capita_with_access || 0))
                 .curve(d3.curveMonotoneX);
 
-            const perCapitaPath = g.append("path")
+            g.append("path")
                 .datum(timeSeries)
                 .attr("fill", "none")
                 .attr("stroke", "#9333EA")
@@ -1130,7 +1130,7 @@ const YearlyCharts = ({ data }: { data: any }) => {
                 .ease(d3.easeCubicInOut)
                 .attr("stroke-dashoffset", 0);
 
-            const withAccessPath = g.append("path")
+            g.append("path")
                 .datum(timeSeries)
                 .attr("fill", "none")
                 .attr("stroke", "#1E3A8A")
@@ -1262,7 +1262,7 @@ const YearlyCharts = ({ data }: { data: any }) => {
                 .defined((d: any) => d.energy_poverty_multidimensional !== null && d.energy_poverty_multidimensional !== undefined)
                 .curve(d3.curveMonotoneX);
 
-            const electricityPath = g.append("path")
+            g.append("path")
                 .datum(timeSeries)
                 .attr("fill", "none")
                 .attr("stroke", "#DC2626")
@@ -1280,7 +1280,7 @@ const YearlyCharts = ({ data }: { data: any }) => {
                 .ease(d3.easeCubicInOut)
                 .attr("stroke-dashoffset", 0);
 
-            const multidimensionalPath = g.append("path")
+            g.append("path")
                 .datum(timeSeries)
                 .attr("fill", "none")
                 .attr("stroke", "#9333EA")
@@ -1412,7 +1412,7 @@ const YearlyCharts = ({ data }: { data: any }) => {
                 .defined((d: any) => d.energy_poverty_urban !== null && d.energy_poverty_urban !== undefined)
                 .curve(d3.curveMonotoneX);
 
-            const ruralPath = g.append("path")
+            g.append("path")
                 .datum(timeSeries)
                 .attr("fill", "none")
                 .attr("stroke", "#F97316")
@@ -1430,7 +1430,7 @@ const YearlyCharts = ({ data }: { data: any }) => {
                 .ease(d3.easeCubicInOut)
                 .attr("stroke-dashoffset", 0);
 
-            const urbanPath = g.append("path")
+            g.append("path")
                 .datum(timeSeries)
                 .attr("fill", "none")
                 .attr("stroke", "#10B981")
@@ -1788,7 +1788,7 @@ const HourlyCharts = ({ data }: { data: any }) => {
 
             // X-axis with time format
             const timeFormat = d3.timeFormat("%H:%M");
-            const xAxis = g.append("g")
+            g.append("g")
                 .attr("transform", `translate(0,${chartHeight})`)
                 .call(d3.axisBottom(x).tickFormat((d) => {
                     if (d instanceof Date) {
@@ -1895,7 +1895,7 @@ const HourlyCharts = ({ data }: { data: any }) => {
 
             // X-axis with time format
             const timeFormat2 = d3.timeFormat("%H:%M");
-            const xAxis2 = g.append("g")
+            g.append("g")
                 .attr("transform", `translate(0,${chartHeight})`)
                 .call(d3.axisBottom(x).tickFormat((d) => {
                     if (d instanceof Date) {

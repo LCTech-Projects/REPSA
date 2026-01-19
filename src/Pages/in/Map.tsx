@@ -11,7 +11,7 @@ import { useAppDispatch } from "../../app/hooks";
 
 // Function to get color based on energy poverty level
 // Gradient: Dark Green (best) -> Light Green -> Yellow -> Orange -> Red/Dark Red (worst)
-const getCountryColorByEnergyPoverty = (energyPoverty: number | null | undefined, energyPovertyMap: Record<string, number | null>): string => {
+const getCountryColorByEnergyPoverty = (energyPoverty: number | null | undefined): string => {
     if (energyPoverty === null || energyPoverty === undefined) return "#E5E5E5"; // Default grey for no data
 
     // Energy poverty ranges (higher = worse)
@@ -250,7 +250,7 @@ export const Map = () => {
 
             // Get energy poverty for this country
             const countryEnergyPoverty = country ? energyPovertyMap[country.name] : null;
-            const fillColor = getCountryColorByEnergyPoverty(countryEnergyPoverty, energyPovertyMap);
+            const fillColor = getCountryColorByEnergyPoverty(countryEnergyPoverty);
 
             countries
                 .append("path")
