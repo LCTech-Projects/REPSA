@@ -137,14 +137,6 @@ export const Simulation = () => {
         </svg>
     );
 
-    const NuclearIcon = () => (
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <circle cx="12" cy="12" r="3" stroke="#9333EA" strokeWidth="2" fill="none" />
-            <circle cx="12" cy="12" r="8" stroke="#9333EA" strokeWidth="2" fill="none" strokeDasharray="2 2" />
-            <circle cx="12" cy="12" r="1" fill="#9333EA" />
-        </svg>
-    );
-
     const TargetIcon = () => (
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
             <circle cx="12" cy="12" r="10" stroke="#1E3A8A" strokeWidth="2" fill="none" />
@@ -612,7 +604,7 @@ export const Simulation = () => {
             // Calculate year ticks
             const years = timeSeries.map((d: any) => d.year);
             const { tickValues } = calculateYearTicks(years);
-            
+
             const xAxis = g.append("g")
                 .attr("transform", `translate(0,${chartHeight})`)
                 .call(d3.axisBottom(x).tickValues(tickValues).tickFormat(d3.format("d")));
@@ -716,7 +708,7 @@ export const Simulation = () => {
             // Calculate year ticks
             const years = timeSeries.map((d: any) => d.year);
             const { tickValues } = calculateYearTicks(years);
-            
+
             const xAxis = g.append("g")
                 .attr("transform", `translate(0,${chartHeight})`)
                 .call(d3.axisBottom(x).tickValues(tickValues).tickFormat(d3.format("d")));
@@ -797,7 +789,7 @@ export const Simulation = () => {
             // Calculate year ticks
             const years = timeSeries.map((d: any) => d.year);
             const { tickValues } = calculateYearTicks(years);
-            
+
             const xAxis = g.append("g")
                 .attr("transform", `translate(0,${chartHeight})`)
                 .call(d3.axisBottom(x).tickValues(tickValues).tickFormat(d3.format("d")));
@@ -905,7 +897,7 @@ export const Simulation = () => {
             // Calculate year ticks
             const years = timeSeries.map((d: any) => d.year);
             const { tickValues } = calculateYearTicks(years);
-            
+
             const xAxis = g.append("g")
                 .attr("transform", `translate(0,${chartHeight})`)
                 .call(d3.axisBottom(x).tickValues(tickValues).tickFormat(d3.format("d")));
@@ -1042,7 +1034,7 @@ export const Simulation = () => {
             // Calculate year ticks
             const years = timeSeries.map((d: any) => d.year);
             const { tickValues } = calculateYearTicks(years);
-            
+
             const xAxis = g.append("g")
                 .attr("transform", `translate(0,${chartHeight})`)
                 .call(d3.axisBottom(x).tickValues(tickValues).tickFormat(d3.format("d")));
@@ -1179,7 +1171,7 @@ export const Simulation = () => {
             // Calculate year ticks
             const years = timeSeries.map((d: any) => d.year);
             const { tickValues } = calculateYearTicks(years);
-            
+
             const xAxis = g.append("g")
                 .attr("transform", `translate(0,${chartHeight})`)
                 .call(d3.axisBottom(x).tickValues(tickValues).tickFormat(d3.format("d")));
