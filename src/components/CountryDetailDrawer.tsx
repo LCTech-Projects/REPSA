@@ -64,14 +64,14 @@ export const CountryDetailDrawer = ({ countryName, onClose, selectedYear }: Coun
     };
     
     const containerRefs = {
-        electricityAccess: useRef<HTMLDivElement>(null),
-        co2Emission: useRef<HTMLDivElement>(null),
-        population: useRef<HTMLDivElement>(null),
-        cleanCooking: useRef<HTMLDivElement>(null),
-        energyPoverty: useRef<HTMLDivElement>(null),
-        electricityPerCapita: useRef<HTMLDivElement>(null),
-        energyPovertyComparison: useRef<HTMLDivElement>(null),
-        energyPovertyRuralUrban: useRef<HTMLDivElement>(null),
+        electricityAccess: useRef<SVGSVGElement>(null),
+        co2Emission: useRef<SVGSVGElement>(null),
+        population: useRef<SVGSVGElement>(null),
+        cleanCooking: useRef<SVGSVGElement>(null),
+        energyPoverty: useRef<SVGSVGElement>(null),
+        electricityPerCapita: useRef<SVGSVGElement>(null),
+        energyPovertyComparison: useRef<SVGSVGElement>(null),
+        energyPovertyRuralUrban: useRef<SVGSVGElement>(null),
     };
     
     const [chartDimensions, setChartDimensions] = useState<Record<string, { width: number; height: number }>>({});
@@ -201,7 +201,7 @@ export const CountryDetailDrawer = ({ countryName, onClose, selectedYear }: Coun
                 .curve(d3.curveMonotoneX);
 
             // Add animated paths
-            const demandPath = g.append("path")
+            g.append("path")
                 .datum(details.time_series)
                 .attr("fill", "none")
                 .attr("stroke", "#1E3A8A")
@@ -219,7 +219,7 @@ export const CountryDetailDrawer = ({ countryName, onClose, selectedYear }: Coun
                 .ease(d3.easeCubicInOut)
                 .attr("stroke-dashoffset", 0);
 
-            const generationPath = g.append("path")
+            g.append("path")
                 .datum(details.time_series)
                 .attr("fill", "none")
                 .attr("stroke", "#10B981")
@@ -333,7 +333,7 @@ export const CountryDetailDrawer = ({ countryName, onClose, selectedYear }: Coun
                 .y(d => y(d.carbon_intensity || 0))
                 .curve(d3.curveMonotoneX);
 
-            const co2Path = g.append("path")
+            g.append("path")
                 .datum(details.time_series)
                 .attr("fill", "none")
                 .attr("stroke", "#DC2626")
@@ -423,7 +423,7 @@ export const CountryDetailDrawer = ({ countryName, onClose, selectedYear }: Coun
                 .y1(d => y((d.population || 0) / 1000000))
                 .curve(d3.curveMonotoneX);
 
-            const areaPath = g.append("path")
+            g.append("path")
                 .datum(details.time_series)
                 .attr("fill", "#9333EA")
                 .attr("fill-opacity", 0)
@@ -513,8 +513,8 @@ export const CountryDetailDrawer = ({ countryName, onClose, selectedYear }: Coun
                 const clean = d.clean_cooking_access || 0;
                 const traditional = 100 - clean;
 
-                const cleanRect = g.append("rect")
-                    .attr("x", x(d.year.toString()))
+                g.append("rect")
+                    .attr("x", x(d.year?.toString() || ''))
                     .attr("y", y(100))
                     .attr("width", x.bandwidth())
                     .attr("height", 0)
@@ -538,8 +538,8 @@ export const CountryDetailDrawer = ({ countryName, onClose, selectedYear }: Coun
                     .attr("y", y(clean))
                     .attr("height", chartHeight - y(clean));
 
-                const traditionalRect = g.append("rect")
-                    .attr("x", x(d.year.toString()))
+                g.append("rect")
+                    .attr("x", x(d.year?.toString() || ''))
                     .attr("y", y(100))
                     .attr("width", x.bandwidth())
                     .attr("height", 0)
@@ -611,7 +611,7 @@ export const CountryDetailDrawer = ({ countryName, onClose, selectedYear }: Coun
 
             details.time_series.forEach((d, i) => {
                 g.append("rect")
-                    .attr("x", x(d.year.toString()))
+                    .attr("x", x((d.year?.toString() || '0')))
                     .attr("y", chartHeight)
                     .attr("width", x.bandwidth())
                     .attr("height", 0)
@@ -687,7 +687,7 @@ export const CountryDetailDrawer = ({ countryName, onClose, selectedYear }: Coun
                 .y(d => y(d.electricity_demand_per_capita_with_access || 0))
                 .curve(d3.curveMonotoneX);
 
-            const perCapitaPath = g.append("path")
+            g.append("path")
                 .datum(details.time_series)
                 .attr("fill", "none")
                 .attr("stroke", "#9333EA")
@@ -705,7 +705,7 @@ export const CountryDetailDrawer = ({ countryName, onClose, selectedYear }: Coun
                 .ease(d3.easeCubicInOut)
                 .attr("stroke-dashoffset", 0);
 
-            const withAccessPath = g.append("path")
+            g.append("path")
                 .datum(details.time_series)
                 .attr("fill", "none")
                 .attr("stroke", "#1E3A8A")
@@ -834,7 +834,7 @@ export const CountryDetailDrawer = ({ countryName, onClose, selectedYear }: Coun
                 .defined(d => d.energy_poverty_multidimensional !== null && d.energy_poverty_multidimensional !== undefined)
                 .curve(d3.curveMonotoneX);
 
-            const electricityPath = g.append("path")
+            g.append("path")
                 .datum(details.time_series)
                 .attr("fill", "none")
                 .attr("stroke", "#DC2626")
@@ -852,7 +852,7 @@ export const CountryDetailDrawer = ({ countryName, onClose, selectedYear }: Coun
                 .ease(d3.easeCubicInOut)
                 .attr("stroke-dashoffset", 0);
 
-            const multidimensionalPath = g.append("path")
+            g.append("path")
                 .datum(details.time_series)
                 .attr("fill", "none")
                 .attr("stroke", "#9333EA")
@@ -981,7 +981,7 @@ export const CountryDetailDrawer = ({ countryName, onClose, selectedYear }: Coun
                 .defined(d => d.energy_poverty_urban !== null && d.energy_poverty_urban !== undefined)
                 .curve(d3.curveMonotoneX);
 
-            const ruralPath = g.append("path")
+            g.append("path")
                 .datum(details.time_series)
                 .attr("fill", "none")
                 .attr("stroke", "#F97316")
@@ -999,7 +999,7 @@ export const CountryDetailDrawer = ({ countryName, onClose, selectedYear }: Coun
                 .ease(d3.easeCubicInOut)
                 .attr("stroke-dashoffset", 0);
 
-            const urbanPath = g.append("path")
+            g.append("path")
                 .datum(details.time_series)
                 .attr("fill", "none")
                 .attr("stroke", "#10B981")

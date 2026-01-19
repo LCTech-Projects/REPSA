@@ -16,7 +16,6 @@ export function calculateYearTicks(
 
     // Sort and get unique years
     const uniqueYears = [...new Set(years)].sort((a, b) => a - b);
-    const yearRange = uniqueYears[uniqueYears.length - 1] - uniqueYears[0] + 1;
     
     // If we have more than maxYears, limit the displayed years
     let displayYears = uniqueYears;
