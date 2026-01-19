@@ -64,14 +64,14 @@ export const CountryDetailDrawer = ({ countryName, onClose, selectedYear }: Coun
     };
     
     const containerRefs = {
-        electricityAccess: useRef<SVGSVGElement>(null),
-        co2Emission: useRef<SVGSVGElement>(null),
-        population: useRef<SVGSVGElement>(null),
-        cleanCooking: useRef<SVGSVGElement>(null),
-        energyPoverty: useRef<SVGSVGElement>(null),
-        electricityPerCapita: useRef<SVGSVGElement>(null),
-        energyPovertyComparison: useRef<SVGSVGElement>(null),
-        energyPovertyRuralUrban: useRef<SVGSVGElement>(null),
+        electricityAccess: useRef<HTMLDivElement>(null),
+        co2Emission: useRef<HTMLDivElement>(null),
+        population: useRef<HTMLDivElement>(null),
+        cleanCooking: useRef<HTMLDivElement>(null),
+        energyPoverty: useRef<HTMLDivElement>(null),
+        electricityPerCapita: useRef<HTMLDivElement>(null),
+        energyPovertyComparison: useRef<HTMLDivElement>(null),
+        energyPovertyRuralUrban: useRef<HTMLDivElement>(null),
     };
     
     const [chartDimensions, setChartDimensions] = useState<Record<string, { width: number; height: number }>>({});
