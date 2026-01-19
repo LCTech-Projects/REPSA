@@ -1,0 +1,13 @@
+# Vercel Python dependencies
+# This file tells Vercel which packages to install for the serverless function
+
+Flask==3.1.2
+Flask-CORS==6.0.2
+Flask-Caching==2.3.1
+pandas==2.0.3
+numpy==2.4.0
+python-dotenv==1.2.1
+requests==2.31.0
+beautifulsoup4==4.12.2
+scikit-learn>=1.0.0
+joblib>=1.0.0

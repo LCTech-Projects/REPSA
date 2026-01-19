@@ -19,28 +19,24 @@ app = create_app()
 def handler(request):
     """
     Vercel serverless function handler
+    Vercel passes request as a dictionary-like object
     """
-    # Import Vercel's request/response types if available
-    try:
-        from vercel import Request, Response
-        use_vercel_types = True
-    except ImportError:
-        use_vercel_types = False
-    
-    if use_vercel_types:
-        # Vercel SDK format
-        path = request.path
-        method = request.method
-        headers = request.headers
-        body = request.body or b''
-        query = request.query_string or ''
-    else:
-        # Fallback for standard format
+    # Vercel Python runtime format
+    if isinstance(request, dict):
+        # Standard Vercel format
         path = request.get('path', '/')
         method = request.get('method', 'GET')
         headers = request.get('headers', {})
         body = request.get('body', b'')
-        query = request.get('query_string', '')
+        query = request.get('queryStringParameters', {})
+        query_string = '&'.join([f"{k}={v}" for k, v in query.items()]) if query else ''
+    else:
+        # Fallback for object format
+        path = getattr(request, 'path', '/')
+        method = getattr(request, 'method', 'GET')
+        headers = getattr(request, 'headers', {})
+        body = getattr(request, 'body', b'')
+        query_string = getattr(request, 'query_string', '')
     
     # Remove /api prefix
     if path.startswith('/api'):
