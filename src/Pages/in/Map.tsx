@@ -44,7 +44,7 @@ export const Map = () => {
     const [dimensions, setDimensions] = useState({ width: 0, height: 0 });
     const dispatch = useAppDispatch();
 
-    // Fetch available years on mount and set default to latest year
+    // Fetch available years on mount and set default to 2023 (or latest year if 2023 not available)
     useEffect(() => {
         dispatch(apiSlice.endpoints.getAvailableYears.initiate())
             .then((result: any) => {
@@ -52,7 +52,9 @@ export const Map = () => {
                     const years = result.data.data.years;
                     const latestYear = result.data.data.latest_year;
                     setAvailableYears(years);
-                    setSelectedYear(latestYear); // Set default to latest year
+                    // Default to 2023 if available, otherwise use latest year
+                    const defaultYear = years.includes(2023) ? 2023 : latestYear;
+                    setSelectedYear(defaultYear);
                 }
             })
             .catch(() => {

@@ -1,6 +1,7 @@
 from flask import Blueprint, request, jsonify
 from app.services.historical.yearly.country_metrics import CountryMetricsService
 from app.utils.validators import validate_country, validate_year
+from app.utils.config import Config
 from datetime import datetime
 
 country_metrics_bp = Blueprint('country_metrics', __name__)
@@ -32,6 +33,9 @@ def get_country_summary():
         year_int = None
         if year:
             year_int = validate_year(year)
+            # Cap year by YEAR_FILTER_LIMIT
+            if year_int > Config.YEAR_FILTER_LIMIT:
+                year_int = Config.YEAR_FILTER_LIMIT
         
         data = service.get_country_summary(country, year_int)
         
@@ -85,8 +89,14 @@ def get_country_details():
             start_year_int = validate_year(start_year)
         if end_year:
             end_year_int = validate_year(end_year)
+            # Cap end_year by YEAR_FILTER_LIMIT
+            if end_year_int > Config.YEAR_FILTER_LIMIT:
+                end_year_int = Config.YEAR_FILTER_LIMIT
         if selected_year:
             selected_year_int = validate_year(selected_year)
+            # Cap selected_year by YEAR_FILTER_LIMIT
+            if selected_year_int > Config.YEAR_FILTER_LIMIT:
+                selected_year_int = Config.YEAR_FILTER_LIMIT
         
         data = service.get_country_detailed_metrics(country, start_year_int, end_year_int, selected_year_int)
         
@@ -143,6 +153,9 @@ def get_all_countries_energy_poverty():
         year_int = None
         if year:
             year_int = validate_year(year)
+            # Cap year by YEAR_FILTER_LIMIT
+            if year_int > Config.YEAR_FILTER_LIMIT:
+                year_int = Config.YEAR_FILTER_LIMIT
         
         data = service.get_all_countries_energy_poverty(year_int)
         

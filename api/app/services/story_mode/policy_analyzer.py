@@ -13,15 +13,25 @@ except ImportError:
     NLP_AVAILABLE = False
     HybridExtractor = None
 
+# Optional ML Forecasting support
+try:
+    from app.utils.ml_forecasting import MLForecaster
+    ML_FORECASTING_AVAILABLE = True
+except ImportError:
+    ML_FORECASTING_AVAILABLE = False
+    MLForecaster = None
+
 
 class PolicyAnalyzer:
     """
     Analyzes policy documents using regex pattern matching (with optional 
     transformer-based NLP for improved accuracy) and generates forecasts using 
-    statistical models based on historical data.
+    hybrid ML + statistical models based on historical data.
+    
+    Uses ML models for baseline forecasts and statistical adjustments for policy interventions.
     """
     
-    def __init__(self, use_nlp: Optional[bool] = None, nlp_backend: Optional[str] = None):
+    def __init__(self, use_nlp: Optional[bool] = None, nlp_backend: Optional[str] = None, use_ml_forecasting: Optional[bool] = None):
         """
         Initialize PolicyAnalyzer.
         
@@ -33,6 +43,9 @@ class PolicyAnalyzer:
         nlp_backend : str, optional
             NLP backend to use: "spacy", "openai", or "anthropic".
             If None, reads from Config.NLP_BACKEND (environment variable).
+        use_ml_forecasting : bool, optional
+            Whether to use ML models for baseline forecasts.
+            If None, reads from Config.USE_ML_FORECASTING (environment variable).
         """
         try:
             self.data_dir = Config.DATA_DIR
@@ -79,6 +92,30 @@ class PolicyAnalyzer:
         elif use_nlp and not NLP_AVAILABLE:
             print("⚠️  NLP requested but not available. Install with: pip install spacy && python -m spacy download en_core_web_trf")
             print("   Falling back to regex-only extraction.")
+        
+        # Initialize ML Forecaster if requested
+        if use_ml_forecasting is None:
+            use_ml_forecasting = Config.USE_ML_FORECASTING
+        
+        self.use_ml_forecasting = use_ml_forecasting and ML_FORECASTING_AVAILABLE
+        self.ml_forecaster = None
+        
+        if self.use_ml_forecasting and MLForecaster:
+            try:
+                self.ml_forecaster = MLForecaster()
+                if self.ml_forecaster.load_models():
+                    print("✅ ML forecasting enabled (hybrid approach)")
+                else:
+                    print("⚠️  ML forecasting requested but no models found.")
+                    print("   Train models first or falling back to statistical forecasting.")
+                    self.use_ml_forecasting = False
+            except Exception as e:
+                print(f"⚠️  ML forecaster initialization failed: {e}")
+                print("   Falling back to statistical forecasting.")
+                self.use_ml_forecasting = False
+        elif use_ml_forecasting and not ML_FORECASTING_AVAILABLE:
+            print("⚠️  ML forecasting requested but not available.")
+            print("   Falling back to statistical forecasting.")
     
     def _load_historical_data(self):
         """Load historical data for forecasting"""
@@ -301,10 +338,35 @@ class PolicyAnalyzer:
         end_year: int
     ) -> Dict[str, List[Dict[str, Any]]]:
         """
-        Generate baseline forecast using historical trends.
+        Generate baseline forecast using ML models (if available) or statistical models.
         
-        Uses simple linear/exponential trend extrapolation based on historical data.
+        Hybrid approach:
+        - ML models: Learn patterns from historical data across all countries
+        - Statistical models: Fallback if ML models unavailable or insufficient data
+        
+        Policy adjustments are then applied on top of baseline forecasts.
         """
+        # Try ML forecasting first if enabled
+        if self.use_ml_forecasting and self.ml_forecaster:
+            try:
+                ml_forecast = self.ml_forecaster.forecast(
+                    country=country,
+                    start_year=start_year,
+                    end_year=end_year,
+                    historical_data=self.historical_data
+                )
+                
+                # Check if ML forecast is valid (not empty)
+                if ml_forecast and any(len(v) > 0 for v in ml_forecast.values()):
+                    print(f"✅ Using ML-based baseline forecast for {country}")
+                    return ml_forecast
+                else:
+                    print(f"⚠️  ML forecast empty for {country}, falling back to statistical")
+            except Exception as e:
+                print(f"⚠️  ML forecasting error for {country}: {e}")
+                print("   Falling back to statistical forecasting")
+        
+        # Fallback to statistical forecasting
         if self.historical_data is None or self.historical_data.empty:
             return self._generate_default_forecast(start_year, end_year)
         

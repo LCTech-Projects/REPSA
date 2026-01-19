@@ -115,12 +115,16 @@ export const Compare = () => {
         });
     }, [selectedCountries, selectedYear, dispatch]);
 
-    // Set default year
+    // Set default year to 2023 (or latest year if 2023 not available)
     useEffect(() => {
-        if (latestYear && !selectedYear) {
-            setSelectedYear(latestYear);
+        if (!selectedYear && availableYears.length > 0) {
+            // Default to 2023 if available, otherwise use latest year
+            const defaultYear = availableYears.includes(2023) ? 2023 : latestYear;
+            if (defaultYear) {
+                setSelectedYear(defaultYear);
+            }
         }
-    }, [latestYear, selectedYear]);
+    }, [latestYear, selectedYear, availableYears]);
 
     // Get metric value from country data
     const getMetricValue = (countryData: any, metric: Metric): number | null => {

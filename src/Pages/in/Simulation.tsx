@@ -6,6 +6,7 @@ import { FeedbackModal } from "../../components/modals/FeedbackModal";
 import { useAnalyzePolicyMutation, useSimulateScenarioMutation } from "../../appSlices/apiSlice";
 import { useGetAvailableCountriesQuery } from "../../appSlices/apiSlice";
 import * as d3 from "d3";
+import { calculateYearTicks } from "../../utils/chartUtils";
 
 // Scenario Builder Interfaces
 interface ScenarioParameters {
@@ -619,9 +620,13 @@ export const Simulation = () => {
                 .ease(d3.easeCubicInOut)
                 .attr("stroke-dashoffset", 0);
 
+            // Calculate year ticks
+            const years = timeSeries.map((d: any) => d.year);
+            const { tickValues } = calculateYearTicks(years);
+            
             const xAxis = g.append("g")
                 .attr("transform", `translate(0,${chartHeight})`)
-                .call(d3.axisBottom(x).tickFormat(d3.format("d")));
+                .call(d3.axisBottom(x).tickValues(tickValues).tickFormat(d3.format("d")));
 
             xAxis.selectAll("text")
                 .style("text-anchor", "end")
@@ -719,9 +724,13 @@ export const Simulation = () => {
                 .ease(d3.easeCubicInOut)
                 .attr("stroke-dashoffset", 0);
 
+            // Calculate year ticks
+            const years = timeSeries.map((d: any) => d.year);
+            const { tickValues } = calculateYearTicks(years);
+            
             const xAxis = g.append("g")
                 .attr("transform", `translate(0,${chartHeight})`)
-                .call(d3.axisBottom(x).tickFormat(d3.format("d")));
+                .call(d3.axisBottom(x).tickValues(tickValues).tickFormat(d3.format("d")));
 
             xAxis.selectAll("text")
                 .style("text-anchor", "end")
@@ -796,9 +805,13 @@ export const Simulation = () => {
                 .ease(d3.easeCubicInOut)
                 .attr("stroke-dashoffset", 0);
 
+            // Calculate year ticks
+            const years = timeSeries.map((d: any) => d.year);
+            const { tickValues } = calculateYearTicks(years);
+            
             const xAxis = g.append("g")
                 .attr("transform", `translate(0,${chartHeight})`)
-                .call(d3.axisBottom(x).tickFormat(d3.format("d")));
+                .call(d3.axisBottom(x).tickValues(tickValues).tickFormat(d3.format("d")));
 
             xAxis.selectAll("text")
                 .style("text-anchor", "end")
@@ -900,9 +913,13 @@ export const Simulation = () => {
                 .ease(d3.easeCubicInOut)
                 .attr("stroke-dashoffset", 0);
 
+            // Calculate year ticks
+            const years = timeSeries.map((d: any) => d.year);
+            const { tickValues } = calculateYearTicks(years);
+            
             const xAxis = g.append("g")
                 .attr("transform", `translate(0,${chartHeight})`)
-                .call(d3.axisBottom(x).tickFormat(d3.format("d")));
+                .call(d3.axisBottom(x).tickValues(tickValues).tickFormat(d3.format("d")));
 
             xAxis.selectAll("text")
                 .style("text-anchor", "end")
@@ -1033,9 +1050,13 @@ export const Simulation = () => {
                 .ease(d3.easeCubicInOut)
                 .attr("stroke-dashoffset", 0);
 
+            // Calculate year ticks
+            const years = timeSeries.map((d: any) => d.year);
+            const { tickValues } = calculateYearTicks(years);
+            
             const xAxis = g.append("g")
                 .attr("transform", `translate(0,${chartHeight})`)
-                .call(d3.axisBottom(x).tickFormat(d3.format("d")));
+                .call(d3.axisBottom(x).tickValues(tickValues).tickFormat(d3.format("d")));
 
             xAxis.selectAll("text")
                 .style("text-anchor", "end")
@@ -1166,9 +1187,13 @@ export const Simulation = () => {
                 .ease(d3.easeCubicInOut)
                 .attr("stroke-dashoffset", 0);
 
+            // Calculate year ticks
+            const years = timeSeries.map((d: any) => d.year);
+            const { tickValues } = calculateYearTicks(years);
+            
             const xAxis = g.append("g")
                 .attr("transform", `translate(0,${chartHeight})`)
-                .call(d3.axisBottom(x).tickFormat(d3.format("d")));
+                .call(d3.axisBottom(x).tickValues(tickValues).tickFormat(d3.format("d")));
 
             xAxis.selectAll("text")
                 .style("text-anchor", "end")

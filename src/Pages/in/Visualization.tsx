@@ -12,6 +12,7 @@ import { MetricCard } from "../../components/cards/MetricCard";
 import { ChartCard } from "../../components/cards/ChartCard";
 import { FilterField } from "../../components/inputs/FilterField";
 import * as d3 from "d3";
+import { calculateYearTicks } from "../../utils/chartUtils";
 
 type ViewMode = "yearly" | "hourly";
 type DataMode = "historical" | "realtime";
@@ -77,7 +78,7 @@ export const Visualization = () => {
         {
             country: selectedCountry,
             start_year: getStartYear(),
-            end_year: selectedYear || 2024,
+            end_year: selectedYear || 2023,
             selected_year: selectedYear || undefined
         },
         { skip: !selectedCountry || !selectedYear || viewMode !== "yearly" || dataMode !== "historical" }
@@ -92,7 +93,7 @@ export const Visualization = () => {
         {
             country: selectedCountry,
             start_year: getStartYear(),
-            end_year: selectedYear || 2024,
+            end_year: selectedYear || 2023,
             selected_year: selectedYear || undefined
         },
         {
@@ -652,10 +653,14 @@ const YearlyCharts = ({ data }: { data: any }) => {
                 .ease(d3.easeCubicInOut)
                 .attr("stroke-dashoffset", 0);
 
+            // Calculate year ticks
+            const years = timeSeries.map((d: any) => d.year);
+            const { tickValues } = calculateYearTicks(years);
+            
             // X-axis with rotated labels
             const xAxis = g.append("g")
                 .attr("transform", `translate(0,${chartHeight})`)
-                .call(d3.axisBottom(x).tickFormat(d3.format("d")));
+                .call(d3.axisBottom(x).tickValues(tickValues).tickFormat(d3.format("d")));
 
             xAxis.selectAll("text")
                 .style("text-anchor", "end")
@@ -764,10 +769,14 @@ const YearlyCharts = ({ data }: { data: any }) => {
                 .ease(d3.easeCubicInOut)
                 .attr("stroke-dashoffset", 0);
 
+            // Calculate year ticks
+            const years = timeSeries.map((d: any) => d.year);
+            const { tickValues } = calculateYearTicks(years);
+            
             // X-axis with rotated labels
             const xAxis = g.append("g")
                 .attr("transform", `translate(0,${chartHeight})`)
-                .call(d3.axisBottom(x).tickFormat(d3.format("d")));
+                .call(d3.axisBottom(x).tickValues(tickValues).tickFormat(d3.format("d")));
 
             xAxis.selectAll("text")
                 .style("text-anchor", "end")
@@ -845,10 +854,14 @@ const YearlyCharts = ({ data }: { data: any }) => {
                 .ease(d3.easeCubicInOut)
                 .attr("fill-opacity", 0.6);
 
+            // Calculate year ticks
+            const years = timeSeries.map((d: any) => d.year);
+            const { tickValues } = calculateYearTicks(years);
+            
             // X-axis with rotated labels
             const xAxis = g.append("g")
                 .attr("transform", `translate(0,${chartHeight})`)
-                .call(d3.axisBottom(x).tickFormat(d3.format("d")));
+                .call(d3.axisBottom(x).tickValues(tickValues).tickFormat(d3.format("d")));
 
             xAxis.selectAll("text")
                 .style("text-anchor", "end")
@@ -900,8 +913,13 @@ const YearlyCharts = ({ data }: { data: any }) => {
 
             const g = svg.append("g").attr("transform", `translate(${margin.left},${margin.top})`);
 
-            // Get unique years to avoid duplicates
-            const uniqueYears = Array.from(new Set(timeSeries.map((d: any) => d.year))).sort((a: any, b: any) => (a as number) - (b as number));
+            // Filter to most recent 16 years and calculate tick values
+            const allYears = timeSeries.map((d: any) => d.year);
+            const { tickValues } = calculateYearTicks(allYears);
+            
+            // Filter time series to only show years in tickValues (max 16)
+            const filteredTimeSeries = timeSeries.filter((d: any) => tickValues.includes(d.year));
+            const uniqueYears = tickValues;
 
             const x = d3.scaleBand()
                 .domain(uniqueYears.map((yr: any) => yr.toString()))
@@ -912,7 +930,7 @@ const YearlyCharts = ({ data }: { data: any }) => {
                 .domain([0, 100])
                 .range([chartHeight, 0]);
 
-            timeSeries.forEach((d: any, i: number) => {
+            filteredTimeSeries.forEach((d: any, i: number) => {
                 const clean = d.clean_cooking_access || 0;
                 const traditional = 100 - clean;
 
@@ -969,7 +987,7 @@ const YearlyCharts = ({ data }: { data: any }) => {
             // X-axis with rotated labels (full year)
             const xAxis = g.append("g")
                 .attr("transform", `translate(0,${chartHeight})`)
-                .call(d3.axisBottom(x));
+                .call(d3.axisBottom(x).tickValues(uniqueYears.map((y: any) => y.toString())));
 
             xAxis.selectAll("text")
                 .style("text-anchor", "end")
@@ -996,8 +1014,13 @@ const YearlyCharts = ({ data }: { data: any }) => {
 
             const g = svg.append("g").attr("transform", `translate(${margin.left},${margin.top})`);
 
-            // Get unique years to avoid duplicates
-            const uniqueYears = Array.from(new Set(timeSeries.map((d: any) => d.year))).sort((a: any, b: any) => (a as number) - (b as number));
+            // Filter to most recent 16 years and calculate tick values
+            const allYears = timeSeries.map((d: any) => d.year);
+            const { tickValues } = calculateYearTicks(allYears);
+            
+            // Filter time series to only show years in tickValues (max 16)
+            const filteredTimeSeries = timeSeries.filter((d: any) => tickValues.includes(d.year));
+            const uniqueYears = tickValues;
 
             const x = d3.scaleBand()
                 .domain(uniqueYears.map((yr: any) => yr.toString()))
@@ -1008,7 +1031,7 @@ const YearlyCharts = ({ data }: { data: any }) => {
                 .domain([0, 100])
                 .range([chartHeight, 0]);
 
-            timeSeries.forEach((d: any, i: number) => {
+            filteredTimeSeries.forEach((d: any, i: number) => {
                 g.append("rect")
                     .attr("x", x(d.year.toString()) || 0)
                     .attr("y", chartHeight)
@@ -1038,7 +1061,7 @@ const YearlyCharts = ({ data }: { data: any }) => {
             // X-axis with rotated labels (full year)
             const xAxis = g.append("g")
                 .attr("transform", `translate(0,${chartHeight})`)
-                .call(d3.axisBottom(x));
+                .call(d3.axisBottom(x).tickValues(uniqueYears.map((y: any) => y.toString())));
 
             xAxis.selectAll("text")
                 .style("text-anchor", "end")
@@ -1126,10 +1149,14 @@ const YearlyCharts = ({ data }: { data: any }) => {
                 .ease(d3.easeCubicInOut)
                 .attr("stroke-dashoffset", 0);
 
+            // Calculate year ticks
+            const years = timeSeries.map((d: any) => d.year);
+            const { tickValues } = calculateYearTicks(years);
+            
             // X-axis with rotated labels
             const xAxis = g.append("g")
                 .attr("transform", `translate(0,${chartHeight})`)
-                .call(d3.axisBottom(x).tickFormat(d3.format("d")));
+                .call(d3.axisBottom(x).tickValues(tickValues).tickFormat(d3.format("d")));
 
             xAxis.selectAll("text")
                 .style("text-anchor", "end")
@@ -1272,10 +1299,14 @@ const YearlyCharts = ({ data }: { data: any }) => {
                 .ease(d3.easeCubicInOut)
                 .attr("stroke-dashoffset", 0);
 
+            // Calculate year ticks
+            const years = timeSeries.map((d: any) => d.year);
+            const { tickValues } = calculateYearTicks(years);
+            
             // X-axis with rotated labels
             const xAxis = g.append("g")
                 .attr("transform", `translate(0,${chartHeight})`)
-                .call(d3.axisBottom(x).tickFormat(d3.format("d")));
+                .call(d3.axisBottom(x).tickValues(tickValues).tickFormat(d3.format("d")));
 
             xAxis.selectAll("text")
                 .style("text-anchor", "end")
@@ -1418,10 +1449,14 @@ const YearlyCharts = ({ data }: { data: any }) => {
                 .ease(d3.easeCubicInOut)
                 .attr("stroke-dashoffset", 0);
 
+            // Calculate year ticks
+            const years = timeSeries.map((d: any) => d.year);
+            const { tickValues } = calculateYearTicks(years);
+            
             // X-axis with rotated labels
             const xAxis = g.append("g")
                 .attr("transform", `translate(0,${chartHeight})`)
-                .call(d3.axisBottom(x).tickFormat(d3.format("d")));
+                .call(d3.axisBottom(x).tickValues(tickValues).tickFormat(d3.format("d")));
 
             xAxis.selectAll("text")
                 .style("text-anchor", "end")

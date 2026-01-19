@@ -1,4 +1,4 @@
-import { createBrowserRouter } from "react-router-dom";
+import { createBrowserRouter, Navigate } from "react-router-dom";
 import Home from "./Pages/in/home";
 import InLayout from "./Pages/in/InLayout";
 import NotFoundIn from "./Pages/in/NotFound";
@@ -11,7 +11,7 @@ import { Simulation } from "./Pages/in/Simulation";
 export const routes = createBrowserRouter([
   {
     path: "/",
-    element: <Home />,
+    element: <Navigate to="/in" replace />,
   },
   {
     path: "/in",

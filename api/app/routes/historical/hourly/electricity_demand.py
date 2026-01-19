@@ -1,6 +1,7 @@
 from flask import Blueprint, request, jsonify, send_file
 from app.services.historical.hourly.electricity_demand import HourlyElectricityDemandService
 from app.utils.validators import validate_country, validate_year
+from app.utils.config import Config
 
 hourly_electricity_demand_bp = Blueprint('hourly_electricity_demand', __name__)
 service = HourlyElectricityDemandService()
@@ -55,6 +56,21 @@ def get_hourly_electricity_demand():
             }), 400
         
         if date:
+            # Validate date is not beyond YEAR_FILTER_LIMIT
+            try:
+                from datetime import datetime
+                date_obj = datetime.strptime(date, '%Y-%m-%d')
+                if date_obj.year > Config.YEAR_FILTER_LIMIT:
+                    return jsonify({
+                        'success': False,
+                        'error': f'Date must be in year {Config.YEAR_FILTER_LIMIT} or earlier'
+                    }), 400
+            except ValueError:
+                return jsonify({
+                    'success': False,
+                    'error': 'Invalid date format. Use YYYY-MM-DD'
+                }), 400
+            
             # Specific date request
             if format_type == 'csv':
                 # Return CSV file for date
@@ -84,6 +100,9 @@ def get_hourly_electricity_demand():
         else:
             # Year request
             year = validate_year(year)
+            # Cap year by YEAR_FILTER_LIMIT
+            if year > Config.YEAR_FILTER_LIMIT:
+                year = Config.YEAR_FILTER_LIMIT
             
             if format_type == 'csv':
                 # Return CSV file for year

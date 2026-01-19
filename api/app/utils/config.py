@@ -14,6 +14,12 @@ class Config:
     NLP_BACKEND = os.environ.get('NLP_BACKEND', 'spacy')  # Options: spacy, openai, anthropic, huggingface
     NLP_MODEL_NAME = os.environ.get('NLP_MODEL_NAME', 'en_core_web_trf')  # spaCy model name
     
+    # ML Forecasting Configuration
+    USE_ML_FORECASTING = os.environ.get('USE_ML_FORECASTING', 'true').lower() == 'true'  # Default: enabled (hybrid approach)
+    
+    # Year Filter Limit - Maximum year that can be selected in filters (to avoid incomplete data)
+    YEAR_FILTER_LIMIT = int(os.environ.get('YEAR_FILTER_LIMIT', '2023'))  # Default: 2023
+    
     # Data paths
     BASE_DIR = os.path.dirname(os.path.dirname(__file__))  # /api/app
     DATA_DIR = os.path.join(BASE_DIR, '../data')           # /api/data

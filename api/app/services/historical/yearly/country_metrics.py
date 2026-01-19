@@ -38,9 +38,15 @@ class CountryMetricsService:
         if country_data.empty:
             return None
         
-        # Use latest year if not specified
+        # Use latest year if not specified, but cap by YEAR_FILTER_LIMIT
         if year is None:
-            year = int(country_data['year'].max())
+            year = min(int(country_data['year'].max()), Config.YEAR_FILTER_LIMIT)
+        else:
+            # Cap year by YEAR_FILTER_LIMIT
+            year = min(year, Config.YEAR_FILTER_LIMIT)
+        
+        # Also filter country_data to not exceed YEAR_FILTER_LIMIT
+        country_data = country_data[country_data['year'] <= Config.YEAR_FILTER_LIMIT]
         
         year_data = country_data[country_data['year'] == year]
         
@@ -71,11 +77,20 @@ class CountryMetricsService:
         if country_data.empty:
             return None
         
+        # Cap year parameters by YEAR_FILTER_LIMIT
+        if end_year and end_year > Config.YEAR_FILTER_LIMIT:
+            end_year = Config.YEAR_FILTER_LIMIT
+        if selected_year and selected_year > Config.YEAR_FILTER_LIMIT:
+            selected_year = Config.YEAR_FILTER_LIMIT
+        
         # Filter by year range if provided
         if start_year:
             country_data = country_data[country_data['year'] >= start_year]
         if end_year:
             country_data = country_data[country_data['year'] <= end_year]
+        
+        # Also filter out any years beyond YEAR_FILTER_LIMIT
+        country_data = country_data[country_data['year'] <= Config.YEAR_FILTER_LIMIT]
         
         if country_data.empty:
             return None
@@ -84,12 +99,12 @@ class CountryMetricsService:
         if selected_year:
             year_for_key_figures = selected_year
         else:
-            year_for_key_figures = int(country_data['year'].max())
+            year_for_key_figures = min(int(country_data['year'].max()), Config.YEAR_FILTER_LIMIT)
         
         year_data = country_data[country_data['year'] == year_for_key_figures]
         if year_data.empty:
-            # Fallback to latest year if selected year not found
-            year_for_key_figures = int(country_data['year'].max())
+            # Fallback to latest year if selected year not found, but cap by YEAR_FILTER_LIMIT
+            year_for_key_figures = min(int(country_data['year'].max()), Config.YEAR_FILTER_LIMIT)
             year_data = country_data[country_data['year'] == year_for_key_figures]
         
         if year_data.empty:
@@ -147,16 +162,20 @@ class CountryMetricsService:
     
     @cache.memoize(timeout=3600)
     def get_available_years(self) -> List[int]:
-        """Get list of available years in the dataset"""
+        """Get list of available years in the dataset, capped by YEAR_FILTER_LIMIT"""
         df = self._load_yearly_data()
         years = sorted(df['year'].unique().tolist())
-        return [int(year) for year in years]
+        # Filter years to not exceed YEAR_FILTER_LIMIT
+        filtered_years = [int(year) for year in years if int(year) <= Config.YEAR_FILTER_LIMIT]
+        return filtered_years
     
     @cache.memoize(timeout=3600)
     def get_latest_year(self) -> int:
-        """Get the latest year available in the dataset"""
+        """Get the latest year available in the dataset, capped by YEAR_FILTER_LIMIT"""
         df = self._load_yearly_data()
-        return int(df['year'].max())
+        max_year = int(df['year'].max())
+        # Return the minimum of max_year and YEAR_FILTER_LIMIT
+        return min(max_year, Config.YEAR_FILTER_LIMIT)
     
     @cache.memoize(timeout=3600)
     def get_all_countries_energy_poverty(self, year: Optional[int] = None) -> Dict[str, Optional[float]]:
@@ -166,9 +185,15 @@ class CountryMetricsService:
         """
         df = self._load_yearly_data()
         
-        # Use latest year if not specified
+        # Filter data to not exceed YEAR_FILTER_LIMIT
+        df = df[df['year'] <= Config.YEAR_FILTER_LIMIT]
+        
+        # Use latest year if not specified, but cap by YEAR_FILTER_LIMIT
         if year is None:
-            year = int(df['year'].max())
+            year = min(int(df['year'].max()), Config.YEAR_FILTER_LIMIT)
+        else:
+            # Cap year by YEAR_FILTER_LIMIT
+            year = min(year, Config.YEAR_FILTER_LIMIT)
         
         year_data = df[df['year'] == year].copy()
         

@@ -133,9 +133,12 @@ class HourlyElectricityDemandService:
         return sorted(countries)
     
     def get_available_years(self, country: str) -> List[int]:
-        """Get list of available years for a country"""
+        """Get list of available years for a country, capped by YEAR_FILTER_LIMIT"""
         try:
             df = self._load_country_data(country)
-            return sorted(df['datetime'].dt.year.unique().tolist())
+            years = sorted(df['datetime'].dt.year.unique().tolist())
+            # Filter years to not exceed YEAR_FILTER_LIMIT
+            filtered_years = [int(year) for year in years if int(year) <= Config.YEAR_FILTER_LIMIT]
+            return filtered_years
         except FileNotFoundError:
             return []

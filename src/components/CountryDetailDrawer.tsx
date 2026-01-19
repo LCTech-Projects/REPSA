@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { apiSlice } from "../appSlices/apiSlice";
 import { useAppDispatch } from "../app/hooks";
 import * as d3 from "d3";
+import { calculateYearTicks } from "../utils/chartUtils";
 
 interface CountryDetailDrawerProps {
     countryName: string;
@@ -78,7 +79,7 @@ export const CountryDetailDrawer = ({ countryName, onClose, selectedYear }: Coun
     useEffect(() => {
         setLoading(true);
         const startYear = getStartYear();
-        const endYear = selectedYear || 2024;
+        const endYear = selectedYear || 2023;
         
         dispatch(apiSlice.endpoints.getCountryDetails.initiate({ 
             country: countryName,
@@ -237,10 +238,14 @@ export const CountryDetailDrawer = ({ countryName, onClose, selectedYear }: Coun
                 .ease(d3.easeCubicInOut)
                 .attr("stroke-dashoffset", 0);
 
+            // Calculate year ticks
+            const years = details.time_series.map(d => d.year);
+            const { tickValues } = calculateYearTicks(years);
+            
             // X-axis with rotated labels
             const xAxis = g.append("g")
                 .attr("transform", `translate(0,${chartHeight})`)
-                .call(d3.axisBottom(x).tickFormat(d3.format("d")));
+                .call(d3.axisBottom(x).tickValues(tickValues).tickFormat(d3.format("d")));
 
             xAxis.selectAll("text")
                 .style("text-anchor", "end")
@@ -346,10 +351,14 @@ export const CountryDetailDrawer = ({ countryName, onClose, selectedYear }: Coun
                 .ease(d3.easeCubicInOut)
                 .attr("stroke-dashoffset", 0);
 
+            // Calculate year ticks
+            const years = details.time_series.map(d => d.year);
+            const { tickValues } = calculateYearTicks(years);
+            
             // X-axis with rotated labels
             const xAxis = g.append("g")
                 .attr("transform", `translate(0,${chartHeight})`)
-                .call(d3.axisBottom(x).tickFormat(d3.format("d")));
+                .call(d3.axisBottom(x).tickValues(tickValues).tickFormat(d3.format("d")));
 
             xAxis.selectAll("text")
                 .style("text-anchor", "end")
@@ -424,10 +433,14 @@ export const CountryDetailDrawer = ({ countryName, onClose, selectedYear }: Coun
                 .ease(d3.easeCubicInOut)
                 .attr("fill-opacity", 0.6);
 
+            // Calculate year ticks
+            const years = details.time_series.map(d => d.year);
+            const { tickValues } = calculateYearTicks(years);
+            
             // X-axis with rotated labels
             const xAxis = g.append("g")
                 .attr("transform", `translate(0,${chartHeight})`)
-                .call(d3.axisBottom(x).tickFormat(d3.format("d")));
+                .call(d3.axisBottom(x).tickValues(tickValues).tickFormat(d3.format("d")));
 
             xAxis.selectAll("text")
                 .style("text-anchor", "end")
@@ -479,8 +492,13 @@ export const CountryDetailDrawer = ({ countryName, onClose, selectedYear }: Coun
 
             const g = svg.append("g").attr("transform", `translate(${margin.left},${margin.top})`);
 
-            // Get unique years to avoid duplicates
-            const uniqueYears = Array.from(new Set(details.time_series.map(d => d.year))).sort((a, b) => a - b);
+            // Filter to most recent 16 years and calculate tick values
+            const allYears = details.time_series.map(d => d.year);
+            const { tickValues } = calculateYearTicks(allYears);
+            
+            // Filter time series to only show years in tickValues (max 16)
+            const filteredTimeSeries = details.time_series.filter(d => tickValues.includes(d.year));
+            const uniqueYears = tickValues;
             
             const x = d3.scaleBand()
                 .domain(uniqueYears.map(y => y.toString()))
@@ -491,7 +509,7 @@ export const CountryDetailDrawer = ({ countryName, onClose, selectedYear }: Coun
                 .domain([0, 100])
                 .range([chartHeight, 0]);
 
-            details.time_series.forEach((d, i) => {
+            filteredTimeSeries.forEach((d, i) => {
                 const clean = d.clean_cooking_access || 0;
                 const traditional = 100 - clean;
 
@@ -548,7 +566,7 @@ export const CountryDetailDrawer = ({ countryName, onClose, selectedYear }: Coun
             // X-axis with rotated labels (full year)
             const xAxis = g.append("g")
                 .attr("transform", `translate(0,${chartHeight})`)
-                .call(d3.axisBottom(x));
+                .call(d3.axisBottom(x).tickValues(uniqueYears.map(y => y.toString())));
 
             xAxis.selectAll("text")
                 .style("text-anchor", "end")
@@ -575,8 +593,12 @@ export const CountryDetailDrawer = ({ countryName, onClose, selectedYear }: Coun
 
             const g = svg.append("g").attr("transform", `translate(${margin.left},${margin.top})`);
 
-            // Get unique years to avoid duplicates
-            const uniqueYears = Array.from(new Set(details.time_series.map(d => d.year))).sort((a, b) => a - b);
+            // Get unique years and calculate tick values
+            const allYears = details.time_series.map(d => d.year);
+            const { tickValues } = calculateYearTicks(allYears);
+            
+            // Limit displayed years to tick values (max 16)
+            const uniqueYears = tickValues;
             
             const x = d3.scaleBand()
                 .domain(uniqueYears.map(y => y.toString()))
@@ -617,7 +639,7 @@ export const CountryDetailDrawer = ({ countryName, onClose, selectedYear }: Coun
             // X-axis with rotated labels (full year)
             const xAxis = g.append("g")
                 .attr("transform", `translate(0,${chartHeight})`)
-                .call(d3.axisBottom(x));
+                .call(d3.axisBottom(x).tickValues(uniqueYears.map(y => y.toString())));
 
             xAxis.selectAll("text")
                 .style("text-anchor", "end")
@@ -702,10 +724,14 @@ export const CountryDetailDrawer = ({ countryName, onClose, selectedYear }: Coun
                 .ease(d3.easeCubicInOut)
                 .attr("stroke-dashoffset", 0);
 
+            // Calculate year ticks
+            const years = details.time_series.map(d => d.year);
+            const { tickValues } = calculateYearTicks(years);
+            
             // X-axis with rotated labels
             const xAxis = g.append("g")
                 .attr("transform", `translate(0,${chartHeight})`)
-                .call(d3.axisBottom(x).tickFormat(d3.format("d")));
+                .call(d3.axisBottom(x).tickValues(tickValues).tickFormat(d3.format("d")));
 
             xAxis.selectAll("text")
                 .style("text-anchor", "end")
@@ -845,10 +871,14 @@ export const CountryDetailDrawer = ({ countryName, onClose, selectedYear }: Coun
                 .ease(d3.easeCubicInOut)
                 .attr("stroke-dashoffset", 0);
 
+            // Calculate year ticks
+            const years = details.time_series.map(d => d.year);
+            const { tickValues } = calculateYearTicks(years);
+            
             // X-axis with rotated labels
             const xAxis = g.append("g")
                 .attr("transform", `translate(0,${chartHeight})`)
-                .call(d3.axisBottom(x).tickFormat(d3.format("d")));
+                .call(d3.axisBottom(x).tickValues(tickValues).tickFormat(d3.format("d")));
 
             xAxis.selectAll("text")
                 .style("text-anchor", "end")
@@ -988,10 +1018,14 @@ export const CountryDetailDrawer = ({ countryName, onClose, selectedYear }: Coun
                 .ease(d3.easeCubicInOut)
                 .attr("stroke-dashoffset", 0);
 
+            // Calculate year ticks
+            const years = details.time_series.map(d => d.year);
+            const { tickValues } = calculateYearTicks(years);
+            
             // X-axis with rotated labels
             const xAxis = g.append("g")
                 .attr("transform", `translate(0,${chartHeight})`)
-                .call(d3.axisBottom(x).tickFormat(d3.format("d")));
+                .call(d3.axisBottom(x).tickValues(tickValues).tickFormat(d3.format("d")));
 
             xAxis.selectAll("text")
                 .style("text-anchor", "end")

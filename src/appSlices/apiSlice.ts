@@ -5,7 +5,7 @@ export const apiSlice = createApi({
   reducerPath: "api",
   refetchOnReconnect: true,
   baseQuery: fetchBaseQuery({
-    baseUrl: "http://127.0.0.1:5000",
+    baseUrl: import.meta.env.VITE_API_URL || "http://127.0.0.1:5000",
     prepareHeaders: (headers) => {
         const token="d7f2868e499d27fffb975b1089c667e3c1cd5336"
         headers.set("Authorization", `Bearer ${token}`);
