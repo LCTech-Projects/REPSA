@@ -1,24 +1,32 @@
 from flask import Blueprint, request, jsonify
-from app.services.realtime.scraper import RealtimeDataScraper
+from app.services.realtime.aggregator import RealtimeAggregator
 from app.utils.validators import validate_country
 
 realtime_bp = Blueprint('realtime', __name__)
-scraper = RealtimeDataScraper()
+aggregator = RealtimeAggregator()
 
 @realtime_bp.route('/realtime-data', methods=['GET'])
 def get_realtime_data():
     """
-    Get realtime energy data for a country
+    Get realtime energy data estimates for a country using statistical aggregation.
+    
+    This endpoint analyzes historical trends from authoritative sources
+    and projects current estimates using statistical methods.
+    
+    Authoritative Sources:
+    - World Bank Open Data: Population, electricity access, energy poverty metrics
+    - Our World in Data (OWID): Historical energy and electricity statistics
+    - Electricity Maps: Grid data and electricity generation information
+    - ESKOM (South Africa): Hourly electricity demand data for ML model training
+    
     Query parameters:
     - country (required): Country name
-    - sources (optional): Comma-separated list of sources (worldometer, renewables, electricitymaps)
     
     Returns:
-    - JSON response with realtime data from specified sources
+    - JSON response with projected current values, live counters, and methodology
     """
     try:
         country = request.args.get('country')
-        sources_param = request.args.get('sources', 'worldometer,renewables,electricitymaps')
         
         if not country:
             return jsonify({
@@ -28,11 +36,15 @@ def get_realtime_data():
         
         country = validate_country(country)
         
-        # Parse sources
-        sources = [s.strip() for s in sources_param.split(',')]
+        # Get realtime estimates using statistical aggregation
+        data = aggregator.get_realtime_estimates(country)
         
-        # Get realtime data
-        data = scraper.get_realtime_data(country, sources)
+        # Check if there was an error
+        if 'error' in data:
+            return jsonify({
+                'success': False,
+                'error': data['error']
+            }), 404
         
         return jsonify({
             'success': True,

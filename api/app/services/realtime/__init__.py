@@ -1,4 +1,4 @@
-from .scraper import RealtimeDataScraper
+from .aggregator import RealtimeAggregator
 
-__all__ = ['RealtimeDataScraper']
+__all__ = ['RealtimeAggregator']
 

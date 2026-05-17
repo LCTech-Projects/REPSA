@@ -1,0 +1,11 @@
+{
+  "pythonVersion": "3.12",
+  "pythonPlatform": "Windows",
+  "executionEnvironments": [
+    {
+      "root": "api",
+      "pythonVersion": "3.12",
+      "extraPaths": ["api"]
+    }
+  ]
+}

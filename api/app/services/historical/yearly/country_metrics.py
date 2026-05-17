@@ -1,14 +1,37 @@
 import pandas as pd
 import os
+import re
+import unicodedata
 from typing import Dict, Any, Optional, List
 from app.utils.config import Config
 from app.utils.cache import cache
+from app.utils.per_capita_units import yearly_per_capita_mwh
 
 class CountryMetricsService:
     def __init__(self):
         self.data_dir = Config.DATA_DIR
         self.yearly_data_path = os.path.join(self.data_dir, 'historical', 'yearly_historical_data.csv')
     
+    @staticmethod
+    def _normalize_name(value: str) -> str:
+        text = unicodedata.normalize('NFKD', str(value))
+        text = text.encode('ascii', 'ignore').decode('ascii').lower().strip()
+        text = re.sub(r"[^a-z0-9]+", " ", text)
+        text = " ".join(text.split())
+        aliases = {
+            "ivory coast": "cote d ivoire",
+            "cote divoire": "cote d ivoire",
+            "cabo verde": "cape verde",
+            "dr congo": "democratic republic of the congo",
+            "congo dem rep": "democratic republic of the congo",
+            "congo rep": "congo",
+            "republic of the congo": "congo",
+            "gambia the": "gambia",
+            "the gambia": "gambia",
+            "swaziland": "eswatini",
+        }
+        return aliases.get(text, text)
+
     def _load_yearly_data(self) -> pd.DataFrame:
         """Load the yearly historical data CSV"""
         if not os.path.exists(self.yearly_data_path):
@@ -18,8 +41,8 @@ class CountryMetricsService:
     
     def _normalize_country_name(self, df: pd.DataFrame, country: str) -> pd.DataFrame:
         """Normalize country name for matching"""
-        country_normalized = country.lower().strip()
-        df['country_normalized'] = df['country'].str.lower().str.strip()
+        country_normalized = self._normalize_name(country)
+        df['country_normalized'] = df['country'].apply(self._normalize_name)
         filtered = df[df['country_normalized'] == country_normalized].copy()
         filtered = filtered.drop('country_normalized', axis=1)
         return filtered
@@ -122,8 +145,8 @@ class CountryMetricsService:
                 'year': int(row['year']),
                 'electricity_demand': float(row['electricity_demand (TWh)']) if pd.notna(row.get('electricity_demand (TWh)')) else None,
                 'electricity_generation': float(row['electricity_generation (TWh)']) if pd.notna(row.get('electricity_generation (TWh)')) else None,
-                'electricity_demand_per_capita': float(row['electricity_demand_per_capita (kWh)']) if pd.notna(row.get('electricity_demand_per_capita (kWh)')) else None,
-                'electricity_demand_per_capita_with_access': float(row['electricity_demand_per_capita_with_access (kWh)']) if pd.notna(row.get('electricity_demand_per_capita_with_access (kWh)')) else None,
+                'electricity_demand_per_capita': yearly_per_capita_mwh(row, with_access=False),
+                'electricity_demand_per_capita_with_access': yearly_per_capita_mwh(row, with_access=True),
                 'population': float(row['population']) if pd.notna(row.get('population')) else None,
                 'clean_cooking_access': float(row['Access to Clean Fuels and Technologies for cooking (% of total population)']) if pd.notna(row.get('Access to Clean Fuels and Technologies for cooking (% of total population)')) else None,
                 'energy_poverty': float(row['energy_poverty_electricity (% of total population)']) if pd.notna(row.get('energy_poverty_electricity (% of total population)')) else None,
@@ -207,4 +230,11 @@ class CountryMetricsService:
             result[country_name] = float(energy_poverty) if pd.notna(energy_poverty) else None
         
         return result
+
+    @cache.memoize(timeout=3600)
+    def get_available_countries(self) -> List[str]:
+        """Get list of available countries from yearly historical data"""
+        df = self._load_yearly_data()
+        countries = sorted(df['country'].unique().tolist())
+        return countries
 

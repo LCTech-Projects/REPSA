@@ -169,3 +169,18 @@ def get_all_countries_energy_poverty():
     except Exception as e:
         return jsonify({'success': False, 'error': 'Internal server error'}), 500
 
+@country_metrics_bp.route('/available-countries', methods=['GET'])
+def get_available_countries():
+    """Get list of available countries from yearly historical data"""
+    try:
+        countries = service.get_available_countries()
+        return jsonify({
+            'success': True,
+            'data': countries,
+            'metadata': {
+                'total_countries': len(countries)
+            }
+        })
+    except Exception as e:
+        return jsonify({'success': False, 'error': 'Internal server error'}), 500
+

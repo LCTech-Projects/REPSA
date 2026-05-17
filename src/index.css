@@ -7,8 +7,10 @@
 
   --color-white-1: #FFFFFF;
   --color-blue-1: #1E3A8A;
+  --color-blue-2: #122354;
   --color-yellow-1: #FFD43B;
   --color-black-1: #212121;
+  --color-auth-heading: #191919;
   --color-black-2: #332800;
   --color-black-3: #4C4C4C;
   --color-black-4: #CCCCCC;
@@ -23,6 +25,14 @@
     margin: 0;
     padding: 0;
     box-sizing: border-box;
+  }
+
+  button:not(:disabled) {
+    cursor: pointer;
+  }
+
+  button:disabled {
+    cursor: not-allowed;
   }
 }
 

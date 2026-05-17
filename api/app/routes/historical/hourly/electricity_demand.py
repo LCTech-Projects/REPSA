@@ -159,15 +159,32 @@ def get_available_years(country):
         years = service.get_available_years(country)
         return jsonify({
             'success': True,
-            'data': years,
+            'data': {
+                'years': years,
+                'data': years  # Also include as 'data' for backward compatibility
+            },
             'metadata': {
                 'country': country,
-                'total_years': len(years)
+                'total_years': len(years),
+                'hourly_data_available': len(years) > 0
             }
         })
     except ValueError as e:
         return jsonify({'success': False, 'error': str(e)}), 400
-    except FileNotFoundError as e:
-        return jsonify({'success': False, 'error': str(e)}), 404
+    except FileNotFoundError:
+        # Return empty years list instead of 404 when no hourly data exists
+        return jsonify({
+            'success': True,
+            'data': {
+                'years': [],
+                'data': []
+            },
+            'metadata': {
+                'country': country,
+                'total_years': 0,
+                'hourly_data_available': False,
+                'message': 'Hourly data not yet available for this country'
+            }
+        })
     except Exception as e:
         return jsonify({'success': False, 'error': 'Internal server error'}), 500

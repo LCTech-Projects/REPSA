@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import { ArrowBlueIcon } from "../Icons";
-import { useRevealAnimation } from "../../hooks/useRevealAnimation";
+import { useRevealAnimation } from "../utils/UseRevealAnimation";
 
 export const ExploreCard = ({ icon, tag, text, subtext, features, actionLabel, actionLink, extraClass }: { icon: string; tag?: string; text: string; subtext: string; features: string[]; actionLabel: string; actionLink: string; extraClass?: string }) => {
     const { ref, isVisible } = useRevealAnimation<HTMLDivElement>();

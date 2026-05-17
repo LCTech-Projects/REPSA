@@ -1,4 +1,4 @@
-import { useRevealAnimation } from "../../hooks/useRevealAnimation";
+import { useRevealAnimation } from "../utils/UseRevealAnimation";
 
 export const FeatureCard = ({ icon, text, subtext }: { icon: string; text: string; subtext: string }) => {
     const { ref, isVisible } = useRevealAnimation<HTMLDivElement>();

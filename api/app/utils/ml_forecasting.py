@@ -23,6 +23,12 @@ from sklearn.ensemble import GradientBoostingRegressor
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score, mean_absolute_percentage_error
 from app.utils.config import Config
+from app.utils.per_capita_units import (
+    YEARLY_PER_CAPITA_KWH,
+    YEARLY_PER_CAPITA_MWH,
+    YEARLY_PER_CAPITA_WITH_ACCESS_KWH,
+    YEARLY_PER_CAPITA_WITH_ACCESS_MWH,
+)
 
 
 class MLForecaster:
@@ -58,8 +64,8 @@ class MLForecaster:
             'electricity_demand (TWh)',
             'carbon_intensity_elec',
             'energy_poverty_electricity (% of total population)',
-            'electricity_demand_per_capita (kWh)',
-            'electricity_demand_per_capita_with_access (kWh)',
+            'electricity_demand_per_capita (MWh)',
+            'electricity_demand_per_capita_with_access (MWh)',
             'Access to Clean Fuels and Technologies for cooking (% of total population)'
         ]
         
@@ -69,8 +75,8 @@ class MLForecaster:
             'electricity_demand (TWh)': os.path.join(self.model_dir, 'forecast_demand.pkl'),
             'carbon_intensity_elec': os.path.join(self.model_dir, 'forecast_co2.pkl'),
             'energy_poverty_electricity (% of total population)': os.path.join(self.model_dir, 'forecast_poverty.pkl'),
-            'electricity_demand_per_capita (kWh)': os.path.join(self.model_dir, 'forecast_per_capita.pkl'),
-            'electricity_demand_per_capita_with_access (kWh)': os.path.join(self.model_dir, 'forecast_per_capita_access.pkl'),
+            'electricity_demand_per_capita (MWh)': os.path.join(self.model_dir, 'forecast_per_capita.pkl'),
+            'electricity_demand_per_capita_with_access (MWh)': os.path.join(self.model_dir, 'forecast_per_capita_access.pkl'),
             'Access to Clean Fuels and Technologies for cooking (% of total population)': os.path.join(self.model_dir, 'forecast_clean_cooking.pkl')
         }
         
@@ -82,12 +88,23 @@ class MLForecaster:
         try:
             if os.path.exists(self.data_path):
                 self.data = pd.read_csv(self.data_path)
-                print(f"✅ Loaded {len(self.data)} rows from {self.data_path}")
+                if YEARLY_PER_CAPITA_MWH not in self.data.columns and YEARLY_PER_CAPITA_KWH in self.data.columns:
+                    self.data[YEARLY_PER_CAPITA_MWH] = (
+                        pd.to_numeric(self.data[YEARLY_PER_CAPITA_KWH], errors="coerce") / 1000.0
+                    )
+                if (
+                    YEARLY_PER_CAPITA_WITH_ACCESS_MWH not in self.data.columns
+                    and YEARLY_PER_CAPITA_WITH_ACCESS_KWH in self.data.columns
+                ):
+                    self.data[YEARLY_PER_CAPITA_WITH_ACCESS_MWH] = (
+                        pd.to_numeric(self.data[YEARLY_PER_CAPITA_WITH_ACCESS_KWH], errors="coerce") / 1000.0
+                    )
+                print(f"[OK] Loaded {len(self.data)} rows from {self.data_path}")
             else:
-                print(f"⚠️  Data file not found: {self.data_path}")
+                print(f"[WARN] Data file not found: {self.data_path}")
                 self.data = pd.DataFrame()
         except Exception as e:
-            print(f"⚠️  Error loading data: {e}")
+            print(f"[WARN] Error loading data: {e}")
             self.data = pd.DataFrame()
     
     def _prepare_features(self, df: pd.DataFrame) -> pd.DataFrame:
@@ -149,7 +166,7 @@ class MLForecaster:
             Dictionary with training metrics for each model
         """
         if self.data is None or self.data.empty:
-            print("⚠️  No data available for training")
+            print("[WARN] No data available for training")
             return {}
         
         print("\n" + "="*70)
@@ -169,11 +186,11 @@ class MLForecaster:
         data_clean = self.data[valid_rows].copy()
         
         if len(features_clean) < 100:
-            print(f"⚠️  Insufficient data for training ({len(features_clean)} rows)")
+            print(f"[WARN] Insufficient data for training ({len(features_clean)} rows)")
             return {}
         
-        print(f"📊 Training on {len(features_clean)} country-year observations")
-        print(f"📊 Features: {', '.join(self.feature_columns)}")
+        print(f"[INFO] Training on {len(features_clean)} country-year observations")
+        print(f"[INFO] Features: {', '.join(self.feature_columns)}")
         
         X = features_clean[self.feature_columns].values
         metrics = {}
@@ -181,7 +198,7 @@ class MLForecaster:
         # Train a model for each target variable
         for target_col in self.target_columns:
             if target_col not in data_clean.columns:
-                print(f"⚠️  Skipping {target_col}: column not found")
+                print(f"[WARN] Skipping {target_col}: column not found")
                 continue
             
             y = data_clean[target_col].values
@@ -192,10 +209,10 @@ class MLForecaster:
             y_clean = y[valid_mask]
             
             if len(X_clean) < 50:
-                print(f"⚠️  Insufficient data for {target_col}: {len(X_clean)} rows")
+                print(f"[WARN] Insufficient data for {target_col}: {len(X_clean)} rows")
                 continue
             
-            print(f"\n📈 Training model for: {target_col}")
+            print(f"\n[INFO] Training model for: {target_col}")
             print(f"   Data points: {len(X_clean)}")
             
             # Train/test split
@@ -239,7 +256,7 @@ class MLForecaster:
             # Save model
             model_path = self.model_paths[target_col]
             joblib.dump(model, model_path)
-            print(f"   ✅ Model saved to: {model_path}")
+            print(f"   [OK] Model saved to: {model_path}")
             
             self.models[target_col] = model
             metrics[target_col] = {
@@ -269,13 +286,13 @@ class MLForecaster:
                     self.models[target_col] = joblib.load(model_path)
                     loaded_count += 1
                 except Exception as e:
-                    print(f"⚠️  Error loading {target_col} model: {e}")
+                    print(f"[WARN] Error loading {target_col} model: {e}")
         
         if loaded_count > 0:
-            print(f"✅ Loaded {loaded_count}/{len(self.model_paths)} forecasting models")
+            print(f"[OK] Loaded {loaded_count}/{len(self.model_paths)} forecasting models")
             return True
         else:
-            print("⚠️  No pre-trained models found. Train models first.")
+            print("[WARN] No pre-trained models found. Train models first.")
             return False
     
     def forecast(
@@ -306,7 +323,7 @@ class MLForecaster:
         """
         if not self.models:
             if not self.load_models():
-                print("⚠️  No models available. Returning empty forecasts.")
+                print("[WARN] No models available. Returning empty forecasts.")
                 return self._empty_forecast(start_year, end_year)
         
         # Use provided data or load from self.data
@@ -314,7 +331,7 @@ class MLForecaster:
             historical_data = self.data
         
         if historical_data is None or historical_data.empty:
-            print("⚠️  No historical data available")
+            print("[WARN] No historical data available")
             return self._empty_forecast(start_year, end_year)
         
         # Filter country data
@@ -323,7 +340,7 @@ class MLForecaster:
         ].copy()
         
         if country_data.empty:
-            print(f"⚠️  No data found for {country}")
+            print(f"[WARN] No data found for {country}")
             return self._empty_forecast(start_year, end_year)
         
         # Get latest year of data
@@ -391,7 +408,7 @@ class MLForecaster:
                     last_value = prediction
                     
                 except Exception as e:
-                    print(f"⚠️  Error forecasting {target_col} for {year}: {e}")
+                    print(f"[WARN] Error forecasting {target_col} for {year}: {e}")
                     # Fallback: use last known value
                     forecast_list.append({
                         'year': year,
@@ -407,9 +424,9 @@ class MLForecaster:
                 forecasts['co2_emissions'] = forecast_list
             elif target_col == 'energy_poverty_electricity (% of total population)':
                 forecasts['energy_poverty'] = forecast_list
-            elif target_col == 'electricity_demand_per_capita (kWh)':
+            elif target_col == 'electricity_demand_per_capita (MWh)':
                 forecasts['electricity_per_capita'] = forecast_list
-            elif target_col == 'electricity_demand_per_capita_with_access (kWh)':
+            elif target_col == 'electricity_demand_per_capita_with_access (MWh)':
                 forecasts['electricity_per_capita_with_access'] = forecast_list
             elif target_col == 'Access to Clean Fuels and Technologies for cooking (% of total population)':
                 forecasts['clean_cooking_access'] = forecast_list

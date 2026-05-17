@@ -1,32 +1,103 @@
 import pandas as pd
 import os
 import tempfile
-from typing import List, Dict, Any
+from typing import List, Dict, Any, Optional, Tuple
 from app.utils.config import Config
 from app.utils.cache import cache
+
+_HOURLY_PER_CAPITA_SPECS: Tuple[Tuple[str, float], ...] = (
+    ("electricity_demand_per_capita (MWh/person)", 1.0),
+    ("electricity_demand_per_capita (kWh/person)", 1e-3),
+    ("electricity_demand_per_capita (MWh)", 1.0),
+    ("electricity_demand_per_capita (kWh)", 1e-3),
+)
+_HOURLY_PER_CAPITA_WA_SPECS: Tuple[Tuple[str, float], ...] = (
+    ("electricity_demand_per_capita_with_access (MWh/person)", 1.0),
+    ("electricity_demand_per_capita_with_access (kWh/person)", 1e-3),
+    ("electricity_demand_per_capita_with_access (MWh)", 1.0),
+    ("electricity_demand_per_capita_with_access (kWh)", 1e-3),
+)
+
+
+def _first_scaled_series(df: pd.DataFrame, specs: Tuple[Tuple[str, float], ...]) -> Optional[pd.Series]:
+    for col, scale in specs:
+        if col in df.columns:
+            return pd.to_numeric(df[col], errors="coerce") * scale
+    return None
+
+
+def _normalize_hourly_per_capita_mwh(df: pd.DataFrame) -> pd.DataFrame:
+    out = df.copy()
+    plain = _first_scaled_series(out, _HOURLY_PER_CAPITA_SPECS)
+    if plain is not None:
+        out["electricity_demand_per_capita_MWh"] = plain
+    wa = _first_scaled_series(out, _HOURLY_PER_CAPITA_WA_SPECS)
+    if wa is not None:
+        out["electricity_demand_per_capita_with_access_MWh"] = wa
+    return out
 
 class HourlyElectricityDemandService:
     def __init__(self):
         self.data_dir = Config.DATA_DIR
         self.hourly_data_path = os.path.join(self.data_dir, 'historical', 'hourly')
     
+    def _resolve_country_file(self, country: str) -> str:
+        """Resolve the correct CSV filename for a given country name.
+        Tries multiple variants to match file naming conventions.
+        """
+        # Base sanitization
+        base = country.strip()
+        base_no_apost = base.replace("'", "")
+        base_multi_space = " ".join(base_no_apost.split())
+
+        candidates = [
+            f"{base_multi_space}.csv",
+            f"{base_multi_space.replace(' ', '_')}.csv",
+            f"{base_multi_space.replace(' ', '-')}.csv",
+            f"{base_multi_space.replace('-', '_')}.csv",
+            f"{base_multi_space.replace('-', ' ')}.csv",
+        ]
+
+        for fname in candidates:
+            path = os.path.join(self.hourly_data_path, fname)
+            if os.path.exists(path):
+                return path
+        
+        # As a last resort, try case-insensitive match among files
+        try:
+            for f in os.listdir(self.hourly_data_path):
+                if f.lower().rstrip('.csv') == base_multi_space.lower():
+                    return os.path.join(self.hourly_data_path, f)
+        except FileNotFoundError:
+            pass
+        
+        raise FileNotFoundError(
+            f"Hourly data not available for country: {country}. Ensure a CSV exists in {self.hourly_data_path}."
+        )
+    
     def _load_country_data(self, country: str) -> pd.DataFrame:
         """Load hourly data for a specific country"""
-        country_file = os.path.join(self.hourly_data_path, f"{country}.csv")
-        
-        if not os.path.exists(country_file):
-            raise FileNotFoundError(f"Hourly data file not found for country: {country} at {country_file}")
+        country_file = self._resolve_country_file(country)
         
         df = pd.read_csv(country_file)
         # Convert datetime column to datetime object
         df['datetime'] = pd.to_datetime(df['datetime'])
+
+        rename_map = {}
+        if 'electricity_demand (MWh)' in df.columns and 'electricity_demand_MWh' not in df.columns:
+            rename_map['electricity_demand (MWh)'] = 'electricity_demand_MWh'
+        if rename_map:
+            df = df.rename(columns=rename_map)
+
+        df = _normalize_hourly_per_capita_mwh(df)
+
         return df
     
     @cache.memoize(timeout=3600)
     def get_hourly_demand_by_date(self, country: str, date: str) -> List[Dict[str, Any]]:
         """
         Get hourly electricity demand data for a specific date
-        Returns: [{datetime, electricity_demand_MWh, electricity_demand_per_capita_kWh, electricity_demand_per_capita_with_access_kWh}]
+        Returns: [{datetime, electricity_demand_MWh, electricity_demand_per_capita_MWh, electricity_demand_per_capita_with_access_MWh}]
         """
         try:
             target_date = pd.to_datetime(date).date()
@@ -47,8 +118,8 @@ class HourlyElectricityDemandService:
             result.append({
                 'datetime': row['datetime'].strftime('%Y-%m-%d %H:%M:%S'),
                 'electricity_demand_MWh': float(row['electricity_demand_MWh']) if pd.notna(row['electricity_demand_MWh']) else None,
-                'electricity_demand_per_capita_kWh': float(row['electricity_demand_per_capita_kWh']) if pd.notna(row['electricity_demand_per_capita_kWh']) else None,
-                'electricity_demand_per_capita_with_access_kWh': float(row['electricity_demand_per_capita_with_access_kWh']) if pd.notna(row['electricity_demand_per_capita_with_access_kWh']) else None
+                'electricity_demand_per_capita_MWh': float(row['electricity_demand_per_capita_MWh']) if 'electricity_demand_per_capita_MWh' in row.index and pd.notna(row['electricity_demand_per_capita_MWh']) else None,
+                'electricity_demand_per_capita_with_access_MWh': float(row['electricity_demand_per_capita_with_access_MWh']) if 'electricity_demand_per_capita_with_access_MWh' in row.index and pd.notna(row['electricity_demand_per_capita_with_access_MWh']) else None,
             })
         
         # Sort by datetime
@@ -60,7 +131,7 @@ class HourlyElectricityDemandService:
     def get_hourly_demand_by_year(self, country: str, year: int) -> List[Dict[str, Any]]:
         """
         Get hourly electricity demand data for a specific year
-        Returns: [{datetime, electricity_demand_MWh, electricity_demand_per_capita_kWh, electricity_demand_per_capita_with_access_kWh}]
+        Returns: [{datetime, electricity_demand_MWh, electricity_demand_per_capita_MWh, electricity_demand_per_capita_with_access_MWh}]
         """
         df = self._load_country_data(country)
         
@@ -76,8 +147,8 @@ class HourlyElectricityDemandService:
             result.append({
                 'datetime': row['datetime'].strftime('%Y-%m-%d %H:%M:%S'),
                 'electricity_demand_MWh': float(row['electricity_demand_MWh']) if pd.notna(row['electricity_demand_MWh']) else None,
-                'electricity_demand_per_capita_kWh': float(row['electricity_demand_per_capita_kWh']) if pd.notna(row['electricity_demand_per_capita_kWh']) else None,
-                'electricity_demand_per_capita_with_access_kWh': float(row['electricity_demand_per_capita_with_access_kWh']) if pd.notna(row['electricity_demand_per_capita_with_access_kWh']) else None
+                'electricity_demand_per_capita_MWh': float(row['electricity_demand_per_capita_MWh']) if 'electricity_demand_per_capita_MWh' in row.index and pd.notna(row['electricity_demand_per_capita_MWh']) else None,
+                'electricity_demand_per_capita_with_access_MWh': float(row['electricity_demand_per_capita_with_access_MWh']) if 'electricity_demand_per_capita_with_access_MWh' in row.index and pd.notna(row['electricity_demand_per_capita_with_access_MWh']) else None,
             })
         
         # Sort by datetime
@@ -129,7 +200,8 @@ class HourlyElectricityDemandService:
             return []
         
         csv_files = [f for f in os.listdir(self.hourly_data_path) if f.endswith('.csv')]
-        countries = [os.path.splitext(f)[0] for f in csv_files]
+        # Convert filenames to display names (underscores -> spaces)
+        countries = [os.path.splitext(f)[0].replace('_', ' ') for f in csv_files]
         return sorted(countries)
     
     def get_available_years(self, country: str) -> List[int]:

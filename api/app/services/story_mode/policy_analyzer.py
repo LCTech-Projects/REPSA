@@ -1,912 +1,1054 @@
-import re
-import pandas as pd
-import numpy as np
-from typing import Dict, List, Optional, Any
-from app.utils.config import Config
-import os
 
-# Optional NLP support - gracefully handles if not installed
+# ---------------------------------------------------------
+# Policy analyzer (REGEX + optional spaCy via HybridExtractor)
+# - No OpenAI/Anthropic dependence here.
+# - Connects to nlp_extractor through HybridExtractor.extract(...)
+# - Actually uses: nlp_backend + country
+# ---------------------------------------------------------
+
+import os
+import re
+from typing import Dict, List, Optional, Any, TYPE_CHECKING
+
+import numpy as np
+import pandas as pd
+import joblib
+
+try:
+    from sklearn.ensemble import RandomForestRegressor
+    SKLEARN_AVAILABLE = True
+except ImportError:
+    RandomForestRegressor = None
+    SKLEARN_AVAILABLE = False
+
+from app.utils.config import Config
+from app.utils.per_capita_units import (
+    YEARLY_PER_CAPITA_MWH,
+    YEARLY_PER_CAPITA_WITH_ACCESS_MWH,
+    add_yearly_per_capita_mwh_columns,
+    yearly_per_capita_mwh,
+)
+
+# Optional NLP
 try:
     from app.services.story_mode.nlp_extractor import HybridExtractor
     NLP_AVAILABLE = True
 except ImportError:
-    NLP_AVAILABLE = False
     HybridExtractor = None
+    NLP_AVAILABLE = False
 
-# Optional ML Forecasting support
+# Optional ML forecasting
 try:
     from app.utils.ml_forecasting import MLForecaster
     ML_FORECASTING_AVAILABLE = True
 except ImportError:
-    ML_FORECASTING_AVAILABLE = False
     MLForecaster = None
+    ML_FORECASTING_AVAILABLE = False
+
+# Type-only imports to avoid "Variable not allowed in type expression"
+if TYPE_CHECKING:
+    from app.services.story_mode.nlp_extractor import HybridExtractor as HybridExtractorType
+    from app.utils.ml_forecasting import MLForecaster as MLForecasterType
 
 
 class PolicyAnalyzer:
     """
-    Analyzes policy documents using regex pattern matching (with optional 
-    transformer-based NLP for improved accuracy) and generates forecasts using 
-    hybrid ML + statistical models based on historical data.
-    
-    Uses ML models for baseline forecasts and statistical adjustments for policy interventions.
+    Extract policy metrics + produce baseline forecasts + apply policy adjustments.
+
+    Connection to NLP:
+      - If use_nlp=True and HybridExtractor available, we call:
+          HybridExtractor.extract(policy_text, regex_extractor_fn)
+      - HybridExtractor returns a merged metrics dict (NLP-first, regex fallback).
+      - Country can be extracted by NLP (GPE) and used downstream.
+
+    Notes:
+      - This file does NOT call OpenAI.
+      - nlp_backend is passed into HybridExtractor so you can switch spaCy models.
     """
-    
-    def __init__(self, use_nlp: Optional[bool] = None, nlp_backend: Optional[str] = None, use_ml_forecasting: Optional[bool] = None):
-        """
-        Initialize PolicyAnalyzer.
-        
-        Parameters:
-        -----------
-        use_nlp : bool, optional
-            Whether to use transformer-based NLP for extraction.
-            If None, reads from Config.USE_NLP (environment variable).
-        nlp_backend : str, optional
-            NLP backend to use: "spacy", "openai", or "anthropic".
-            If None, reads from Config.NLP_BACKEND (environment variable).
-        use_ml_forecasting : bool, optional
-            Whether to use ML models for baseline forecasts.
-            If None, reads from Config.USE_ML_FORECASTING (environment variable).
-        """
-        try:
-            self.data_dir = Config.DATA_DIR
-            self.yearly_data_path = os.path.join(self.data_dir, 'historical', 'yearly_historical_data.csv')
-            self.historical_data = None
-            self._load_historical_data()
-        except Exception as e:
-            # If initialization fails, set empty DataFrame
-            self.historical_data = pd.DataFrame()
-            self.data_dir = None
-            self.yearly_data_path = None
-        
-        # Read NLP settings from environment variables if not explicitly provided
+
+    def __init__(
+        self,
+        use_nlp: Optional[bool] = None,
+        nlp_backend: Optional[str] = None,
+        use_ml_forecasting: Optional[bool] = None,
+        yearly_data_path: Optional[str] = None,
+        default_country: str = "Algeria",
+        verbose: bool = True,
+    ):
+        self.verbose = verbose
+        self.default_country = default_country
+
+        # Config defaults
         if use_nlp is None:
-            use_nlp = Config.USE_NLP
+            use_nlp = getattr(Config, "USE_NLP", False)
         if nlp_backend is None:
-            nlp_backend = Config.NLP_BACKEND
-        
-        # Initialize NLP extractor if requested and available
-        self.use_nlp = use_nlp and NLP_AVAILABLE
-        self.nlp_extractor = None
-        if self.use_nlp and HybridExtractor:
-            try:
-                self.nlp_extractor = HybridExtractor(nlp_backend=nlp_backend, use_nlp=True)
-                # Only print success if model actually loaded
-                if self.nlp_extractor.nlp_extractor and self.nlp_extractor.nlp_extractor.model:
-                    print(f"✅ NLP extraction enabled using {nlp_backend} backend")
-                else:
-                    print(f"⚠️  NLP extractor initialized but model failed to load")
-                    print("   Falling back to regex-only extraction.")
-                    self.use_nlp = False
-            except Exception as e:
-                error_msg = str(e)
-                if "REGEX" in error_msg or "pydantic" in error_msg.lower():
-                    print(f"⚠️  spaCy compatibility issue with Python 3.14")
-                    print("   This is a known issue: spaCy uses Pydantic V1 which isn't compatible with Python 3.14+")
-                    print("   Solutions:")
-                    print("   1. Use Python 3.13 or earlier")
-                    print("   2. Wait for spaCy to update (or use regex-only mode)")
-                else:
-                    print(f"⚠️  NLP extractor initialization failed: {e}")
-                print("   Falling back to regex-only extraction.")
-                self.use_nlp = False
-        elif use_nlp and not NLP_AVAILABLE:
-            print("⚠️  NLP requested but not available. Install with: pip install spacy && python -m spacy download en_core_web_trf")
-            print("   Falling back to regex-only extraction.")
-        
-        # Initialize ML Forecaster if requested
+            nlp_backend = getattr(Config, "NLP_BACKEND", "spacy")
         if use_ml_forecasting is None:
-            use_ml_forecasting = Config.USE_ML_FORECASTING
-        
-        self.use_ml_forecasting = use_ml_forecasting and ML_FORECASTING_AVAILABLE
-        self.ml_forecaster = None
-        
-        if self.use_ml_forecasting and MLForecaster:
+            use_ml_forecasting = True
+
+        self.use_nlp = bool(use_nlp and NLP_AVAILABLE and HybridExtractor is not None)
+        self.nlp_backend = nlp_backend
+        self.nlp_extractor: Optional["HybridExtractorType"] = None
+
+        # Historical path
+        data_dir = getattr(Config, "DATA_DIR", None)
+        if yearly_data_path:
+            self.yearly_data_path = yearly_data_path
+        else:
+            self.yearly_data_path = (
+                os.path.join(data_dir, "historical", "yearly_historical_data.csv")
+                if data_dir else None
+            )
+
+        self.historical_data = self._load_historical_data(self.yearly_data_path)
+
+        # Init NLP extractor (spaCy)
+        if self.use_nlp:
             try:
-                self.ml_forecaster = MLForecaster()
-                if self.ml_forecaster.load_models():
-                    print("✅ ML forecasting enabled (hybrid approach)")
-                else:
-                    print("⚠️  ML forecasting requested but no models found.")
-                    print("   Train models first or falling back to statistical forecasting.")
-                    self.use_ml_forecasting = False
+                spacy_model = getattr(Config, "NLP_MODEL_NAME", "en_core_web_sm")
+                self.nlp_extractor = HybridExtractor(
+                    nlp_backend=self.nlp_backend,
+                    use_nlp=True,
+                    model=spacy_model,
+                    verbose=verbose,
+                )
+                if self.verbose:
+                    print(f"✅ NLP enabled: backend={self.nlp_backend}")
             except Exception as e:
-                print(f"⚠️  ML forecaster initialization failed: {e}")
-                print("   Falling back to statistical forecasting.")
-                self.use_ml_forecasting = False
-        elif use_ml_forecasting and not ML_FORECASTING_AVAILABLE:
-            print("⚠️  ML forecasting requested but not available.")
-            print("   Falling back to statistical forecasting.")
-    
-    def _load_historical_data(self):
-        """Load historical data for forecasting"""
+                self.use_nlp = False
+                self.nlp_extractor = None
+                if self.verbose:
+                    print(f"⚠️  NLP init failed ({self.nlp_backend}): {e}")
+                    print("   Falling back to regex-only.")
+
+        # ML forecaster is initialized lazily only when analyze-policy path needs it.
+        self.use_ml_forecasting = bool(use_ml_forecasting and ML_FORECASTING_AVAILABLE and MLForecaster is not None)
+        self.ml_forecaster: Optional["MLForecasterType"] = None
+
+        self.scenario_feature_columns = [
+            "access_to_electricity_pct",
+            "clean_cooking_access_pct",
+            "renewables_share_elec",
+            "electricity_demand_twh",
+            "population",
+            "gdp",
+            "fossil_share_elec",
+            "low_carbon_share_elec",
+            "year",
+        ]
+        self.scenario_target_columns = [
+            "electricity_demand_per_capita_mwh",
+            "electricity_demand_per_capita_with_access_mwh",
+            "energy_poverty_pct",
+            "energy_poverty_multidimensional_pct",
+            "greenhouse_gas_emissions",
+        ]
+        self.scenario_models: Dict[str, Any] = {}
+        self.scenario_country_codes: Dict[str, int] = {}
+        self.scenario_feature_medians: Dict[str, float] = {}
+        self.growth_panel_bundle: Optional[Dict[str, Any]] = None
+        self.growth_panel_pipeline: Any = None
+        self.growth_panel_feature_columns: List[str] = []
+        self.growth_panel_target_columns: List[str] = []
+        self.growth_panel_eps: float = 1e-6
+        self.growth_panel_ghg_pipeline: Any = None
+        self.growth_panel_ghg_feature_columns: List[str] = []
+
+        self._load_growth_panel_model()
+
+    def _load_growth_panel_model(self) -> None:
+        model_dir = getattr(Config, "MODEL_DIR", None)
+        if not model_dir:
+            return
+
+        model_path = os.path.join(model_dir, "scenario_builder.joblib")
+        if not os.path.exists(model_path):
+            return
+
         try:
-            if os.path.exists(self.yearly_data_path):
-                self.historical_data = pd.read_csv(self.yearly_data_path)
-            else:
-                self.historical_data = pd.DataFrame()
+            bundle = joblib.load(model_path)
+            pipeline = bundle.get("pipeline")
+            feature_columns = bundle.get("feature_columns", [])
+            target_columns = bundle.get("target_columns", [])
+            eps = float(bundle.get("eps", 1e-6))
+            ghg_pipeline = bundle.get("ghg_pipeline")
+            ghg_feature_columns = bundle.get("ghg_feature_columns", [])
+
+            if pipeline is None or not feature_columns or not target_columns:
+                return
+
+            self.growth_panel_bundle = bundle
+            self.growth_panel_pipeline = pipeline
+            self.growth_panel_feature_columns = [str(c) for c in feature_columns]
+            self.growth_panel_target_columns = [str(c) for c in target_columns]
+            self.growth_panel_eps = eps
+            self.growth_panel_ghg_pipeline = ghg_pipeline
+            self.growth_panel_ghg_feature_columns = [str(c) for c in ghg_feature_columns]
+
+            if self.verbose:
+                print(f"✅ Loaded growth panel scenario model: {model_path}")
         except Exception as e:
-            # If loading fails, use empty DataFrame
-            self.historical_data = pd.DataFrame()
-    
+            if self.verbose:
+                print(f"⚠️ Could not load growth panel model: {e}")
+
+    def _ensure_ml_forecaster(self) -> None:
+        if not self.use_ml_forecasting:
+            raise RuntimeError("ML forecasting is disabled or unavailable.")
+        if self.ml_forecaster is not None:
+            return
+
+        try:
+            self.ml_forecaster = MLForecaster()
+            ok = getattr(self.ml_forecaster, "load_models", lambda: False)()
+            if not ok:
+                if self.verbose:
+                    print("ℹ️  ML models not found on disk; training now...")
+                train_fn = getattr(self.ml_forecaster, "train_models", None)
+                if callable(train_fn):
+                    train_fn()
+                ok = getattr(self.ml_forecaster, "load_models", lambda: False)()
+                if not ok:
+                    raise RuntimeError("ML forecasting models unavailable after training.")
+            elif self.verbose:
+                print("✅ ML forecasting enabled")
+        except Exception as e:
+            raise RuntimeError(f"ML forecasting initialization failed: {e}")
+
+    def _prepare_scenario_training_frame(self) -> pd.DataFrame:
+        if self.historical_data is None or self.historical_data.empty:
+            return pd.DataFrame()
+
+        df = add_yearly_per_capita_mwh_columns(self.historical_data.copy())
+        rename_map = {
+            "Access to electricity (% of total population)": "access_to_electricity_pct",
+            "Access to Clean Fuels and Technologies for cooking (% of total population)": "clean_cooking_access_pct",
+            "electricity_demand (TWh)": "electricity_demand_twh",
+            "energy_poverty_electricity (% of total population)": "energy_poverty_pct",
+            "energy_poverty_multidimensional (% of total population)": "energy_poverty_multidimensional_pct",
+        }
+        df = df.rename(columns=rename_map)
+
+        required = [
+            "country",
+            "year",
+            "access_to_electricity_pct",
+            "clean_cooking_access_pct",
+            "renewables_share_elec",
+            "electricity_demand_twh",
+            "population",
+            "gdp",
+            "fossil_share_elec",
+            "low_carbon_share_elec",
+            "electricity_demand_per_capita_mwh",
+            "electricity_demand_per_capita_with_access_mwh",
+            "energy_poverty_pct",
+            "energy_poverty_multidimensional_pct",
+            "greenhouse_gas_emissions",
+        ]
+        missing = [c for c in required if c not in df.columns]
+        if missing:
+            if self.verbose:
+                print(f"⚠️ Scenario model training skipped. Missing columns: {missing}")
+            return pd.DataFrame()
+
+        for col in required:
+            if col in ("country",):
+                continue
+            df[col] = pd.to_numeric(df[col], errors="coerce")
+
+        df = df[df["population"] > 0].copy()
+        df = df.replace([np.inf, -np.inf], np.nan)
+        df = df.dropna(subset=[
+            "country",
+            "year",
+            "access_to_electricity_pct",
+            "clean_cooking_access_pct",
+            "renewables_share_elec",
+            "electricity_demand_twh",
+            "population",
+            "gdp",
+            "fossil_share_elec",
+            "low_carbon_share_elec",
+            "electricity_demand_per_capita_mwh",
+            "electricity_demand_per_capita_with_access_mwh",
+            "energy_poverty_pct",
+            "energy_poverty_multidimensional_pct",
+            "greenhouse_gas_emissions",
+        ]).copy()
+        if df.empty:
+            return df
+
+        df["country"] = df["country"].astype(str)
+        countries = sorted(df["country"].unique().tolist())
+        self.scenario_country_codes = {c: i for i, c in enumerate(countries)}
+        df["country_code"] = df["country"].map(self.scenario_country_codes).astype(float)
+
+        return df
+
+    def _train_scenario_models(self) -> None:
+        self.scenario_models = {}
+        self.scenario_feature_medians = {}
+
+        if not SKLEARN_AVAILABLE:
+            if self.verbose:
+                print("⚠️ scikit-learn not available; scenario simulator will use fallback trajectories.")
+            return
+
+        train_df = self._prepare_scenario_training_frame()
+        if train_df.empty:
+            if self.verbose:
+                print("⚠️ Scenario model training data unavailable; using fallback trajectories.")
+            return
+
+        X = train_df[self.scenario_feature_columns].copy()
+        self.scenario_feature_medians = X.median(numeric_only=True).to_dict()
+        X = X.fillna(self.scenario_feature_medians)
+
+        for target in self.scenario_target_columns:
+            y = pd.to_numeric(train_df[target], errors="coerce")
+            valid = y.notna()
+            if valid.sum() < 80:
+                continue
+
+            model = RandomForestRegressor(
+                n_estimators=300,
+                random_state=42,
+                min_samples_leaf=3,
+                n_jobs=-1,
+            )
+            model.fit(X.loc[valid], y.loc[valid])
+            self.scenario_models[target] = model
+
+        if self.verbose and self.scenario_models:
+            print(f"✅ Scenario models trained: {list(self.scenario_models.keys())}")
+
+    def _country_growth_rate(self, country_df: pd.DataFrame, col: str, default: float) -> float:
+        if col not in country_df.columns:
+            return default
+        g = self._calculate_growth_rate(country_df[["year", col]].dropna(), col)
+        return default if g == 0.0 else float(g)
+
+    def _simulate_feature_trajectories(
+        self,
+        country_df: pd.DataFrame,
+        country: str,
+        start_year: int,
+        end_year: int,
+        policy_metrics: Dict[str, Any],
+    ) -> pd.DataFrame:
+        def _clamp_pct(value: float) -> float:
+            return max(0.0, min(100.0, float(value)))
+
+        latest_year = int(country_df["year"].max())
+        latest_row = country_df[country_df["year"] == latest_year].iloc[0]
+
+        access_base = _clamp_pct(latest_row.get("Access to electricity (% of total population)", 70.0) or 70.0)
+        clean_base = _clamp_pct(latest_row.get("Access to Clean Fuels and Technologies for cooking (% of total population)", 40.0) or 40.0)
+        renew_base = _clamp_pct(latest_row.get("renewables_share_elec", 20.0) or 20.0)
+        demand_base = float(latest_row.get("electricity_demand (TWh)", 100.0) or 100.0)
+        pop_base = float(latest_row.get("population", 10_000_000.0) or 10_000_000.0)
+        gdp_base = float(latest_row.get("gdp", 1e11) or 1e11)
+        fossil_base = _clamp_pct(latest_row.get("fossil_share_elec", 70.0) or 70.0)
+        low_carbon_base = _clamp_pct(latest_row.get("low_carbon_share_elec", 30.0) or 30.0)
+
+        if start_year > latest_year:
+            t0 = start_year - latest_year
+            demand_growth_hist = self._country_growth_rate(country_df, "electricity_demand (TWh)", 0.03)
+            pop_growth_hist = self._country_growth_rate(country_df, "population", 0.02)
+            gdp_growth_hist = self._country_growth_rate(country_df, "gdp", 0.03)
+
+            demand_base *= (1 + demand_growth_hist) ** t0
+            pop_base *= (1 + pop_growth_hist) ** t0
+            gdp_base *= (1 + gdp_growth_hist) ** t0
+
+        access_target = policy_metrics.get("energy_access_target")
+        clean_target = policy_metrics.get("clean_cooking_target")
+        renew_target = policy_metrics.get("renewable_target")
+
+        demand_growth = float(policy_metrics.get("demand_growth_rate", self._country_growth_rate(country_df, "electricity_demand (TWh)", 0.03)) or 0.03)
+        pop_growth = float(policy_metrics.get("population_growth_rate", self._country_growth_rate(country_df, "population", 0.02)) or 0.02)
+        gdp_growth = float(policy_metrics.get("gdp_growth_rate", self._country_growth_rate(country_df, "gdp", 0.03)) or 0.03)
+
+        rows = []
+        country_code = float(self.scenario_country_codes.get(country, 0))
+
+        for year in range(start_year, end_year + 1):
+            p = 0.0 if end_year <= start_year else (year - start_year) / (end_year - start_year)
+            p = max(0.0, min(1.0, p))
+            t = year - start_year
+
+            access = access_base if access_target is None else access_base + (float(access_target) - access_base) * p
+            clean = clean_base if clean_target is None else clean_base + (float(clean_target) - clean_base) * p
+            renew = renew_base if renew_target is None else renew_base + (float(renew_target) - renew_base) * p
+
+            demand = demand_base * ((1 + demand_growth) ** t)
+            population = pop_base * ((1 + pop_growth) ** t)
+            gdp = gdp_base * ((1 + gdp_growth) ** t)
+
+            low_carbon = max(0.0, min(100.0, low_carbon_base + 0.6 * (renew - renew_base)))
+            fossil = max(0.0, min(100.0, fossil_base - 0.6 * (renew - renew_base)))
+
+            rows.append({
+                "access_to_electricity_pct": max(0.0, min(100.0, access)),
+                "clean_cooking_access_pct": max(0.0, min(100.0, clean)),
+                "renewables_share_elec": max(0.0, min(100.0, renew)),
+                "electricity_demand_twh": max(0.0, demand),
+                "population": max(1.0, population),
+                "gdp": max(1.0, gdp),
+                "fossil_share_elec": fossil,
+                "low_carbon_share_elec": low_carbon,
+                "country_code": country_code,
+                "year": float(year),
+            })
+
+        return pd.DataFrame(rows)
+
+    def _simulate_with_growth_panel_model(
+        self,
+        country_df: pd.DataFrame,
+        country: str,
+        start_year: int,
+        end_year: int,
+        policy_metrics: Dict[str, Any],
+    ) -> Dict[str, Any]:
+        if self.growth_panel_pipeline is None or not self.growth_panel_feature_columns:
+            raise RuntimeError("Growth panel model is not loaded.")
+
+        def _clamp_pct(value: float) -> float:
+            return max(0.0, min(100.0, float(value)))
+
+        def _safe_float(v: Any, default: float) -> float:
+            try:
+                vv = float(v)
+                if np.isfinite(vv):
+                    return vv
+            except Exception:
+                pass
+            return float(default)
+
+        target_cols = [
+            "electricity_demand (TWh)",
+            YEARLY_PER_CAPITA_MWH,
+            YEARLY_PER_CAPITA_WITH_ACCESS_MWH,
+            "energy_poverty_electricity (% of total population)",
+            "energy_poverty_multidimensional (% of total population)",
+            "greenhouse_gas_emissions",
+        ]
+
+        latest_year = int(country_df["year"].max())
+        latest_row = country_df[country_df["year"] == latest_year].iloc[-1]
+
+        access_base = _clamp_pct(latest_row.get("Access to electricity (% of total population)", 70.0) or 70.0)
+        clean_base = _clamp_pct(latest_row.get("Access to Clean Fuels and Technologies for cooking (% of total population)", 40.0) or 40.0)
+        renew_base = _clamp_pct(latest_row.get("renewables_share_elec", 20.0) or 20.0)
+        demand_base = _safe_float(latest_row.get("electricity_demand (TWh)", 100.0), 100.0)
+        pop_base = _safe_float(latest_row.get("population", 10_000_000.0), 10_000_000.0)
+        gdp_base = _safe_float(latest_row.get("gdp", 1e11), 1e11)
+
+        pc_mwh = yearly_per_capita_mwh(latest_row, with_access=False)
+        pc_wa_mwh = yearly_per_capita_mwh(latest_row, with_access=True)
+        current_levels: Dict[str, float] = {
+            "electricity_demand (TWh)": demand_base,
+            YEARLY_PER_CAPITA_MWH: _safe_float(pc_mwh, 1.5),
+            YEARLY_PER_CAPITA_WITH_ACCESS_MWH: _safe_float(pc_wa_mwh, 2.0),
+            "energy_poverty_electricity (% of total population)": _clamp_pct(latest_row.get("energy_poverty_electricity (% of total population)", 20.0) or 20.0),
+            "energy_poverty_multidimensional (% of total population)": _clamp_pct(latest_row.get("energy_poverty_multidimensional (% of total population)", 25.0) or 25.0),
+            "greenhouse_gas_emissions": _safe_float(latest_row.get("greenhouse_gas_emissions", 100.0), 100.0),
+        }
+
+        demand_growth_hist = self._country_growth_rate(country_df, "electricity_demand (TWh)", 0.03)
+        pop_growth_hist = self._country_growth_rate(country_df, "population", 0.02)
+        gdp_growth_hist = self._country_growth_rate(country_df, "gdp", 0.03)
+
+        if start_year > latest_year:
+            t0 = start_year - latest_year
+            demand_base *= (1 + demand_growth_hist) ** t0
+            pop_base *= (1 + pop_growth_hist) ** t0
+            gdp_base *= (1 + gdp_growth_hist) ** t0
+
+            for col in target_cols:
+                g = self._country_growth_rate(country_df, col, 0.0)
+                current_levels[col] = max(0.0, current_levels[col] * ((1 + g) ** t0))
+
+        access_target = policy_metrics.get("energy_access_target")
+        clean_target = policy_metrics.get("clean_cooking_target")
+        renew_target = policy_metrics.get("renewable_target")
+
+        demand_growth = float(policy_metrics.get("demand_growth_rate", demand_growth_hist) or demand_growth_hist)
+        pop_growth = float(policy_metrics.get("population_growth_rate", pop_growth_hist) or pop_growth_hist)
+        gdp_growth = float(policy_metrics.get("gdp_growth_rate", gdp_growth_hist) or gdp_growth_hist)
+
+        lag_growth = {f"lag_growth::{col}": 0.0 for col in target_cols}
+        if len(country_df) >= 2:
+            sorted_df = country_df.sort_values("year")
+            for col in target_cols:
+                prev_val = _safe_float(sorted_df.iloc[-2].get(col, np.nan), np.nan)
+                curr_val = _safe_float(sorted_df.iloc[-1].get(col, np.nan), np.nan)
+                if np.isfinite(prev_val) and np.isfinite(curr_val) and prev_val >= 0 and curr_val >= 0:
+                    lag_growth[f"lag_growth::{col}"] = float(np.log((curr_val + self.growth_panel_eps) / (prev_val + self.growth_panel_eps)))
+
+        years = list(range(start_year, end_year + 1))
+        forecasts = {
+            "electricity_per_capita": [],
+            "electricity_per_capita_with_access": [],
+            "energy_poverty": [],
+            "energy_poverty_multidimensional": [],
+            "co2_emissions": [],
+            "electricity_demand": [],
+            "renewable_share": [],
+            "clean_cooking_access": [],
+        }
+
+        for idx, year in enumerate(years):
+            p = 0.0 if end_year <= start_year else (year - start_year) / (end_year - start_year)
+            p = max(0.0, min(1.0, p))
+            t = year - start_year
+
+            access = access_base if access_target is None else access_base + (float(access_target) - access_base) * p
+            clean = clean_base if clean_target is None else clean_base + (float(clean_target) - clean_base) * p
+            renew = renew_base if renew_target is None else renew_base + (float(renew_target) - renew_base) * p
+
+            demand_exog = max(0.0, demand_base * ((1 + demand_growth) ** t))
+            population = max(1.0, pop_base * ((1 + pop_growth) ** t))
+            gdp = max(1.0, gdp_base * ((1 + gdp_growth) ** t))
+
+            current_levels["electricity_demand (TWh)"] = demand_exog
+
+            forecasts["electricity_per_capita"].append({"year": int(year), "value": round(max(0.0, current_levels[YEARLY_PER_CAPITA_MWH]), 2)})
+            forecasts["electricity_per_capita_with_access"].append({"year": int(year), "value": round(max(0.0, current_levels[YEARLY_PER_CAPITA_WITH_ACCESS_MWH]), 2)})
+            forecasts["energy_poverty"].append({"year": int(year), "value": round(_clamp_pct(100.0 - access), 2)})
+            forecasts["energy_poverty_multidimensional"].append({"year": int(year), "value": round(_clamp_pct(current_levels["energy_poverty_multidimensional (% of total population)"]), 2)})
+            forecasts["co2_emissions"].append({"year": int(year), "value": round(max(0.0, current_levels["greenhouse_gas_emissions"]), 2)})
+            forecasts["electricity_demand"].append({"year": int(year), "value": round(demand_exog, 2)})
+            forecasts["renewable_share"].append({"year": int(year), "value": round(_clamp_pct(renew), 2)})
+            forecasts["clean_cooking_access"].append({"year": int(year), "value": round(_clamp_pct(clean), 2)})
+
+            if idx == len(years) - 1:
+                continue
+
+            feature_row: Dict[str, Any] = {
+                "country": country,
+                "year": float(year),
+                "population": float(population),
+                "gdp": float(gdp),
+                "Access to electricity (% of total population)": _clamp_pct(access),
+                "Access to Clean Fuels and Technologies for cooking (% of total population)": _clamp_pct(clean),
+                "renewables_share_elec": _clamp_pct(renew),
+            }
+            for col in target_cols:
+                feature_row[col] = float(max(0.0, current_levels[col]))
+            feature_row.update(lag_growth)
+
+            X_row = pd.DataFrame([feature_row])
+            for col in self.growth_panel_feature_columns:
+                if col not in X_row.columns:
+                    X_row[col] = np.nan
+            X_row = X_row[self.growth_panel_feature_columns]
+
+            pred_growth = self.growth_panel_pipeline.predict(X_row)
+            pred_growth = np.asarray(pred_growth, dtype=float).reshape(1, -1)[0]
+
+            if self.growth_panel_ghg_pipeline is not None and self.growth_panel_ghg_feature_columns:
+                X_ghg = X_row.copy()
+                for col in self.growth_panel_ghg_feature_columns:
+                    if col not in X_ghg.columns:
+                        X_ghg[col] = np.nan
+                X_ghg = X_ghg[self.growth_panel_ghg_feature_columns]
+                ghg_growth_pred = self.growth_panel_ghg_pipeline.predict(X_ghg)
+                ghg_idx = target_cols.index("greenhouse_gas_emissions")
+                pred_growth[ghg_idx] = float(np.asarray(ghg_growth_pred, dtype=float).reshape(-1)[0])
+
+            next_levels: Dict[str, float] = {}
+            for j, col in enumerate(target_cols):
+                g = float(pred_growth[j]) if j < len(pred_growth) else 0.0
+                curr = max(0.0, float(current_levels[col]))
+                nxt = (curr + self.growth_panel_eps) * np.exp(g) - self.growth_panel_eps
+                nxt = max(0.0, float(nxt))
+                if "energy_poverty" in col:
+                    nxt = _clamp_pct(nxt)
+                next_levels[col] = nxt
+                lag_growth[f"lag_growth::{col}"] = g
+
+            current_levels = next_levels
+
+        summary = {
+            "electricity_per_capita": forecasts["electricity_per_capita"][-1]["value"],
+            "electricity_per_capita_with_access": forecasts["electricity_per_capita_with_access"][-1]["value"],
+            "energy_poverty": forecasts["energy_poverty"][-1]["value"],
+            "renewable_share": forecasts["renewable_share"][-1]["value"],
+            "electricity_demand": forecasts["electricity_demand"][-1]["value"],
+            "co2_emissions": forecasts["co2_emissions"][-1]["value"],
+        }
+
+        return {"forecasts": forecasts, "summary": summary}
+
+    def simulate_model_driven_scenario(
+        self,
+        country: str,
+        start_year: int,
+        end_year: int,
+        policy_metrics: Dict[str, Any],
+    ) -> Dict[str, Any]:
+        if self.historical_data is None or self.historical_data.empty:
+            baseline = self._generate_default_forecast(start_year, end_year)
+            return {
+                "forecasts": baseline,
+                "summary": {
+                    "electricity_per_capita": baseline["electricity_per_capita"][-1]["value"],
+                    "electricity_per_capita_with_access": baseline["electricity_per_capita_with_access"][-1]["value"],
+                    "energy_poverty": baseline["energy_poverty"][-1]["value"],
+                    "co2_per_capita": baseline["co2_emissions"][-1]["value"],
+                },
+            }
+
+        country_df = self.historical_data[
+            self.historical_data["country"].astype(str).str.lower() == str(country).lower()
+        ].copy()
+        if country_df.empty:
+            country_df = self.historical_data.copy()
+
+        if self.growth_panel_pipeline is not None:
+            return self._simulate_with_growth_panel_model(
+                country_df=country_df,
+                country=country,
+                start_year=start_year,
+                end_year=end_year,
+                policy_metrics=policy_metrics,
+            )
+        raise RuntimeError(
+            "Scenario growth panel model is unavailable. Please retrain and place scenario_builder.joblib in api/ml_models."
+        )
+
+    # ----------------------------
+    # NLP mode control
+    # ----------------------------
+    def set_nlp_mode(self, use_nlp: bool, nlp_backend: str = "spacy") -> None:
+        self.nlp_backend = nlp_backend
+
+        if use_nlp and not (NLP_AVAILABLE and HybridExtractor):
+            self.use_nlp = False
+            self.nlp_extractor = None
+            if self.verbose:
+                print("⚠️  NLP requested but HybridExtractor unavailable.")
+            return
+
+        self.use_nlp = bool(use_nlp)
+        if not self.use_nlp:
+            self.nlp_extractor = None
+            return
+
+        try:
+            spacy_model = getattr(Config, "NLP_MODEL_NAME", "en_core_web_sm")
+            self.nlp_extractor = HybridExtractor(
+                nlp_backend=self.nlp_backend,
+                use_nlp=True,
+                model=spacy_model,
+                verbose=self.verbose,
+            )
+            if self.verbose:
+                print(f"✅ NLP enabled: backend={self.nlp_backend}")
+        except Exception as e:
+            self.use_nlp = False
+            self.nlp_extractor = None
+            if self.verbose:
+                print(f"⚠️  NLP init failed: {e}")
+                print("   Falling back to regex-only.")
+
+    # ----------------------------
+    # Loading
+    # ----------------------------
+    def _load_historical_data(self, path: Optional[str]) -> pd.DataFrame:
+        if not path:
+            return pd.DataFrame()
+        try:
+            if os.path.exists(path):
+                df = pd.read_csv(path)
+                if "country" in df.columns:
+                    df["country"] = df["country"].astype(str)
+                if "year" in df.columns:
+                    df["year"] = pd.to_numeric(df["year"], errors="coerce")
+                return df
+        except Exception:
+            pass
+        return pd.DataFrame()
+
+    # ----------------------------
+    # Extraction
+    # ----------------------------
     def extract_policy_metrics(self, policy_text: str) -> Dict[str, Any]:
         """
-        Extract key metrics from policy document using regex patterns.
-        Optionally uses transformer-based NLP for improved accuracy.
-        
-        Returns:
-            Dictionary with extracted metrics:
-            - renewable_target: Target renewable energy share (%)
-            - investment_amount: Total investment (USD)
-            - timeline_start: Start year
-            - timeline_end: End year
-            - solar_target: Solar capacity target (GW)
-            - wind_target: Wind capacity target (GW)
-            - energy_access_target: Electricity access target (%)
-            - energy_poverty_target: Energy poverty reduction target (%)
-            - co2_reduction_target: CO2 reduction target (%)
+        If NLP enabled: HybridExtractor merges NLP + regex.
+        Else: regex only.
         """
-        # Use hybrid extraction if NLP is enabled
         if self.use_nlp and self.nlp_extractor:
-            return self.nlp_extractor.extract(policy_text, self._extract_with_regex)
-        
-        # Otherwise use regex only
-        return self._extract_with_regex(policy_text)
-    
-    def _extract_with_regex(self, policy_text: str) -> Dict[str, Any]:
-        """
-        Extract metrics using regex patterns (original implementation).
-        """
-        text = policy_text.lower()
-        metrics = {
-            'renewable_target': None,
-            'investment_amount': None,
-            'timeline_start': None,
-            'timeline_end': None,
-            'solar_target': None,
-            'wind_target': None,
-            'energy_access_target': None,
-            'energy_poverty_target': None,
-            'co2_reduction_target': None,
-            'clean_cooking_target': None,
-            'population_growth_rate': None,
+            merged = self.nlp_extractor.extract(policy_text, self._extract_with_regex)
+            return self._normalize_metrics(merged)
+        return self._normalize_metrics(self._extract_with_regex(policy_text))
+
+    def _normalize_metrics(self, metrics: Dict[str, Any]) -> Dict[str, Any]:
+        base = {
+            "country": None,
+            "renewable_target": None,
+            "investment_amount": None,     # billions USD
+            "timeline_start": None,
+            "timeline_end": None,
+            "solar_target": None,          # GW
+            "wind_target": None,           # GW
+            "energy_access_target": None,  # %
+            "energy_poverty_target": None, # %
+            "co2_reduction_target": None,  # %
+            "clean_cooking_target": None,  # %
+            "population_growth_rate": None # decimal
         }
-        
-        # Extract renewable energy target (e.g., "60% renewable", "85% by 2050")
+        base.update(metrics or {})
+
+        # Clean country
+        if base.get("country") is not None:
+            c = str(base["country"]).strip()
+            base["country"] = c if c else None
+
+        def f(x):
+            try:
+                if x is None or (isinstance(x, float) and pd.isna(x)):
+                    return None
+                return float(x)
+            except Exception:
+                return None
+
+        def i(x):
+            try:
+                if x is None or (isinstance(x, float) and pd.isna(x)):
+                    return None
+                return int(float(x))
+            except Exception:
+                return None
+
+        for k in ["renewable_target", "investment_amount", "solar_target", "wind_target",
+                  "energy_access_target", "energy_poverty_target", "co2_reduction_target",
+                  "clean_cooking_target", "population_growth_rate"]:
+            base[k] = f(base.get(k))
+
+        for k in ["timeline_start", "timeline_end"]:
+            base[k] = i(base.get(k))
+
+        return base
+
+    def _extract_with_regex(self, policy_text: str) -> Dict[str, Any]:
+        text = (policy_text or "").lower()
+        m: Dict[str, Any] = {
+            "country": None,  # NLP extractor should fill this if possible
+            "renewable_target": None,
+            "investment_amount": None,
+            "timeline_start": None,
+            "timeline_end": None,
+            "solar_target": None,
+            "wind_target": None,
+            "energy_access_target": None,
+            "energy_poverty_target": None,
+            "co2_reduction_target": None,
+            "clean_cooking_target": None,
+            "population_growth_rate": None,
+        }
+
+        # Renewable target
         renewable_patterns = [
             r'(\d+(?:\.\d+)?)\s*%\s*(?:renewable|renewables)',
             r'renewable\s*(?:energy\s*)?(?:share|target|goal).*?(\d+(?:\.\d+)?)\s*%',
             r'(\d+(?:\.\d+)?)\s*%\s*renewable.*?(?:by|in)\s*(\d{4})',
         ]
-        for pattern in renewable_patterns:
-            match = re.search(pattern, text)
-            if match:
-                metrics['renewable_target'] = float(match.group(1))
-                if len(match.groups()) > 1 and match.group(2):
-                    metrics['timeline_end'] = int(match.group(2))
+        for p in renewable_patterns:
+            mm = re.search(p, text)
+            if mm:
+                m["renewable_target"] = float(mm.group(1))
+                if len(mm.groups()) > 1 and mm.group(2):
+                    m["timeline_end"] = int(mm.group(2))
                 break
-        
-        # Extract investment amounts (e.g., "$45 billion", "$18B", "45 billion dollars")
+
+        # Investment (billions USD)
         investment_patterns = [
             r'\$(\d+(?:\.\d+)?)\s*(?:billion|b|million|m)\b',
             r'(\d+(?:\.\d+)?)\s*(?:billion|billion\s*dollars|b)\s*(?:investment|invest|funding)',
         ]
-        for pattern in investment_patterns:
-            match = re.search(pattern, text)
-            if match:
-                amount = float(match.group(1))
-                if 'million' in match.group(0) or 'm' in match.group(0).lower():
-                    amount = amount / 1000  # Convert to billions
-                metrics['investment_amount'] = amount
+        for p in investment_patterns:
+            mm = re.search(p, text)
+            if mm:
+                amount = float(mm.group(1))
+                token = mm.group(0).lower()
+                if "million" in token or re.search(r"\b[m]\b", token):
+                    amount = amount / 1000.0
+                m["investment_amount"] = amount
                 break
-        
-        # Extract timeline years
-        year_patterns = [
-            r'(?:by|in|from|until)\s*(\d{4})',
-            r'(\d{4})\s*(?:to|-)\s*(\d{4})',
-            r'phase\s*\d+.*?(\d{4})\s*(?:to|-)?\s*(\d{4})?',
+
+        # Timeline range
+        timeline_patterns = [
+            r'policy\s+(?:\w+\s+){0,5}(\d{4})\s*(?:to|-)\s*(\d{4})',
+            r'(?:transition|timeline|period|phase).*?(\d{4})\s*(?:to|-)\s*(\d{4})',
+            r'^[^\n]*?(\d{4})\s*(?:to|-)\s*(\d{4})',
         ]
-        years_found = []
-        for pattern in year_patterns:
-            matches = re.findall(pattern, text)
-            for match in matches:
-                if isinstance(match, tuple):
-                    years_found.extend([int(y) for y in match if y])
-                else:
-                    years_found.append(int(match))
-        
-        if years_found:
-            years_found = sorted(set(years_found))
-            if len(years_found) >= 2:
-                metrics['timeline_start'] = years_found[0]
-                metrics['timeline_end'] = years_found[-1]
-            elif len(years_found) == 1:
-                metrics['timeline_end'] = years_found[0]
-        
-        # Extract solar capacity target
-        solar_patterns = [
-            r'(\d+(?:\.\d+)?)\s*(?:gw|gigawatt).*?solar',
-            r'solar.*?(\d+(?:\.\d+)?)\s*(?:gw|gigawatt)',
-            r'(\d+(?:\.\d+)?)\s*(?:gw|gigawatt).*?solar.*?capacity',
-        ]
-        for pattern in solar_patterns:
-            match = re.search(pattern, text)
-            if match:
-                metrics['solar_target'] = float(match.group(1))
+        for p in timeline_patterns:
+            mm = re.search(p, text, re.IGNORECASE | re.MULTILINE)
+            if mm:
+                m["timeline_start"] = int(mm.group(1))
+                m["timeline_end"] = int(mm.group(2))
                 break
-        
-        # Extract wind capacity target
-        wind_patterns = [
-            r'(\d+(?:\.\d+)?)\s*(?:gw|gigawatt).*?wind',
-            r'wind.*?(\d+(?:\.\d+)?)\s*(?:gw|gigawatt)',
-            r'(\d+(?:\.\d+)?)\s*(?:gw|gigawatt).*?wind.*?capacity',
-        ]
-        for pattern in wind_patterns:
-            match = re.search(pattern, text)
-            if match:
-                metrics['wind_target'] = float(match.group(1))
-                break
-        
-        # Extract energy access target
-        access_patterns = [
-            r'(\d+(?:\.\d+)?)\s*%\s*(?:electricity\s*)?access',
-            r'access.*?(\d+(?:\.\d+)?)\s*%',
-            r'(\d+(?:\.\d+)?)\s*%\s*access.*?electricity',
-        ]
-        for pattern in access_patterns:
-            match = re.search(pattern, text)
-            if match:
-                metrics['energy_access_target'] = float(match.group(1))
-                break
-        
-        # Extract energy poverty target
-        poverty_patterns = [
-            r'energy\s*poverty.*?(\d+(?:\.\d+)?)\s*%',
-            r'reduce.*?energy\s*poverty.*?to\s*(\d+(?:\.\d+)?)\s*%',
-            r'energy\s*poverty.*?(\d+(?:\.\d+)?)\s*%',
-        ]
-        for pattern in poverty_patterns:
-            match = re.search(pattern, text)
-            if match:
-                metrics['energy_poverty_target'] = float(match.group(1))
-                break
-        
-        # Extract CO2 reduction target
-        co2_patterns = [
-            r'co2.*?(\d+(?:\.\d+)?)\s*%',
-            r'reduce.*?co2.*?by\s*(\d+(?:\.\d+)?)\s*%',
-            r'(\d+(?:\.\d+)?)\s*%\s*reduction.*?co2',
-        ]
-        for pattern in co2_patterns:
-            match = re.search(pattern, text)
-            if match:
-                metrics['co2_reduction_target'] = float(match.group(1))
-                break
-        
-        # Extract clean cooking access target
-        clean_cooking_patterns = [
-            r'clean\s*cooking.*?(\d+(?:\.\d+)?)\s*%',
-            r'(\d+(?:\.\d+)?)\s*%\s*clean\s*cooking',
-            r'clean\s*cooking.*?target.*?(\d+(?:\.\d+)?)\s*%',
-        ]
-        for pattern in clean_cooking_patterns:
-            match = re.search(pattern, text)
-            if match:
-                metrics['clean_cooking_target'] = float(match.group(1))
-                break
-        
-        # Extract population growth rate
-        growth_patterns = [
-            r'population.*?growth.*?(\d+(?:\.\d+)?)\s*%',
-            r'(\d+(?:\.\d+)?)\s*%\s*population.*?growth',
-            r'annual.*?growth.*?(\d+(?:\.\d+)?)\s*%',
-        ]
-        for pattern in growth_patterns:
-            match = re.search(pattern, text)
-            if match:
-                metrics['population_growth_rate'] = float(match.group(1)) / 100  # Convert to decimal
-                break
-        
-        return metrics
-    
-    def set_nlp_mode(self, use_nlp: bool, nlp_backend: str = "spacy"):
-        """
-        Enable or disable NLP-based extraction.
-        
-        Parameters:
-        -----------
-        use_nlp : bool
-            Whether to use NLP extraction
-        nlp_backend : str
-            NLP backend: "spacy", "openai", or "anthropic"
-        """
-        if use_nlp and not NLP_AVAILABLE:
-            print("⚠️  NLP not available. Install dependencies: pip install spacy")
-            return
-        
-        self.use_nlp = use_nlp and NLP_AVAILABLE
-        if self.use_nlp and HybridExtractor:
-            try:
-                self.nlp_extractor = HybridExtractor(nlp_backend=nlp_backend, use_nlp=True)
-            except Exception as e:
-                print(f"⚠️  Failed to initialize NLP extractor: {e}")
-                self.use_nlp = False
-    
-    def generate_baseline_forecast(
-        self, 
-        country: str, 
-        start_year: int, 
-        end_year: int
-    ) -> Dict[str, List[Dict[str, Any]]]:
-        """
-        Generate baseline forecast using ML models (if available) or statistical models.
-        
-        Hybrid approach:
-        - ML models: Learn patterns from historical data across all countries
-        - Statistical models: Fallback if ML models unavailable or insufficient data
-        
-        Policy adjustments are then applied on top of baseline forecasts.
-        """
-        # Try ML forecasting first if enabled
-        if self.use_ml_forecasting and self.ml_forecaster:
-            try:
-                ml_forecast = self.ml_forecaster.forecast(
-                    country=country,
-                    start_year=start_year,
-                    end_year=end_year,
-                    historical_data=self.historical_data
-                )
-                
-                # Check if ML forecast is valid (not empty)
-                if ml_forecast and any(len(v) > 0 for v in ml_forecast.values()):
-                    print(f"✅ Using ML-based baseline forecast for {country}")
-                    return ml_forecast
-                else:
-                    print(f"⚠️  ML forecast empty for {country}, falling back to statistical")
-            except Exception as e:
-                print(f"⚠️  ML forecasting error for {country}: {e}")
-                print("   Falling back to statistical forecasting")
-        
-        # Fallback to statistical forecasting
-        if self.historical_data is None or self.historical_data.empty:
-            return self._generate_default_forecast(start_year, end_year)
-        
-        # Filter country data
-        country_data = self.historical_data[
-            self.historical_data['country'].str.lower() == country.lower()
-        ].copy()
-        
-        if country_data.empty:
-            return self._generate_default_forecast(start_year, end_year)
-        
-        # Get latest year of data
-        latest_year = country_data['year'].max()
-        latest_data = country_data[country_data['year'] == latest_year].iloc[0]
-        
-        # Calculate trends from last 5 years
-        recent_years = country_data[country_data['year'] >= latest_year - 5]
-        
-        forecasts = {
-            'renewable_share': [],
-            'electricity_demand': [],
-            'co2_emissions': [],
-            'energy_poverty': [],
-            'electricity_per_capita': [],
-            'electricity_per_capita_with_access': [],
-            'clean_cooking_access': [],
-        }
-        
-        # Calculate annual growth rates - safely handle missing columns
-        if len(recent_years) >= 2:
-            renewable_growth = self._calculate_growth_rate(
-                recent_years, 'renewables_share_elec'
-            )
-            demand_growth = self._calculate_growth_rate(
-                recent_years, 'electricity_demand (TWh)'
-            )
-            co2_growth = self._calculate_growth_rate(
-                recent_years, 'carbon_intensity_elec'
-            )
-            poverty_growth = self._calculate_growth_rate(
-                recent_years, 'energy_poverty_electricity (% of total population)'
-            )
-            per_capita_growth = self._calculate_growth_rate(
-                recent_years, 'electricity_demand_per_capita (kWh)'
-            )
-            per_capita_access_growth = self._calculate_growth_rate(
-                recent_years, 'electricity_demand_per_capita_with_access (kWh)'
-            )
-            clean_cooking_growth = self._calculate_growth_rate(
-                recent_years, 'Access to Clean Fuels and Technologies for cooking (% of total population)'
-            )
-        else:
-            # Default growth rates if insufficient data
-            renewable_growth = 0.02  # 2% per year
-            demand_growth = 0.03  # 3% per year
-            co2_growth = -0.01  # -1% per year (decreasing)
-            poverty_growth = -0.02  # -2% per year (decreasing)
-            per_capita_growth = 0.025  # 2.5% per year
-            per_capita_access_growth = 0.03  # 3% per year
-            clean_cooking_growth = 0.015  # 1.5% per year
-        
-        # Get baseline values - safely access Series values
-        def safe_get(series, key, default):
-            """Safely get value from pandas Series or dict"""
-            try:
-                if isinstance(series, dict):
-                    value = series.get(key, default)
-                else:
-                    # pandas Series - use .get() method which works like dict.get()
-                    if key in series.index:
-                        value = series[key]
+
+        if m["timeline_start"] is None and m["timeline_end"] is None:
+            years: List[int] = []
+            for p in [r'phase\s*\d+.*?[\(]?(\d{4})\s*(?:to|-)?\s*(\d{4})?[\)]?', r'(?:by|until)\s*(\d{4})']:
+                hits = re.findall(p, text)
+                for h in hits:
+                    if isinstance(h, tuple):
+                        years.extend([int(y) for y in h if y])
                     else:
-                        value = default
-                
-                # Handle NaN values
-                if pd.isna(value) or value is None:
-                    return default
-                return float(value) if not pd.isna(value) else default
-            except (KeyError, IndexError, AttributeError, TypeError, ValueError):
-                return default
-        
-        baseline_renewable = safe_get(latest_data, 'renewables_share_elec', 20)
-        baseline_demand = safe_get(latest_data, 'electricity_demand (TWh)', 100)
-        baseline_co2 = safe_get(latest_data, 'carbon_intensity_elec', 500)
-        baseline_poverty = safe_get(latest_data, 'energy_poverty_electricity (% of total population)', 30)
-        baseline_per_capita = safe_get(latest_data, 'electricity_demand_per_capita (kWh)', 1500)
-        baseline_per_capita_access = safe_get(latest_data, 'electricity_demand_per_capita_with_access (kWh)', 2000)
-        baseline_clean_cooking = safe_get(latest_data, 'Access to Clean Fuels and Technologies for cooking (% of total population)', 45)
-        
-        # Generate forecasts
-        for year in range(start_year, end_year + 1):
-            years_ahead = year - latest_year
-            
-            # Renewable share (exponential growth with cap at 100%)
-            renewable_forecast = min(100, baseline_renewable * (1 + renewable_growth) ** years_ahead)
-            
-            # Electricity demand (exponential growth)
-            demand_forecast = baseline_demand * (1 + demand_growth) ** years_ahead
-            
-            # CO2 emissions (decreasing trend)
-            co2_forecast = max(0, baseline_co2 * (1 + co2_growth) ** years_ahead)
-            
-            # Energy poverty (decreasing trend)
-            poverty_forecast = max(0, baseline_poverty * (1 + poverty_growth) ** years_ahead)
-            
-            # Electricity per capita (increasing)
-            per_capita_forecast = baseline_per_capita * (1 + per_capita_growth) ** years_ahead
-            
-            # Electricity per capita with access (increasing faster)
-            per_capita_access_forecast = baseline_per_capita_access * (1 + per_capita_access_growth) ** years_ahead
-            
-            # Clean cooking access (increasing, capped at 100%)
-            clean_cooking_forecast = min(100, baseline_clean_cooking * (1 + clean_cooking_growth) ** years_ahead)
-            
-            forecasts['renewable_share'].append({
-                'year': year,
-                'value': round(renewable_forecast, 2)
-            })
-            forecasts['electricity_demand'].append({
-                'year': year,
-                'value': round(demand_forecast, 2)
-            })
-            forecasts['co2_emissions'].append({
-                'year': year,
-                'value': round(co2_forecast, 2)
-            })
-            forecasts['energy_poverty'].append({
-                'year': year,
-                'value': round(poverty_forecast, 2)
-            })
-            forecasts['electricity_per_capita'].append({
-                'year': year,
-                'value': round(per_capita_forecast, 2)
-            })
-            forecasts['electricity_per_capita_with_access'].append({
-                'year': year,
-                'value': round(per_capita_access_forecast, 2)
-            })
-            forecasts['clean_cooking_access'].append({
-                'year': year,
-                'value': round(clean_cooking_forecast, 2)
-            })
-        
-        return forecasts
-    
+                        years.append(int(h))
+            if years:
+                years = sorted(set(years))
+                m["timeline_start"] = years[0] if len(years) >= 2 else None
+                m["timeline_end"] = years[-1]
+
+        # Solar / Wind targets (GW)
+        for p in [r'(\d+(?:\.\d+)?)\s*(?:gw|gigawatt).*?solar', r'solar.*?(\d+(?:\.\d+)?)\s*(?:gw|gigawatt)']:
+            mm = re.search(p, text)
+            if mm:
+                m["solar_target"] = float(mm.group(1))
+                break
+
+        for p in [r'(\d+(?:\.\d+)?)\s*(?:gw|gigawatt).*?wind', r'wind.*?(\d+(?:\.\d+)?)\s*(?:gw|gigawatt)']:
+            mm = re.search(p, text)
+            if mm:
+                m["wind_target"] = float(mm.group(1))
+                break
+
+        # Access / poverty (%)
+        for p in [r'(\d+(?:\.\d+)?)\s*%\s*(?:electricity\s*)?access', r'access.*?(\d+(?:\.\d+)?)\s*%']:
+            mm = re.search(p, text)
+            if mm:
+                m["energy_access_target"] = float(mm.group(1))
+                break
+
+        for p in [r'reduce.*?energy\s*poverty.*?to\s*(\d+(?:\.\d+)?)\s*%', r'energy\s*poverty.*?(\d+(?:\.\d+)?)\s*%']:
+            mm = re.search(p, text)
+            if mm:
+                m["energy_poverty_target"] = float(mm.group(1))
+                break
+
+        # CO2 reduction (%)
+        for p in [r'reduce.*?co2.*?by\s*(\d+(?:\.\d+)?)\s*%', r'(\d+(?:\.\d+)?)\s*%\s*reduction.*?co2', r'co2.*?(\d+(?:\.\d+)?)\s*%']:
+            mm = re.search(p, text)
+            if mm:
+                m["co2_reduction_target"] = float(mm.group(1))
+                break
+
+        # Clean cooking (%)
+        for p in [r'clean\s*cooking.*?(\d+(?:\.\d+)?)\s*%', r'(\d+(?:\.\d+)?)\s*%\s*clean\s*cooking']:
+            mm = re.search(p, text)
+            if mm:
+                m["clean_cooking_target"] = float(mm.group(1))
+                break
+
+        # Population growth (decimal)
+        for p in [r'population.*?growth.*?(\d+(?:\.\d+)?)\s*%', r'annual.*?growth.*?(\d+(?:\.\d+)?)\s*%']:
+            mm = re.search(p, text)
+            if mm:
+                m["population_growth_rate"] = float(mm.group(1)) / 100.0
+                break
+
+        return m
+
+    # ----------------------------
+    # Forecasting + adjustments
+    # ----------------------------
+    def generate_baseline_forecast(self, country: str, start_year: int, end_year: int) -> Dict[str, List[Dict[str, Any]]]:
+        self._ensure_ml_forecaster()
+        if self.ml_forecaster is None:
+            raise RuntimeError("ML forecasting is required but not available.")
+
+        fc = self.ml_forecaster.forecast(
+            country=country,
+            start_year=start_year,
+            end_year=end_year,
+            historical_data=self.historical_data,
+        )
+        if fc and any(isinstance(v, list) and len(v) > 0 for v in fc.values()):
+            return fc
+
+        raise RuntimeError("ML forecasting produced no outputs.")
+
     def _calculate_growth_rate(self, data: pd.DataFrame, column: str) -> float:
-        """Calculate average annual growth rate from historical data"""
         if column not in data.columns or len(data) < 2:
             return 0.0
-        
-        values = data[column].dropna()
-        if len(values) < 2:
+        tmp = data[["year", column]].dropna().sort_values("year")
+        if len(tmp) < 2:
             return 0.0
-        
-        years = data.loc[values.index, 'year'].values
-        values = values.values
-        
-        # Calculate CAGR (Compound Annual Growth Rate)
-        if values[0] > 0 and values[-1] > 0:
-            n_years = years[-1] - years[0]
-            if n_years > 0:
-                cagr = ((values[-1] / values[0]) ** (1 / n_years)) - 1
-                return cagr
-        
-        return 0.0
-    
-    def _generate_default_forecast(
-        self, 
-        start_year: int, 
-        end_year: int
-    ) -> Dict[str, List[Dict[str, Any]]]:
-        """Generate default forecast when no historical data available"""
-        forecasts = {
-            'renewable_share': [],
-            'electricity_demand': [],
-            'co2_emissions': [],
-            'energy_poverty': [],
-            'electricity_per_capita': [],
-            'electricity_per_capita_with_access': [],
-            'clean_cooking_access': [],
+        y0 = float(tmp.iloc[0][column])
+        y1 = float(tmp.iloc[-1][column])
+        x0 = int(tmp.iloc[0]["year"])
+        x1 = int(tmp.iloc[-1]["year"])
+        n = x1 - x0
+        if n <= 0 or y0 <= 0 or y1 <= 0:
+            return 0.0
+        return (y1 / y0) ** (1 / n) - 1
+
+    def _generate_default_forecast(self, start_year: int, end_year: int) -> Dict[str, List[Dict[str, Any]]]:
+        fc = {
+            "renewable_share": [],
+            "electricity_demand": [],
+            "co2_emissions": [],
+            "energy_poverty": [],
+            "electricity_per_capita": [],
+            "electricity_per_capita_with_access": [],
+            "clean_cooking_access": [],
         }
-        
-        baseline = {
-            'renewable_share': 25,
-            'electricity_demand': 150,
-            'co2_emissions': 400,
-            'energy_poverty': 25,
-            'electricity_per_capita': 1500,
-            'electricity_per_capita_with_access': 2000,
-            'clean_cooking_access': 45,
+        base = {
+            "renewable_share": 25.0,
+            "electricity_demand": 150.0,
+            "co2_emissions": 400.0,
+            "energy_poverty": 25.0,
+            "electricity_per_capita": 1.5,
+            "electricity_per_capita_with_access": 2.0,
+            "clean_cooking_access": 45.0,
         }
-        
+
         for year in range(start_year, end_year + 1):
-            years_ahead = year - start_year
-            for key, base_value in baseline.items():
-                if key == 'renewable_share':
-                    value = min(100, base_value * (1.02 ** years_ahead))
-                elif key == 'electricity_demand':
-                    value = base_value * (1.03 ** years_ahead)
-                elif key == 'co2_emissions':
-                    value = max(0, base_value * (0.99 ** years_ahead))
-                elif key == 'energy_poverty':
-                    value = max(0, base_value * (0.98 ** years_ahead))
-                elif key == 'electricity_per_capita':
-                    value = base_value * (1.025 ** years_ahead)
-                elif key == 'electricity_per_capita_with_access':
-                    value = base_value * (1.03 ** years_ahead)
-                else:  # clean_cooking_access
-                    value = min(100, base_value * (1.015 ** years_ahead))
-                
-                forecasts[key].append({
-                    'year': year,
-                    'value': round(value, 2)
-                })
-        
-        return forecasts
-    
+            t = year - start_year
+            fc["renewable_share"].append({"year": year, "value": round(min(100.0, base["renewable_share"] * (1.02 ** t)), 2)})
+            fc["electricity_demand"].append({"year": year, "value": round(base["electricity_demand"] * (1.03 ** t), 2)})
+            fc["co2_emissions"].append({"year": year, "value": round(max(0.0, base["co2_emissions"] * (0.99 ** t)), 2)})
+            fc["energy_poverty"].append({"year": year, "value": round(max(0.0, base["energy_poverty"] * (0.98 ** t)), 2)})
+            fc["electricity_per_capita"].append({"year": year, "value": round(base["electricity_per_capita"] * (1.025 ** t), 2)})
+            fc["electricity_per_capita_with_access"].append({"year": year, "value": round(base["electricity_per_capita_with_access"] * (1.03 ** t), 2)})
+            fc["clean_cooking_access"].append({"year": year, "value": round(min(100.0, base["clean_cooking_access"] * (1.015 ** t)), 2)})
+        return fc
+
     def apply_policy_adjustments(
         self,
         baseline_forecast: Dict[str, List[Dict[str, Any]]],
         policy_metrics: Dict[str, Any],
-        target_year: int
+        target_year: int,
     ) -> Dict[str, List[Dict[str, Any]]]:
         """
-        Apply policy-driven adjustments to baseline forecast.
-        
-        Adjusts forecasts based on extracted policy targets.
+        Linear ramp to targets by target_year (simple + stable).
         """
-        adjusted_forecast = {
-            'renewable_share': [],
-            'electricity_demand': [],
-            'co2_emissions': [],
-            'energy_poverty': [],
-            'electricity_per_capita': [],
-            'electricity_per_capita_with_access': [],
-            'clean_cooking_access': [],
-        }
-        
-        # Get baseline values for target year
-        baseline_renewable = next(
-            (f['value'] for f in baseline_forecast['renewable_share'] if f['year'] == target_year),
-            baseline_forecast['renewable_share'][-1]['value'] if baseline_forecast['renewable_share'] else 25
-        )
-        baseline_demand = next(
-            (f['value'] for f in baseline_forecast['electricity_demand'] if f['year'] == target_year),
-            baseline_forecast['electricity_demand'][-1]['value'] if baseline_forecast['electricity_demand'] else 150
-        )
-        baseline_co2 = next(
-            (f['value'] for f in baseline_forecast['co2_emissions'] if f['year'] == target_year),
-            baseline_forecast['co2_emissions'][-1]['value'] if baseline_forecast['co2_emissions'] else 400
-        )
-        baseline_poverty = next(
-            (f['value'] for f in baseline_forecast['energy_poverty'] if f['year'] == target_year),
-            baseline_forecast['energy_poverty'][-1]['value'] if baseline_forecast['energy_poverty'] else 25
-        )
-        
-        # Apply policy adjustments
-        target_renewable = policy_metrics.get('renewable_target')
-        target_poverty = policy_metrics.get('energy_poverty_target')
-        co2_reduction = policy_metrics.get('co2_reduction_target')
-        
-        # Calculate adjustment factors
-        renewable_factor = (target_renewable / baseline_renewable) if target_renewable and baseline_renewable > 0 else 1.0
-        poverty_factor = (target_poverty / baseline_poverty) if target_poverty and baseline_poverty > 0 else 1.0
-        co2_factor = (1 - co2_reduction / 100) if co2_reduction else 1.0
-        
-        # Apply gradual adjustments over time
-        for forecast_item in baseline_forecast['renewable_share']:
-            year = forecast_item['year']
-            baseline_value = forecast_item['value']
-            
-            # Calculate progress toward target (0 to 1)
-            start_year = baseline_forecast['renewable_share'][0]['year']
-            progress = (year - start_year) / (target_year - start_year) if target_year > start_year else 1.0
-            progress = max(0, min(1, progress))
-            
-            # Apply adjustment
-            if target_renewable:
-                adjusted_value = baseline_value + (target_renewable - baseline_renewable) * progress
-                adjusted_value = max(0, min(100, adjusted_value))
-            else:
-                adjusted_value = baseline_value
-            
-            adjusted_forecast['renewable_share'].append({
-                'year': year,
-                'value': round(adjusted_value, 2)
-            })
-        
-        # Apply similar adjustments to other metrics
-        for forecast_item in baseline_forecast['electricity_demand']:
-            adjusted_forecast['electricity_demand'].append(forecast_item)
-        
-        # Copy per capita forecasts (will be adjusted based on access targets)
-        for forecast_item in baseline_forecast.get('electricity_per_capita', []):
-            adjusted_forecast['electricity_per_capita'].append(forecast_item)
-        
-        # Adjust per capita with access based on energy access target
-        target_access = policy_metrics.get('energy_access_target')
-        baseline_access = 72  # Default baseline
-        for forecast_item in baseline_forecast.get('electricity_per_capita_with_access', []):
-            year = forecast_item['year']
-            baseline_value = forecast_item['value']
-            start_year = baseline_forecast['electricity_per_capita_with_access'][0]['year'] if baseline_forecast.get('electricity_per_capita_with_access') else start_year
-            progress = (year - start_year) / (target_year - start_year) if target_year > start_year else 1.0
-            progress = max(0, min(1, progress))
-            
-            # If access increases, per capita with access should increase proportionally
-            if target_access:
-                access_factor = 1 + ((target_access - baseline_access) / baseline_access) * progress if baseline_access > 0 else 1.0
-                adjusted_value = baseline_value * access_factor
-            else:
-                adjusted_value = baseline_value
-            
-            adjusted_forecast['electricity_per_capita_with_access'].append({
-                'year': year,
-                'value': round(adjusted_value, 2)
-            })
-        
-        # Adjust clean cooking access
-        target_clean_cooking = policy_metrics.get('clean_cooking_target')
-        baseline_clean_cooking_list = baseline_forecast.get('clean_cooking_access', [])
-        baseline_clean_cooking = baseline_clean_cooking_list[-1].get('value', 45) if baseline_clean_cooking_list and len(baseline_clean_cooking_list) > 0 else 45
-        for forecast_item in baseline_clean_cooking_list:
-            year = forecast_item['year']
-            baseline_value = forecast_item['value']
-            start_year = baseline_clean_cooking_list[0]['year'] if baseline_clean_cooking_list and len(baseline_clean_cooking_list) > 0 else start_year
-            progress = (year - start_year) / (target_year - start_year) if target_year > start_year else 1.0
-            progress = max(0, min(1, progress))
-            
-            if target_clean_cooking:
-                adjusted_value = baseline_value + (target_clean_cooking - baseline_clean_cooking) * progress
-                adjusted_value = max(0, min(100, adjusted_value))
-            else:
-                adjusted_value = baseline_value
-            
-            adjusted_forecast['clean_cooking_access'].append({
-                'year': year,
-                'value': round(adjusted_value, 2)
-            })
-        
-        for forecast_item in baseline_forecast['co2_emissions']:
-            year = forecast_item['year']
-            baseline_value = forecast_item['value']
-            start_year = baseline_forecast['co2_emissions'][0]['year']
-            progress = (year - start_year) / (target_year - start_year) if target_year > start_year else 1.0
-            progress = max(0, min(1, progress))
-            
-            if co2_reduction:
-                adjusted_value = baseline_value * (1 - (co2_reduction / 100) * progress)
-            else:
-                adjusted_value = baseline_value
-            
-            adjusted_forecast['co2_emissions'].append({
-                'year': year,
-                'value': round(max(0, adjusted_value), 2)
-            })
-        
-        for forecast_item in baseline_forecast['energy_poverty']:
-            year = forecast_item['year']
-            baseline_value = forecast_item['value']
-            start_year = baseline_forecast['energy_poverty'][0]['year']
-            progress = (year - start_year) / (target_year - start_year) if target_year > start_year else 1.0
-            progress = max(0, min(1, progress))
-            
-            if target_poverty:
-                adjusted_value = baseline_value + (target_poverty - baseline_poverty) * progress
-            else:
-                adjusted_value = baseline_value
-            
-            adjusted_forecast['energy_poverty'].append({
-                'year': year,
-                'value': round(max(0, min(100, adjusted_value)), 2)
-            })
-        
-        return adjusted_forecast
-    
-    def analyze_policy(
-        self,
-        policy_text: str,
-        country: Optional[str] = None,
-        target_year: int = 2100
-    ) -> Dict[str, Any]:
-        """
-        Complete policy analysis pipeline:
-        1. Extract metrics from policy text
-        2. Generate baseline forecast
-        3. Apply policy adjustments
-        4. Return results
-        """
-        # Extract policy metrics
+        adjusted = {k: [] for k in baseline_forecast.keys()}
+
+        def value_at(series: List[Dict[str, Any]], year: int, default: float) -> float:
+            for item in series:
+                if item.get("year") == year:
+                    return float(item.get("value", default))
+            return float(series[-1]["value"]) if series else default
+
+        start_year = baseline_forecast["renewable_share"][0]["year"] if baseline_forecast.get("renewable_share") else target_year
+
+        def prog(y: int) -> float:
+            if target_year <= start_year:
+                return 1.0
+            p = (y - start_year) / (target_year - start_year)
+            return max(0.0, min(1.0, p))
+
+        renewable_target = policy_metrics.get("renewable_target")
+        poverty_target = policy_metrics.get("energy_poverty_target")
+        co2_reduction = policy_metrics.get("co2_reduction_target")  # %
+
+        base_renew_t = value_at(baseline_forecast.get("renewable_share", []), target_year, 25.0)
+        base_pov_t = value_at(baseline_forecast.get("energy_poverty", []), target_year, 25.0)
+
+        for item in baseline_forecast.get("renewable_share", []):
+            y, v = int(item["year"]), float(item["value"])
+            if renewable_target is not None:
+                v = v + (float(renewable_target) - base_renew_t) * prog(y)
+                v = max(0.0, min(100.0, v))
+            adjusted["renewable_share"].append({"year": y, "value": round(v, 2)})
+
+        adjusted["electricity_demand"] = list(baseline_forecast.get("electricity_demand", []))
+        adjusted["electricity_per_capita"] = list(baseline_forecast.get("electricity_per_capita", []))
+        adjusted["electricity_per_capita_with_access"] = list(baseline_forecast.get("electricity_per_capita_with_access", []))
+        adjusted["clean_cooking_access"] = list(baseline_forecast.get("clean_cooking_access", []))
+
+        for item in baseline_forecast.get("co2_emissions", []):
+            y, v = int(item["year"]), float(item["value"])
+            if co2_reduction is not None:
+                v = v * (1 - (float(co2_reduction) / 100.0) * prog(y))
+                v = max(0.0, v)
+            adjusted["co2_emissions"].append({"year": y, "value": round(v, 2)})
+
+        for item in baseline_forecast.get("energy_poverty", []):
+            y, v = int(item["year"]), float(item["value"])
+            if poverty_target is not None:
+                v = v + (float(poverty_target) - base_pov_t) * prog(y)
+                v = max(0.0, min(100.0, v))
+            adjusted["energy_poverty"].append({"year": y, "value": round(v, 2)})
+
+        return adjusted
+
+    def analyze_policy(self, policy_text: str, country: Optional[str] = None, target_year: int = 2100) -> Dict[str, Any]:
         policy_metrics = self.extract_policy_metrics(policy_text)
-        
-        # Determine start year
-        start_year = policy_metrics.get('timeline_start') or 2025
-        end_year = policy_metrics.get('timeline_end') or target_year
-        
-        # Generate baseline forecast
-        baseline_forecast = self.generate_baseline_forecast(
-            country or 'Algeria',  # Default country
-            start_year,
-            end_year
+
+        resolved_country = (
+            (country.strip() if isinstance(country, str) and country.strip() else None)
+            or policy_metrics.get("country")
+            or self.default_country
         )
-        
-        # Apply policy adjustments
-        adjusted_forecast = self.apply_policy_adjustments(
-            baseline_forecast,
-            policy_metrics,
-            end_year
-        )
-        
-        # Calculate summary metrics
-        final_year_data = {
-            'renewable_share': adjusted_forecast['renewable_share'][-1]['value'] if adjusted_forecast['renewable_share'] else 0,
-            'electricity_demand': adjusted_forecast['electricity_demand'][-1]['value'] if adjusted_forecast['electricity_demand'] else 0,
-            'co2_emissions': adjusted_forecast['co2_emissions'][-1]['value'] if adjusted_forecast['co2_emissions'] else 0,
-            'energy_poverty': adjusted_forecast['energy_poverty'][-1]['value'] if adjusted_forecast['energy_poverty'] else 0,
+
+        start_year = int(policy_metrics.get("timeline_start") or 2025)
+        end_year = int(policy_metrics.get("timeline_end") or target_year)
+
+        baseline = self.generate_baseline_forecast(resolved_country, start_year, end_year)
+        adjusted = self.apply_policy_adjustments(baseline, policy_metrics, end_year)
+
+        summary = {
+            "country": resolved_country,
+            "renewable_share": adjusted["renewable_share"][-1]["value"] if adjusted.get("renewable_share") else 0.0,
+            "electricity_demand": adjusted["electricity_demand"][-1]["value"] if adjusted.get("electricity_demand") else 0.0,
+            "co2_emissions": adjusted["co2_emissions"][-1]["value"] if adjusted.get("co2_emissions") else 0.0,
+            "energy_poverty": adjusted["energy_poverty"][-1]["value"] if adjusted.get("energy_poverty") else 0.0,
         }
-        
-        # Generate AI overview
-        ai_overview = self._generate_ai_overview(policy_metrics, adjusted_forecast, final_year_data, start_year, end_year)
-        
+
+        overview = self._generate_ai_overview(policy_metrics, adjusted, summary, start_year, end_year)
+
         return {
-            'policy_metrics': policy_metrics,
-            'forecasts': adjusted_forecast,
-            'summary': final_year_data,
-            'timeline': {
-                'start_year': start_year,
-                'end_year': end_year
-            },
-            'ai_overview': ai_overview
+            "policy_metrics": policy_metrics,
+            "country": resolved_country,
+            "forecasts": adjusted,
+            "summary": summary,
+            "timeline": {"start_year": start_year, "end_year": end_year},
+            "ai_overview": overview,
         }
-    
+
     def _generate_ai_overview(
         self,
         policy_metrics: Dict[str, Any],
         forecasts: Dict[str, List[Dict[str, Any]]],
         summary: Dict[str, float],
         start_year: int,
-        end_year: int
+        end_year: int,
     ) -> str:
-        """
-        Generate a natural language summary of the policy analysis and forecasts.
-        """
-        overview_parts = []
-        
-        # Policy targets summary
-        if policy_metrics.get('renewable_target'):
-            overview_parts.append(
-                f"Based on the policy's target of achieving {policy_metrics['renewable_target']}% renewable energy share"
-            )
-        else:
-            overview_parts.append("Based on current trends and policy initiatives")
-        
-        # Key findings
-        if forecasts.get('renewable_share'):
-            final_renewable = forecasts['renewable_share'][-1]['value']
-            overview_parts.append(
-                f"the renewable energy share is projected to reach {final_renewable:.1f}% by {end_year}."
-            )
-        
-        # Energy poverty analysis
-        if forecasts.get('energy_poverty'):
-            final_poverty = forecasts['energy_poverty'][-1]['value']
-            initial_poverty = forecasts['energy_poverty'][0]['value'] if forecasts['energy_poverty'] else final_poverty
-            poverty_reduction = initial_poverty - final_poverty
-            
-            if policy_metrics.get('energy_poverty_target'):
-                overview_parts.append(
-                    f"\n\nEnergy poverty is forecasted to decrease from {initial_poverty:.1f}% to {final_poverty:.1f}% by {end_year}, "
-                    f"achieving the policy target of {policy_metrics['energy_poverty_target']}%. "
-                    f"This represents a reduction of {poverty_reduction:.1f} percentage points over the policy period."
-                )
-            else:
-                overview_parts.append(
-                    f"\n\nEnergy poverty is projected to decrease from {initial_poverty:.1f}% to {final_poverty:.1f}% by {end_year}, "
-                    f"representing a {poverty_reduction:.1f} percentage point reduction."
-                )
-        
-        # Electricity access and per capita
-        if forecasts.get('electricity_per_capita_with_access') and forecasts.get('electricity_per_capita'):
-            final_per_capita = forecasts['electricity_per_capita'][-1]['value']
-            final_per_capita_access = forecasts['electricity_per_capita_with_access'][-1]['value']
-            
-            if policy_metrics.get('energy_access_target'):
-                overview_parts.append(
-                    f"\n\nWith the policy's target of {policy_metrics['energy_access_target']}% electricity access, "
-                    f"electricity consumption per capita for those with access is projected to reach {final_per_capita_access:.0f} kWh/year by {end_year}, "
-                    f"while overall per capita consumption will be {final_per_capita:.0f} kWh/year."
-                )
-            else:
-                overview_parts.append(
-                    f"\n\nElectricity consumption per capita is forecasted to reach {final_per_capita:.0f} kWh/year by {end_year}, "
-                    f"with those having access consuming {final_per_capita_access:.0f} kWh/year."
-                )
-        
-        # Clean cooking
-        if forecasts.get('clean_cooking_access'):
-            final_clean_cooking = forecasts['clean_cooking_access'][-1]['value']
-            initial_clean_cooking = forecasts['clean_cooking_access'][0]['value'] if forecasts['clean_cooking_access'] else final_clean_cooking
-            
-            if policy_metrics.get('clean_cooking_target'):
-                overview_parts.append(
-                    f"\n\nClean cooking access is projected to increase from {initial_clean_cooking:.1f}% to {final_clean_cooking:.1f}% by {end_year}, "
-                    f"meeting the policy target of {policy_metrics['clean_cooking_target']}%."
-                )
-            else:
-                overview_parts.append(
-                    f"\n\nClean cooking access is forecasted to improve from {initial_clean_cooking:.1f}% to {final_clean_cooking:.1f}% by {end_year}."
-                )
-        
-        # CO2 emissions
-        if forecasts.get('co2_emissions'):
-            final_co2 = forecasts['co2_emissions'][-1]['value']
-            initial_co2 = forecasts['co2_emissions'][0]['value'] if forecasts['co2_emissions'] else final_co2
-            co2_reduction_pct = ((initial_co2 - final_co2) / initial_co2 * 100) if initial_co2 > 0 else 0
-            
-            if policy_metrics.get('co2_reduction_target'):
-                overview_parts.append(
-                    f"\n\nCO2 emissions intensity is projected to decrease from {initial_co2:.1f} to {final_co2:.1f} gCO₂/kWh by {end_year}, "
-                    f"achieving a {co2_reduction_pct:.1f}% reduction, which aligns with the policy's target of {policy_metrics['co2_reduction_target']}% reduction."
-                )
-            else:
-                overview_parts.append(
-                    f"\n\nCO2 emissions intensity is forecasted to decrease from {initial_co2:.1f} to {final_co2:.1f} gCO₂/kWh by {end_year}, "
-                    f"representing a {co2_reduction_pct:.1f}% reduction."
-                )
-        
-        # Investment impact
-        if policy_metrics.get('investment_amount'):
-            overview_parts.append(
-                f"\n\nThe policy's planned investment of ${policy_metrics['investment_amount']:.1f} billion over the period "
-                f"({start_year}-{end_year}) is expected to drive these improvements across renewable energy deployment, "
-                f"grid modernization, and energy access expansion."
-            )
-        
-        # Conclusion
-        overview_parts.append(
-            f"\n\nOverall, if the policy targets are met, significant progress is expected in reducing energy poverty, "
-            f"expanding electricity access, and transitioning to renewable energy sources by {end_year}."
-        )
-        
-        return "".join(overview_parts)
+        parts: List[str] = []
+        c = summary.get("country") or "the selected country"
 
+        rt = policy_metrics.get("renewable_target")
+        if rt is not None:
+            parts.append(f"For {c}, the policy targets {rt:.1f}% renewable electricity share")
+        else:
+            parts.append(f"For {c}, based on current trends and policy signals")
+
+        if forecasts.get("renewable_share"):
+            parts.append(f", renewable share is projected to reach {forecasts['renewable_share'][-1]['value']:.1f}% by {end_year}.")
+
+        if forecasts.get("energy_poverty"):
+            p0 = forecasts["energy_poverty"][0]["value"]
+            p1 = forecasts["energy_poverty"][-1]["value"]
+            parts.append(f"\n\nEnergy poverty changes from {p0:.1f}% to {p1:.1f}% by {end_year}.")
+
+        if forecasts.get("co2_emissions"):
+            c0 = forecasts["co2_emissions"][0]["value"]
+            c1 = forecasts["co2_emissions"][-1]["value"]
+            if c0 > 0:
+                parts.append(f"\n\nCO₂ intensity proxy decreases from {c0:.1f} to {c1:.1f} (≈{((c0-c1)/c0*100):.1f}% reduction).")
+            else:
+                parts.append(f"\n\nCO₂ intensity proxy is {c1:.1f} by {end_year}.")
+
+        inv = policy_metrics.get("investment_amount")
+        if inv is not None:
+            parts.append(f"\n\nPlanned investment: ${inv:.1f}B over {start_year}–{end_year}.")
+
+        return "".join(parts)

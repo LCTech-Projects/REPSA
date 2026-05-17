@@ -9,19 +9,8 @@ def get_analyzer():
     Lazy initialization of PolicyAnalyzer.
     Reads NLP preferences from environment variables (Config.USE_NLP, Config.NLP_BACKEND).
     """
-    try:
-        # PolicyAnalyzer will automatically read NLP settings from Config (env vars)
-        return PolicyAnalyzer()
-    except Exception as e:
-        # If initialization fails, create a minimal analyzer
-        import pandas as pd
-        analyzer = PolicyAnalyzer.__new__(PolicyAnalyzer)
-        analyzer.historical_data = pd.DataFrame()
-        analyzer.data_dir = None
-        analyzer.yearly_data_path = None
-        analyzer.use_nlp = False
-        analyzer.nlp_extractor = None
-        return analyzer
+    # PolicyAnalyzer will automatically read NLP/ML settings from Config (env vars)
+    return PolicyAnalyzer()
 
 @story_mode_bp.route('/analyze-policy', methods=['POST'])
 def analyze_policy():
@@ -205,30 +194,14 @@ def simulate_scenario():
         policy_metrics['timeline_start'] = start_year
         policy_metrics['timeline_end'] = target_year
         
-        # Generate baseline forecast
-        baseline_forecast = analyzer.generate_baseline_forecast(
-            country or 'Algeria',
-            start_year,
-            target_year
+        simulated = analyzer.simulate_model_driven_scenario(
+            country=country or 'Algeria',
+            start_year=start_year,
+            end_year=target_year,
+            policy_metrics=policy_metrics,
         )
-        
-        # Apply policy adjustments using the manual parameters
-        adjusted_forecast = analyzer.apply_policy_adjustments(
-            baseline_forecast,
-            policy_metrics,
-            target_year
-        )
-        
-        # Calculate summary metrics
-        final_year_data = {
-            'renewable_share': adjusted_forecast['renewable_share'][-1]['value'] if adjusted_forecast['renewable_share'] else 0,
-            'electricity_demand': adjusted_forecast['electricity_demand'][-1]['value'] if adjusted_forecast['electricity_demand'] else 0,
-            'co2_emissions': adjusted_forecast['co2_emissions'][-1]['value'] if adjusted_forecast['co2_emissions'] else 0,
-            'energy_poverty': adjusted_forecast['energy_poverty'][-1]['value'] if adjusted_forecast['energy_poverty'] else 0,
-        }
-        
-        # Generate AI overview
-        ai_overview = analyzer._generate_ai_overview(policy_metrics, adjusted_forecast, final_year_data, start_year, target_year)
+        adjusted_forecast = simulated.get('forecasts', {})
+        final_year_data = simulated.get('summary', {})
         
         return jsonify({
             'success': True,
@@ -239,8 +212,7 @@ def simulate_scenario():
                 'timeline': {
                     'start_year': start_year,
                     'end_year': target_year
-                },
-                'ai_overview': ai_overview
+                }
             }
         })
     

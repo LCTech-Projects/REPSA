@@ -4,6 +4,7 @@ import tempfile
 from typing import List, Dict, Any, Optional
 from app.utils.config import Config
 from app.utils.cache import cache
+from app.utils.per_capita_units import yearly_per_capita_mwh
 
 class HistoricalService:
     def __init__(self):
@@ -45,8 +46,8 @@ class HistoricalService:
                 'country': row['country'],
                 'year': int(row['year']),
                 'electricity_demand': float(row['electricity_demand (TWh)']) if pd.notna(row['electricity_demand (TWh)']) else None,
-                'electricity_demand_per_capita': float(row['electricity_demand_per_capita (kWh)']) if pd.notna(row['electricity_demand_per_capita (kWh)']) else None,
-                'electricity_demand_per_capita_with_access': float(row['electricity_demand_per_capita_with_access (kWh)']) if pd.notna(row['electricity_demand_per_capita_with_access (kWh)']) else None
+                'electricity_demand_per_capita': yearly_per_capita_mwh(row, with_access=False),
+                'electricity_demand_per_capita_with_access': yearly_per_capita_mwh(row, with_access=True),
             })
         
         return result
@@ -82,8 +83,8 @@ class HistoricalService:
                 yearly_data.append({
                     'year': int(row['year']),
                     'electricity_demand': float(row['electricity_demand (TWh)']) if pd.notna(row['electricity_demand (TWh)']) else None,
-                    'electricity_demand_per_capita': float(row['electricity_demand_per_capita (kWh)']) if pd.notna(row['electricity_demand_per_capita (kWh)']) else None,
-                    'electricity_demand_per_capita_with_access': float(row['electricity_demand_per_capita_with_access (kWh)']) if pd.notna(row['electricity_demand_per_capita_with_access (kWh)']) else None
+                    'electricity_demand_per_capita': yearly_per_capita_mwh(row, with_access=False),
+                    'electricity_demand_per_capita_with_access': yearly_per_capita_mwh(row, with_access=True),
                 })
             
             # Sort by year

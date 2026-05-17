@@ -1,3 +1,9 @@
+"""Local Flask app entrypoint for development.
+
+Run:
+    python api/run.py
+"""
+
 from app import create_app
 
 app = create_app()
