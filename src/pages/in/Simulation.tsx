@@ -3,10 +3,7 @@ import { MetricCard } from "../../components/cards/MetricCard";
 import { ChartCard } from "../../components/cards/ChartCard";
 import { Slider } from "../../components/inputs/Slider";
 import { FeedbackModal } from "../../components/modals/FeedbackModal";
-import {
-  useAnalyzePolicyMutation,
-  useSimulateScenarioMutation,
-} from "../../app/appSlices/apiSlice";
+import { useSimulateScenarioMutation } from "../../app/appSlices/apiSlice";
 import { useGetAvailableCountriesQuery } from "../../app/appSlices/apiSlice";
 import * as d3 from "d3";
 import { calculateYearTicks } from "../../components/utils/ChartUtils";
@@ -28,20 +25,9 @@ interface ForecastData {
   value: number;
 }
 
-interface PolicyAnalysisResult {
-  policy_metrics: {
-    renewable_target?: number;
-    investment_amount?: number;
-    timeline_start?: number;
-    timeline_end?: number;
-    solar_target?: number;
-    wind_target?: number;
-    energy_access_target?: number;
-    energy_poverty_target?: number;
-    co2_reduction_target?: number;
-    clean_cooking_target?: number;
-    population_growth_rate?: number;
-  };
+interface ScenarioResult {
+  scenario_params?: Record<string, number>;
+  policy_metrics?: Record<string, number>;
   forecasts: {
     renewable_share: ForecastData[];
     electricity_demand: ForecastData[];
@@ -65,14 +51,9 @@ interface PolicyAnalysisResult {
     start_year: number;
     end_year: number;
   };
-  ai_overview?: string;
 }
 
-type TabMode = "builder" | "analyzer";
-
 export const Simulation = () => {
-  const [activeTab, setActiveTab] = useState<TabMode>("builder");
-
   // Scenario Builder State
   const [scenarioParams, setScenarioParams] = useState<ScenarioParameters>({
     renewable_target: 60,
@@ -89,16 +70,9 @@ export const Simulation = () => {
   const [isParametersExpanded, setIsParametersExpanded] = useState(true);
   const [hasSimulated, setHasSimulated] = useState(false);
   const [isSimulating, setIsSimulating] = useState(false);
-  const [scenarioResult, setScenarioResult] =
-    useState<PolicyAnalysisResult | null>(null);
-
-  // Policy Analyzer State
-  const [policyText, setPolicyText] = useState("");
-  const [selectedYear, setSelectedYear] = useState<number>(2100);
-  const [selectedCountry, setSelectedCountry] = useState<string>("Algeria");
-  const [analysisResult, setAnalysisResult] =
-    useState<PolicyAnalysisResult | null>(null);
-  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [scenarioResult, setScenarioResult] = useState<ScenarioResult | null>(
+    null,
+  );
 
   const [feedbackModal, setFeedbackModal] = useState({
     isOpen: false,
@@ -108,13 +82,11 @@ export const Simulation = () => {
     details: "",
   });
 
-  const [analyzePolicy, { isLoading: isAnalyzing }] =
-    useAnalyzePolicyMutation();
   const [simulateScenario] = useSimulateScenarioMutation();
   const { data: countriesData } = useGetAvailableCountriesQuery();
   const availableCountries = countriesData?.data || [];
 
-  // Policy Analyzer Chart refs (Yearly-style charts, excluding population)
+  // Chart refs (Yearly-style charts, excluding population)
   const electricityAccessChartRef = useRef<SVGSVGElement>(null);
   const electricityAccessChartContainerRef = useRef<HTMLDivElement>(null);
   const co2EmissionChartRef = useRef<SVGSVGElement>(null);
@@ -335,19 +307,6 @@ export const Simulation = () => {
     }
   };
 
-  // Policy Analyzer Handlers
-  const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        const text = e.target?.result as string;
-        setPolicyText(text);
-      };
-      reader.readAsText(file);
-    }
-  };
-
   const showFeedback = (
     type: "error" | "warning" | "info" | "success",
     title: string,
@@ -373,131 +332,16 @@ export const Simulation = () => {
     });
   };
 
-  const handleAnalyze = async () => {
-    if (!policyText.trim()) {
-      showFeedback(
-        "warning",
-        "Policy Document Required",
-        "Please enter or upload a policy document to analyze.",
-      );
-      return;
-    }
-
-    try {
-      const result = await analyzePolicy({
-        policy_text: policyText,
-        country: selectedCountry,
-        target_year: selectedYear,
-      }).unwrap();
-
-      if (result.success && result.data) {
-        setAnalysisResult(result.data);
-      } else {
-        const errorTitle = result.error || "Analysis Failed";
-        const errorMessage =
-          result.message ||
-          "We couldn't analyze your policy document. Please ensure it contains valid text and try again.";
-        showFeedback("error", errorTitle, errorMessage);
-      }
-    } catch (error: any) {
-      let errorTitle = "Analysis Failed";
-      let errorMessage =
-        "We encountered an issue while analyzing your policy document.";
-
-      if (error?.status === "FETCH_ERROR") {
-        errorTitle = "Connection Error";
-        errorMessage =
-          "Unable to connect to the analysis server. Please check your internet connection and ensure the backend service is running. If the problem persists, try refreshing the page.";
-      } else if (error?.status === "PARSING_ERROR") {
-        errorTitle = "Data Processing Error";
-        errorMessage =
-          "The server returned data in an unexpected format. This may be a temporary issue. Please try again in a moment.";
-      } else if (error?.status === "TIMEOUT_ERROR") {
-        errorTitle = "Request Timeout";
-        errorMessage =
-          "The analysis is taking longer than expected. Your policy document might be very large. Please try again or consider breaking it into smaller sections.";
-      } else if (error?.status === "CUSTOM_ERROR") {
-        errorTitle = error?.data?.error || "Analysis Error";
-        errorMessage =
-          error?.data?.message ||
-          error?.message ||
-          "An error occurred during policy analysis.";
-      } else if (error?.data) {
-        const serverErrorTitle = error.data.error;
-        const serverErrorMessage = error.data.message;
-
-        if (serverErrorMessage) {
-          errorMessage = serverErrorMessage;
-          errorTitle = serverErrorTitle || "Analysis Error";
-        } else if (serverErrorTitle) {
-          errorTitle = serverErrorTitle;
-          errorMessage =
-            "An error occurred while processing your policy document. Please check the document format and try again.";
-        } else if (error.data.detail) {
-          errorTitle = "Invalid Request";
-          errorMessage = `The request could not be processed: ${error.data.detail}`;
-        } else {
-          errorTitle = "Server Error";
-          errorMessage =
-            "The server encountered an error while processing your policy. Please check your policy document format and try again.";
-        }
-      } else if (error?.message) {
-        errorTitle = "Error";
-        errorMessage = error.message;
-      } else {
-        errorTitle = "Unknown Error";
-        errorMessage =
-          "An unexpected error occurred. Please try again. If the problem persists, ensure your policy document contains valid text and try with a simpler document first.";
-      }
-
-      showFeedback("error", errorTitle, errorMessage);
-    }
-  };
-
-  const handleReset = () => {
-    setPolicyText("");
-    setSelectedYear(2100);
-    setAnalysisResult(null);
-    if (fileInputRef.current) {
-      fileInputRef.current.value = "";
-    }
-  };
-
   const formatPercentage = (value: number) => `${value.toFixed(1)}%`;
 
-  // Create or select tooltip div for Policy Analyzer
-  useEffect(() => {
-    if (activeTab === "analyzer") {
-      let tooltip = d3.select("body").select<HTMLDivElement>(".chart-tooltip");
-      if (tooltip.empty()) {
-        tooltip = d3
-          .select("body")
-          .append("div")
-          .attr("class", "chart-tooltip")
-          .style("position", "fixed")
-          .style("background", "rgba(0, 0, 0, 0.8)")
-          .style("color", "white")
-          .style("padding", "8px 12px")
-          .style("border-radius", "4px")
-          .style("font-size", "12px")
-          .style("pointer-events", "none")
-          .style("opacity", 0)
-          .style("z-index", "1000")
-          .style("font-family", "Inter, sans-serif");
-      }
-    }
-  }, [activeTab]);
-
-  // Chart Effects - Yearly-style charts (excluding population) - Works for both Scenario Builder and Policy Analyzer
+  // Chart dimensions and rendering for scenario results
   // Set up chart dimensions observer
   const [chartDimensions, setChartDimensions] = useState<
     Record<string, { width: number; height: number }>
   >({});
 
   useEffect(() => {
-    const currentResult =
-      activeTab === "analyzer" ? analysisResult : scenarioResult;
-    if (!currentResult) return;
+    if (!scenarioResult) return;
 
     const containerRefs = {
       electricityAccess: electricityAccessChartContainerRef,
@@ -544,27 +388,24 @@ export const Simulation = () => {
       resizeObserver.disconnect();
       window.removeEventListener("resize", updateDimensions);
     };
-  }, [analysisResult, scenarioResult, activeTab]);
+  }, [scenarioResult]);
 
-  // Render all charts (Yearly-style, excluding population) - Works for both Scenario Builder and Policy Analyzer
   useEffect(() => {
-    const currentResult =
-      activeTab === "analyzer" ? analysisResult : scenarioResult;
-    if (!currentResult || Object.keys(chartDimensions).length === 0) return;
+    if (!scenarioResult || Object.keys(chartDimensions).length === 0) return;
 
     const margin = { top: 30, right: 30, bottom: 60, left: 70 };
 
     // Transform forecast data to time_series format for compatibility with yearly chart logic
-    const demandData = currentResult.forecasts.electricity_demand || [];
-    const renewableData = currentResult.forecasts.renewable_share || [];
-    const co2Data = currentResult.forecasts.co2_emissions || [];
-    const povertyData = currentResult.forecasts.energy_poverty || [];
+    const demandData = scenarioResult.forecasts.electricity_demand || [];
+    const renewableData = scenarioResult.forecasts.renewable_share || [];
+    const co2Data = scenarioResult.forecasts.co2_emissions || [];
+    const povertyData = scenarioResult.forecasts.energy_poverty || [];
     const povertyMultiData =
-      currentResult.forecasts.energy_poverty_multidimensional || [];
-    const cleanCookingData = currentResult.forecasts.clean_cooking_access || [];
-    const perCapitaData = currentResult.forecasts.electricity_per_capita || [];
+      scenarioResult.forecasts.energy_poverty_multidimensional || [];
+    const cleanCookingData = scenarioResult.forecasts.clean_cooking_access || [];
+    const perCapitaData = scenarioResult.forecasts.electricity_per_capita || [];
     const perCapitaAccessData =
-      currentResult.forecasts.electricity_per_capita_with_access || [];
+      scenarioResult.forecasts.electricity_per_capita_with_access || [];
 
     // Create time_series-like structure by merging all forecast data by year
     const allYears = new Set([
@@ -1722,7 +1563,7 @@ export const Simulation = () => {
       if (tooltipObserver) tooltipObserver.disconnect();
       d3.select("body").select(".chart-tooltip").remove();
     };
-  }, [analysisResult, scenarioResult, activeTab, chartDimensions]);
+  }, [scenarioResult, chartDimensions]);
 
   const yearOptions = Array.from({ length: 76 }, (_, i) => 2025 + i);
 
@@ -1739,41 +1580,8 @@ export const Simulation = () => {
           </p>
         </div>
 
-        {/* Tabs */}
-        <div className="mb-6 flex gap-4 border-b border-grey-1">
-          <button
-            onClick={() => setActiveTab("builder")}
-            className={`px-6 py-3 text-[1rem] font-inter font-medium transition-colors border-b-2 ${
-              activeTab === "builder"
-                ? "border-blue-1 text-blue-1"
-                : "border-transparent text-grey-2 hover:text-black-1"
-            }`}
-          >
-            Scenario Builder
-          </button>
-          <div className="relative group">
-            <button
-              type="button"
-              aria-disabled="true"
-              className={`px-6 py-3 text-[1rem] font-inter font-medium transition-colors border-b-2 cursor-pointer ${
-                activeTab === "analyzer"
-                  ? "border-blue-1 text-blue-1"
-                  : "border-transparent text-grey-2"
-              }`}
-            >
-              Policy Analyzer
-            </button>
-            <div className="absolute top-full left-1/2 -translate-x-1/2 mt-2 px-3 py-2 bg-black-1 text-white-1 text-[0.875rem] font-inter rounded-[8px] opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 whitespace-nowrap z-[100] pointer-events-none">
-              Coming soon
-              <div className="absolute left-1/2 -translate-x-1/2 bottom-full border-4 border-transparent border-b-black-1"></div>
-            </div>
-          </div>
-        </div>
-
         {/* Scenario Builder Content */}
-        {activeTab === "builder" && (
-          <>
-            {!hasSimulated ? (
+                    {!hasSimulated ? (
               <div className="space-y-4">
                 {/* Country and Timeline Selection */}
                 <div className="bg-white-1 border border-grey-1 rounded-[8px] p-6">
@@ -2018,7 +1826,7 @@ export const Simulation = () => {
                     </button>
                   </div>
 
-                  {/* Charts Section - Same as Policy Analyzer */}
+                  {/* Charts */}
                   <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                     <ChartCard title="Electricity Demand (TWh)">
                       <div
@@ -2177,397 +1985,7 @@ export const Simulation = () => {
                 </div>
               )
             )}
-          </>
-        )}
 
-        {/* Policy Analyzer Content */}
-        {activeTab === "analyzer" && (
-          <>
-            {!analysisResult ? (
-              <div className="space-y-4">
-                {/* Policy Input Section */}
-                <div className="bg-white-1 border border-grey-1 rounded-[8px] p-6">
-                  <h2 className="text-[1.25rem] font-inter font-semibold text-black-1 mb-4">
-                    Policy Document
-                  </h2>
-
-                  {/* Country Selector */}
-                  <div className="mb-4">
-                    <label className="text-[0.875rem] font-inter text-grey-2 mb-2 block">
-                      Country (for context)
-                    </label>
-                    <select
-                      value={selectedCountry}
-                      onChange={(e) => setSelectedCountry(e.target.value)}
-                      className="w-full bg-white-1 border border-grey-1 rounded-[8px] px-4 py-3 text-[0.875rem] font-inter text-black-1 hover:border-grey-2 transition-colors"
-                    >
-                      {availableCountries.map((country: string) => (
-                        <option key={country} value={country}>
-                          {country}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-
-                  {/* File Upload */}
-                  <div className="mb-4">
-                    <label className="text-[0.875rem] font-inter text-grey-2 mb-2 block">
-                      Upload Document
-                    </label>
-                    <input
-                      ref={fileInputRef}
-                      type="file"
-                      accept=".txt"
-                      onChange={handleFileUpload}
-                      className="w-full bg-white-1 border border-grey-1 rounded-[8px] px-4 py-3 text-[0.875rem] font-inter text-black-1 hover:border-grey-2 transition-colors"
-                    />
-                    <p className="text-[0.75rem] font-inter text-grey-2 mt-2">
-                      Supported format: TXT (PDF/DOC support coming soon)
-                    </p>
-                  </div>
-
-                  {/* Text Input */}
-                  <div>
-                    <label className="text-[0.875rem] font-inter text-grey-2 mb-2 block">
-                      Or Type Policy Content
-                    </label>
-                    <textarea
-                      value={policyText}
-                      onChange={(e) => setPolicyText(e.target.value)}
-                      placeholder="Enter policy document content, statistics, or actions regarding energy sector initiatives..."
-                      className="w-full bg-white-1 border border-grey-1 rounded-[8px] px-4 py-3 text-[0.875rem] font-inter text-black-1 hover:border-grey-2 transition-colors min-h-[200px] resize-y"
-                    />
-                  </div>
-                </div>
-
-                {/* Year Selector */}
-                <div className="bg-white-1 border border-grey-1 rounded-[8px] p-6">
-                  <label className="text-[0.875rem] font-inter text-grey-2 mb-2 block">
-                    Forecast Limit Year
-                  </label>
-                  <select
-                    value={selectedYear}
-                    onChange={(e) => setSelectedYear(Number(e.target.value))}
-                    className="w-full bg-white-1 border border-grey-1 rounded-[8px] px-4 py-3 text-[0.875rem] font-inter text-black-1 hover:border-grey-2 transition-colors"
-                  >
-                    {yearOptions.map((year) => (
-                      <option key={year} value={year}>
-                        {year}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-
-                {/* Analyze Button */}
-                <button
-                  onClick={handleAnalyze}
-                  disabled={isAnalyzing || !policyText.trim()}
-                  className="w-full bg-blue-1 text-white-1 px-6 py-4 rounded-[8px] text-[1rem] font-inter font-medium cursor-pointer transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
-                >
-                  {isAnalyzing ? (
-                    <ButtonSpinner color="#FFFFFF" />
-                  ) : (
-                    "Generate Forecast"
-                  )}
-                </button>
-              </div>
-            ) : (
-              <div className="space-y-6">
-                {/* Overview Metrics */}
-                <div className="bg-white-1 border border-grey-1 rounded-[8px] p-6">
-                  <div className="flex items-center justify-between mb-6">
-                    <h2 className="text-[1.5rem] font-inter font-semibold text-black-1">
-                      Forecast Overview ({analysisResult.timeline.start_year} -{" "}
-                      {analysisResult.timeline.end_year})
-                    </h2>
-                    <button
-                      onClick={handleReset}
-                      className="bg-yellow-1 text-blue-2 px-4 py-2 rounded-[8px] text-[0.875rem] font-inter font-medium hover:bg-yellow-200 transition-colors"
-                    >
-                      New Analysis
-                    </button>
-                  </div>
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                    <MetricCard
-                      title="RENEWABLE SHARE"
-                      value={analysisResult.summary.renewable_share.toFixed(1)}
-                      unit="%"
-                    />
-                    <MetricCard
-                      title="ELECTRICITY DEMAND"
-                      value={analysisResult.summary.electricity_demand.toFixed(
-                        1,
-                      )}
-                      unit=" TWh"
-                    />
-                    <MetricCard
-                      title="CO2 EMISSIONS"
-                      value={analysisResult.summary.co2_emissions.toFixed(1)}
-                      unit=" tCO₂e/person"
-                    />
-                    <MetricCard
-                      title="ENERGY POVERTY"
-                      value={analysisResult.summary.energy_poverty.toFixed(1)}
-                      unit="%"
-                    />
-                  </div>
-                </div>
-
-                {/* Charts Section - Yearly Charts (excluding population) */}
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                  <ChartCard title="Electricity Demand & Generation (TWh)">
-                    <div
-                      ref={electricityAccessChartContainerRef}
-                      className="w-full"
-                    >
-                      <svg
-                        ref={electricityAccessChartRef}
-                        className="w-full h-auto"
-                      ></svg>
-                    </div>
-                    <div className="flex gap-4 mt-2 text-[0.75rem] font-inter">
-                      <div className="flex items-center gap-2">
-                        <div className="w-3 h-3 bg-blue-1"></div>
-                        <span className="text-grey-2">Demand</span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <div className="w-3 h-3 bg-green-500"></div>
-                        <span className="text-grey-2">Generation</span>
-                      </div>
-                    </div>
-                  </ChartCard>
-
-                  <ChartCard title="GHG Emissions (tCO₂e/person)">
-                    <div ref={co2EmissionChartContainerRef} className="w-full">
-                      <svg
-                        ref={co2EmissionChartRef}
-                        className="w-full h-auto"
-                      ></svg>
-                    </div>
-                  </ChartCard>
-
-                  <ChartCard title="Clean Cooking Access (%)">
-                    <div ref={cleanCookingChartContainerRef} className="w-full">
-                      <svg
-                        ref={cleanCookingChartRef}
-                        className="w-full h-auto"
-                      ></svg>
-                    </div>
-                    <div className="flex gap-4 mt-2 text-[0.75rem] font-inter">
-                      <div className="flex items-center gap-2">
-                        <div className="w-3 h-3 bg-green-500"></div>
-                        <span className="text-grey-2">Clean</span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <div
-                          className="w-3 h-3"
-                          style={{ backgroundColor: "#F97316" }}
-                        ></div>
-                        <span className="text-grey-2">Traditional</span>
-                      </div>
-                    </div>
-                  </ChartCard>
-
-                  <ChartCard title="Electricity Demand Per Capita (MWh/person)">
-                    <div
-                      ref={electricityPerCapitaChartContainerRef}
-                      className="w-full"
-                    >
-                      <svg
-                        ref={electricityPerCapitaChartRef}
-                        className="w-full h-auto"
-                      ></svg>
-                    </div>
-                    <div className="flex gap-4 mt-2 text-[0.75rem] font-inter">
-                      <div className="flex items-center gap-2">
-                        <div
-                          className="w-3 h-3"
-                          style={{ backgroundColor: "#9333EA" }}
-                        ></div>
-                        <span className="text-grey-2">Per capita</span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <div className="w-3 h-3 bg-blue-1"></div>
-                        <span className="text-grey-2">
-                          Per capita (with Access)
-                        </span>
-                      </div>
-                    </div>
-                  </ChartCard>
-
-                  <ChartCard title="Energy Poverty (%)">
-                    <div
-                      ref={energyPovertyComparisonChartContainerRef}
-                      className="w-full"
-                    >
-                      <svg
-                        ref={energyPovertyComparisonChartRef}
-                        className="w-full h-auto"
-                      ></svg>
-                    </div>
-                    <div className="flex gap-4 mt-2 text-[0.75rem] font-inter">
-                      <div className="flex items-center gap-2">
-                        <div
-                          className="w-3 h-3"
-                          style={{ backgroundColor: "#DC2626" }}
-                        ></div>
-                        <span className="text-grey-2">Electricity</span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <div
-                          className="w-3 h-3"
-                          style={{ backgroundColor: "#9333EA" }}
-                        ></div>
-                        <span className="text-grey-2">Multidimensional</span>
-                      </div>
-                    </div>
-                  </ChartCard>
-
-                  <ChartCard title="Energy Poverty: Rural vs Urban (%)">
-                    <div
-                      ref={energyPovertyRuralUrbanChartContainerRef}
-                      className="w-full"
-                    >
-                      <svg
-                        ref={energyPovertyRuralUrbanChartRef}
-                        className="w-full h-auto"
-                      ></svg>
-                    </div>
-                    <div className="flex gap-4 mt-2 text-[0.75rem] font-inter">
-                      <div className="flex items-center gap-2">
-                        <div
-                          className="w-3 h-3"
-                          style={{ backgroundColor: "#F97316" }}
-                        ></div>
-                        <span className="text-grey-2">Rural</span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <div className="w-3 h-3 bg-green-500"></div>
-                        <span className="text-grey-2">Urban</span>
-                      </div>
-                    </div>
-                  </ChartCard>
-                </div>
-
-                {/* Extracted Policy Metrics */}
-                <div className="bg-white-1 border border-grey-1 rounded-[8px] p-6">
-                  <h2 className="text-[1.25rem] font-inter font-semibold text-black-1 mb-4">
-                    Extracted Policy Metrics
-                  </h2>
-                  <div className="bg-grey-1 rounded-[8px] p-4">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-[0.875rem] font-inter">
-                      {analysisResult.policy_metrics.renewable_target && (
-                        <div>
-                          <span className="text-grey-2">
-                            Renewable Target:{" "}
-                          </span>
-                          <span className="text-black-1 font-semibold">
-                            {analysisResult.policy_metrics.renewable_target}%
-                          </span>
-                        </div>
-                      )}
-                      {analysisResult.policy_metrics.investment_amount && (
-                        <div>
-                          <span className="text-grey-2">Investment: </span>
-                          <span className="text-black-1 font-semibold">
-                            ${analysisResult.policy_metrics.investment_amount}B
-                          </span>
-                        </div>
-                      )}
-                      {analysisResult.policy_metrics.solar_target && (
-                        <div>
-                          <span className="text-grey-2">Solar Target: </span>
-                          <span className="text-black-1 font-semibold">
-                            {analysisResult.policy_metrics.solar_target} GW
-                          </span>
-                        </div>
-                      )}
-                      {analysisResult.policy_metrics.wind_target && (
-                        <div>
-                          <span className="text-grey-2">Wind Target: </span>
-                          <span className="text-black-1 font-semibold">
-                            {analysisResult.policy_metrics.wind_target} GW
-                          </span>
-                        </div>
-                      )}
-                      {analysisResult.policy_metrics.energy_access_target && (
-                        <div>
-                          <span className="text-grey-2">
-                            Energy Access Target:{" "}
-                          </span>
-                          <span className="text-black-1 font-semibold">
-                            {analysisResult.policy_metrics.energy_access_target}
-                            %
-                          </span>
-                        </div>
-                      )}
-                      {analysisResult.policy_metrics.energy_poverty_target && (
-                        <div>
-                          <span className="text-grey-2">
-                            Energy Poverty Target:{" "}
-                          </span>
-                          <span className="text-black-1 font-semibold">
-                            {
-                              analysisResult.policy_metrics
-                                .energy_poverty_target
-                            }
-                            %
-                          </span>
-                        </div>
-                      )}
-                      {analysisResult.policy_metrics.co2_reduction_target && (
-                        <div>
-                          <span className="text-grey-2">
-                            CO2 Reduction Target:{" "}
-                          </span>
-                          <span className="text-black-1 font-semibold">
-                            {analysisResult.policy_metrics.co2_reduction_target}
-                            %
-                          </span>
-                        </div>
-                      )}
-                      {analysisResult.policy_metrics.clean_cooking_target && (
-                        <div>
-                          <span className="text-grey-2">
-                            Clean Cooking Target:{" "}
-                          </span>
-                          <span className="text-black-1 font-semibold">
-                            {analysisResult.policy_metrics.clean_cooking_target}
-                            %
-                          </span>
-                        </div>
-                      )}
-                      {analysisResult.timeline.start_year &&
-                        analysisResult.timeline.end_year && (
-                          <div>
-                            <span className="text-grey-2">Timeline: </span>
-                            <span className="text-black-1 font-semibold">
-                              {analysisResult.timeline.start_year} -{" "}
-                              {analysisResult.timeline.end_year}
-                            </span>
-                          </div>
-                        )}
-                    </div>
-                  </div>
-                </div>
-
-                {/* AI Overview */}
-                {analysisResult.ai_overview && (
-                  <div className="bg-white-1 border border-grey-1 rounded-[8px] p-6">
-                    <h2 className="text-[1.25rem] font-inter font-semibold text-black-1 mb-4">
-                      AI Overview
-                    </h2>
-                    <div className="bg-grey-1 rounded-[8px] p-4">
-                      <p className="text-[0.875rem] font-inter text-black-1 leading-relaxed whitespace-pre-line">
-                        {analysisResult.ai_overview}
-                      </p>
-                    </div>
-                  </div>
-                )}
-              </div>
-            )}
-          </>
-        )}
       </div>
 
       {/* Feedback Modal */}

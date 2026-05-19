@@ -18,15 +18,7 @@ class Config:
     )
     CACHE_TYPE = 'SimpleCache'
     CACHE_DEFAULT_TIMEOUT = 300
-    
-    # NLP Configuration for Policy Analyzer
-    USE_NLP = os.environ.get('USE_NLP', 'false').lower() == 'true'  # Default: disabled (set to 'true' in .env to enable)
-    NLP_BACKEND = os.environ.get('NLP_BACKEND', 'spacy')  # Options: spacy, openai, anthropic, huggingface
-    NLP_MODEL_NAME = os.environ.get('NLP_MODEL_NAME', 'en_core_web_trf')  # spaCy model name
-    
-    # ML Forecasting Configuration
-    USE_ML_FORECASTING = os.environ.get('USE_ML_FORECASTING', 'true').lower() == 'true'  # Default: enabled (hybrid approach)
-    
+
     # Year Filter Limit - Maximum year that can be selected in filters (to avoid incomplete data)
     YEAR_FILTER_LIMIT = int(os.environ.get('YEAR_FILTER_LIMIT', '2023'))  # Default: 2023
 

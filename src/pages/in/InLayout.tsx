@@ -1,19 +1,34 @@
 import { Link, Outlet, useLocation } from "react-router-dom";
 import { MenuIcon, SwitchIcon } from "../../components/Icons";
 import { SidebarProfile } from "../../components/SidebarProfile";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useAuth } from "../../app/AuthContext";
 
 
 const InLayout = () => {
     const [expand, setExpand] = useState<boolean>(false);
     const [isMobileOpen, setIsMobileOpen] = useState<boolean>(false);
+    const sidebarRef = useRef<HTMLDivElement>(null);
     const { isAuthenticated } = useAuth();
     const location = useLocation();
 
     const handleMobileToggle = () => {
         setIsMobileOpen(!isMobileOpen);
     };
+
+    useEffect(() => {
+        if (!expand) return;
+
+        const handlePointerDown = (event: MouseEvent) => {
+            const target = event.target as Node;
+            if (sidebarRef.current?.contains(target)) return;
+            if ((target as Element).closest?.('[role="dialog"]')) return;
+            setExpand(false);
+        };
+
+        document.addEventListener("mousedown", handlePointerDown);
+        return () => document.removeEventListener("mousedown", handlePointerDown);
+    }, [expand]);
 
     return (
         <div className="flex relative">
@@ -26,10 +41,13 @@ const InLayout = () => {
             )}
 
             {/* Sidebar */}
-            <div className={`fixed top-0 left-0 bottom-0 bg-white-1 py-[20px] px-[14px] flex flex-col shadow-[4px_0_0_0_#0000000D] transition-all duration-300 ease-in-out z-50 
+            <div
+                ref={sidebarRef}
+                className={`fixed top-0 left-0 bottom-0 bg-white-1 py-[20px] px-[14px] flex flex-col shadow-[4px_0_0_0_#0000000D] transition-all duration-300 ease-in-out z-50 
                 ${expand ? "w-[257px] items-flex-start" : "w-[85px] items-center"}
                 ${isMobileOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0"}
-            `}>
+            `}
+            >
                 <Link
                     to="/in"
                     aria-label="REPSA"

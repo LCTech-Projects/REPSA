@@ -18,6 +18,3 @@ pandas>=2.2.0
 numpy>=1.26.0
 scikit-learn>=1.3.0
 joblib>=1.3.0
-
-# Story mode NLP (optional at runtime; install model: python -m spacy download en_core_web_sm)
-spacy>=3.7.0

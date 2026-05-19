@@ -89,19 +89,11 @@ cython_debug/
 .vscode/
 *.code-workspace
 
-# Data files (your CSV files and generated data)
-/data/historical/yearly_historical_data.csv
-/data/historical/hourly/
+# Data files (generated locally via api/preprocess/, which is not in this repo)
+# Historical CSVs and api/ml_models/ are committed so clones and deploys work without preprocess.
 /data/realtime/
 /data/forecasts/
 /data/processed/
-
-# ML Models
-/ml_models/
-*.pkl
-*.joblib
-*.h5
-*.model
 
 # Temporary files
 *.tmp

@@ -108,16 +108,6 @@ export const apiSlice = createApi({
         params: { country },
       }),
     }),
-    analyzePolicy: builder.mutation<
-      any,
-      { policy_text: string; country?: string; target_year?: number }
-    >({
-      query: (body) => ({
-        url: `/api/story-mode/analyze-policy`,
-        method: "POST",
-        body,
-      }),
-    }),
     simulateScenario: builder.mutation<
       any,
       {
@@ -142,7 +132,6 @@ export const {
   useGetElectricityDemandMutation,
   useGetPopulationDataMutation,
   useGetEnergyUsePerCapitaDataMutation,
-  useAnalyzePolicyMutation,
   useSimulateScenarioMutation,
 } = apiSlice;
 

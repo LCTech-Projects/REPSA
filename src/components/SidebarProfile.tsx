@@ -48,7 +48,7 @@ export const SidebarProfile = ({ expand }: SidebarProfileProps) => {
     signOut();
     setConfirmOpen(false);
     setMenuOpen(false);
-    navigate("/sign-in");
+    navigate("/in");
   };
 
   if (!email) return null;

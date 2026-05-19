@@ -1,6 +1,6 @@
 # REPSA
 
-**Renewables and Energy Planning for Sustainable Africa** — an open web platform for exploring energy poverty, historical and near-real-time electricity indicators, cross-country comparison, policy analysis, and scenario planning across African countries.
+**Renewables and Energy Planning for Sustainable Africa** — an open web platform for exploring energy poverty, historical and near-real-time electricity indicators, cross-country comparison, and scenario planning across African countries.
 
 This repository contains the **deployable application**: a React frontend, a Flask API, and the runtime assets they need (`api/data/`, `api/ml_models/`). Use this document for local development, onboarding, and deployment planning.
 
@@ -36,11 +36,11 @@ flowchart LR
 | Auth DB | PostgreSQL (Neon) | Users, password hashes, email verification |
 | Email | Resend | Verification and password-reset messages |
 | Analytics data | CSV files under `api/data/` | Historical yearly/hourly panels (not in Postgres) |
-| Models | `joblib` under `api/ml_models/` | Forecasting, scenario builder, hourly shapes |
+| Models | `joblib` under `api/ml_models/` | Scenario builder (`scenario_builder.joblib`) |
 
 The API reads **energy data from the filesystem**, not from Postgres. Postgres is used **only for authentication**.
 
-**Not in this repo:** `api/preprocess/` holds local-only scripts for training models, regenerating CSVs, and research validation. That folder is gitignored and is not required to run the hosted app if you already have `api/data/` and `api/ml_models/`.
+**Not in this repo:** `api/preprocess/` (gitignored) holds maintainer scripts to regenerate CSVs, retrain models, and run validation. **Runtime assets are in the repo:** historical CSVs under `api/data/historical/` (~330 MB hourly + yearly panel) and `api/ml_models/scenario_builder.joblib`, which the API loads for scenario simulation.
 
 ---
 
@@ -54,7 +54,7 @@ The API reads **energy data from the filesystem**, not from Postgres. Postgres i
 | `/in/map` | Africa map, energy poverty overlay, country hover summary |
 | `/in/visualization` | Historical / realtime charts, yearly and hourly views, data download |
 | `/in/compare` | Multi-country comparison |
-| `/in/simulation` | Scenario builder and policy analyzer (story mode) |
+| `/in/simulation` | Scenario builder (slider-driven forecasts) |
 
 ### Auth (`/sign-in`, `/sign-up`, etc.)
 
@@ -78,7 +78,7 @@ REPSA/
 │   ├── run.py              # Dev entry: python api/run.py
 │   ├── app/                # Flask application factory and routes
 │   ├── data/               # Historical CSVs (hourly per country, yearly panel)
-│   ├── ml_models/          # Trained models (often gitignored; see below)
+│   ├── ml_models/          # Trained joblib models (committed)
 │   └── requirements.txt
 ├── scripts/                # e.g. Africa GeoJSON build
 └── index.html              # Vite entry
@@ -94,7 +94,7 @@ REPSA/
 - **Python 3.12** (recommended; 3.14 may lack prebuilt wheels for some deps)
 - **PostgreSQL** connection string (e.g. [Neon](https://neon.tech)) for auth
 - **Resend** API key for transactional email
-- Disk space for `api/data/` and `api/ml_models/` (not fully committed to git)
+- Disk space for the repo clone (~360 MB data + models combined)
 
 ---
 
@@ -136,8 +136,6 @@ EMAIL_SENDER_API_KEY=re_xxxxxxxx
 RESEND_FROM_EMAIL=REPSA <onboarding@yourdomain.com>
 
 # Optional
-USE_NLP=false
-USE_ML_FORECASTING=true
 YEAR_FILTER_LIMIT=2023
 REALTIME_CACHE_TIMEOUT=60
 ```
@@ -158,20 +156,16 @@ npm run dev
 
 Open the URL Vite prints (usually `http://localhost:5173`).
 
-### 5. Data and models (required for full functionality)
+### 5. Data and models
 
-Many paths under `api/data/historical/` and `api/ml_models/` are **gitignored**. Without them, map/historical/simulation endpoints may error or return empty results.
+**Historical CSVs** (`api/data/historical/`) and **`api/ml_models/`** are included in git. After clone, the API can serve map, visualization, simulation, and story mode without running preprocess.
 
-Obtain or build those assets through your team’s internal workflow. The runtime API does **not** import `api/preprocess/`; that directory is only for maintainers who regenerate CSVs or retrain models locally (gitignored).
+To regenerate data or retrain models, maintainers use `api/preprocess/` locally, then commit updated files under `api/data/historical/` and/or `api/ml_models/`.
 
-Canonical yearly panel path: `api/data/historical/yearly_historical_data.csv`.
-
-Optional spaCy for richer policy NLP:
+Retrain the scenario builder (maintainers, local `api/preprocess/`):
 
 ```bash
-pip install spacy
-python -m spacy download en_core_web_sm
-# Set USE_NLP=true in api/.env
+python api/preprocess/train/scenario_builder.py
 ```
 
 ---
@@ -200,12 +194,11 @@ Includes country summary, country details, available years/countries, energy pov
 
 Near-real-time style indicators per country (cached; see `REALTIME_CACHE_TIMEOUT`).
 
-### Story mode — `/api/story-mode`
+### Scenario simulation — `/api/story-mode`
 
 | Method | Path | Description |
 |--------|------|-------------|
-| POST | `/analyze-policy` | NLP/policy analysis and forecasts |
-| POST | `/simulate-scenario` | Scenario builder from policy metrics |
+| POST | `/simulate-scenario` | Run scenario builder from manual parameters (`policy_metrics` or `scenario_params`) |
 
 ---
 
@@ -256,7 +249,7 @@ Configure the static host so client routes fall back to `index.html` (SPA).
 - Run with **gunicorn** (or similar), not Flask’s dev server.
 - Set `DATABASE_URL`, secrets, and Resend variables on the host.
 - `SQLALCHEMY_ENGINE_OPTIONS` uses `pool_pre_ping` and `pool_recycle` for Neon-style Postgres (see `api/app/utils/config.py`).
-- Ensure `api/data/` and `api/ml_models/` are present on the server or mounted from storage.
+- `api/data/historical/` and `api/ml_models/` ship with the repo (or copy them to the server on deploy).
 - Enable CORS for your frontend origin (Flask-CORS is installed; tighten origins in production).
 - Optional: Redis for `ProductionConfig` caching if you switch `CACHE_TYPE`.
 
@@ -278,9 +271,6 @@ UK2 (and similar) **shared Linux hosting** plans are fine for the static site an
 | `EMAIL_SENDER_API_KEY` | Yes (auth emails) | Resend API key |
 | `RESEND_FROM_EMAIL` | Recommended | From address for Resend |
 | `JWT_ACCESS_EXPIRES_MINUTES` | No | Default `10080` (7 days) |
-| `USE_NLP` | No | `true` to enable spaCy policy NLP |
-| `NLP_BACKEND` / `NLP_MODEL_NAME` | No | NLP configuration |
-| `USE_ML_FORECASTING` | No | Default `true` |
 | `YEAR_FILTER_LIMIT` | No | Max filter year (default `2023`) |
 | `REALTIME_CACHE_TIMEOUT` | No | Realtime cache seconds |
 
@@ -301,7 +291,7 @@ Never commit `.env` files. Rotate any keys that were exposed in chat or logs.
 | `SSL connection has been closed unexpectedly` on sign-in | Stale Neon connection; restart API (pool pre-ping is configured) |
 | Pyright/import errors for `resend` | Wrong Python interpreter; use 3.12 and `pip install -r api/requirements.txt` |
 | Empty map or 500 on historical routes | Missing `api/data/` CSVs |
-| Simulation / policy analysis fails | Missing `api/ml_models/` or run training scripts |
+| Scenario simulation fails | Missing `api/ml_models/scenario_builder.joblib` on server |
 | CORS errors in browser | API not running or `VITE_API_URL` mismatch |
 | `TS1261` file name casing | Align `src/pages` vs `Pages` with git on Windows |
 
