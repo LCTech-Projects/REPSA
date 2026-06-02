@@ -19,10 +19,9 @@ dist-ssr
 **/.pytest_cache
 **/.mypy_cache
 
-# Secrets (set in Railway dashboard)
+# Secrets (set in Railway dashboard or api/.env locally)
 **/.env
 **/.env.*
-!**/.env.example
 
 # Local-only pipeline (not needed at runtime)
 api/preprocess
