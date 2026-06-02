@@ -1,8 +1,13 @@
 import { useState, useEffect } from "react";
 import { LightIcon } from "../Icons";
 
+const ONBOARDING_SEEN_KEY = "repsa_onboarding_seen";
+
+const hasSeenOnboarding = () =>
+  localStorage.getItem(ONBOARDING_SEEN_KEY) === "true";
+
 export const OnboardingModal = () => {
-    const [isVisible, setIsVisible] = useState(true);
+    const [isVisible, setIsVisible] = useState(() => !hasSeenOnboarding());
     const [shouldAnimate, setShouldAnimate] = useState(false);
 
     useEffect(() => {
@@ -12,6 +17,7 @@ export const OnboardingModal = () => {
     }, [isVisible]);
 
     const handleDismiss = () => {
+        localStorage.setItem(ONBOARDING_SEEN_KEY, "true");
         setIsVisible(false);
     };
 

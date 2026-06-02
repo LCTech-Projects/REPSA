@@ -1,11 +1,12 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 import { getAccessToken } from "../authStorage";
+import { getApiBaseUrl } from "../apiBaseUrl";
 
 export const apiSlice = createApi({
   reducerPath: "api",
   refetchOnReconnect: true,
   baseQuery: fetchBaseQuery({
-    baseUrl: import.meta.env.VITE_API_URL || "http://127.0.0.1:5000",
+    baseUrl: getApiBaseUrl(),
     prepareHeaders: (headers) => {
       const token = getAccessToken();
       if (token) {

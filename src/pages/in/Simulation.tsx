@@ -504,8 +504,8 @@ export const Simulation = () => {
     const tooltipNode = tooltip.node();
     const tooltipObserver = tooltipNode
       ? new MutationObserver(() => {
-          keepTooltipInViewport();
-        })
+        keepTooltipInViewport();
+      })
       : null;
     if (tooltipObserver && tooltipNode) {
       tooltipObserver.observe(tooltipNode, {
@@ -1580,410 +1580,410 @@ export const Simulation = () => {
         </div>
 
         {/* Scenario Builder Content */}
-                    {!hasSimulated ? (
-              <div className="space-y-4">
-                {/* Country and Timeline Selection */}
-                <div className="bg-white-1 border border-grey-1 rounded-[8px] p-6">
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <div>
-                      <label className="text-[0.875rem] font-inter text-grey-2 mb-2 block">
-                        Country
-                      </label>
-                      <select
-                        value={scenarioCountry}
-                        onChange={(e) => setScenarioCountry(e.target.value)}
-                        className="w-full bg-white-1 border border-grey-1 rounded-[8px] px-4 py-3 text-[0.875rem] font-inter text-black-1 hover:border-grey-2 transition-colors"
-                      >
-                        {availableCountries.map((country: string) => (
-                          <option key={country} value={country}>
-                            {country}
-                          </option>
-                        ))}
-                      </select>
-                    </div>
-                    <div>
-                      <label className="text-[0.875rem] font-inter text-grey-2 mb-2 block">
-                        Start Year
-                      </label>
-                      <select
-                        value={scenarioStartYear}
-                        onChange={(e) =>
-                          setScenarioStartYear(Number(e.target.value))
-                        }
-                        className="w-full bg-white-1 border border-grey-1 rounded-[8px] px-4 py-3 text-[0.875rem] font-inter text-black-1 hover:border-grey-2 transition-colors"
-                      >
-                        {yearOptions.slice(0, 50).map((year) => (
-                          <option key={year} value={year}>
-                            {year}
-                          </option>
-                        ))}
-                      </select>
-                    </div>
-                    <div>
-                      <label className="text-[0.875rem] font-inter text-grey-2 mb-2 block">
-                        End Year
-                      </label>
-                      <select
-                        value={scenarioEndYear}
-                        onChange={(e) =>
-                          setScenarioEndYear(Number(e.target.value))
-                        }
-                        className="w-full bg-white-1 border border-grey-1 rounded-[8px] px-4 py-3 text-[0.875rem] font-inter text-black-1 hover:border-grey-2 transition-colors"
-                      >
-                        {yearOptions
-                          .filter((y) => y >= scenarioStartYear)
-                          .map((year) => (
-                            <option key={year} value={year}>
-                              {year}
-                            </option>
-                          ))}
-                      </select>
-                    </div>
-                  </div>
+        {!hasSimulated ? (
+          <div className="space-y-4">
+            {/* Country and Timeline Selection */}
+            <div className="bg-white-1 border border-grey-1 rounded-[8px] p-6">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div>
+                  <label className="text-[0.875rem] font-inter text-grey-2 mb-2 block">
+                    Country
+                  </label>
+                  <select
+                    value={scenarioCountry}
+                    onChange={(e) => setScenarioCountry(e.target.value)}
+                    className="w-full bg-white-1 border border-grey-1 rounded-[8px] px-4 py-3 text-[0.875rem] font-inter text-black-1 hover:border-grey-2 transition-colors"
+                  >
+                    {availableCountries.map((country: string) => (
+                      <option key={country} value={country}>
+                        {country}
+                      </option>
+                    ))}
+                  </select>
                 </div>
-
-                {/* Scenario Parameters Section */}
-                <div className="bg-white-1 border border-grey-1 rounded-[8px] overflow-hidden">
-                  <button
-                    onClick={() =>
-                      setIsParametersExpanded(!isParametersExpanded)
+                <div>
+                  <label className="text-[0.875rem] font-inter text-grey-2 mb-2 block">
+                    Start Year
+                  </label>
+                  <select
+                    value={scenarioStartYear}
+                    onChange={(e) =>
+                      setScenarioStartYear(Number(e.target.value))
                     }
-                    className="w-full px-6 py-4 flex items-center justify-between hover:bg-grey-1 transition-colors"
+                    className="w-full bg-white-1 border border-grey-1 rounded-[8px] px-4 py-3 text-[0.875rem] font-inter text-black-1 hover:border-grey-2 transition-colors"
                   >
-                    <div className="flex items-center gap-3">
-                      <TargetIcon />
-                      <span className="text-[1.125rem] font-inter font-semibold text-black-1">
-                        Scenario Parameters
-                      </span>
-                    </div>
-                    <svg
-                      width="20"
-                      height="20"
-                      viewBox="0 0 20 20"
-                      fill="none"
-                      className={`transition-transform ${isParametersExpanded ? "rotate-180" : ""}`}
-                    >
-                      <path
-                        d="M5 7.5L10 12.5L15 7.5"
-                        stroke="#666"
-                        strokeWidth="2"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                      />
-                    </svg>
-                  </button>
-                  {isParametersExpanded && (
-                    <div className="px-6 py-4 border-t border-grey-1 space-y-4">
-                      <Slider
-                        label="Renewable Energy Target"
-                        icon={<RenewableIcon />}
-                        value={scenarioParams.renewable_target}
-                        min={0}
-                        max={100}
-                        step={1}
-                        formatValue={formatPercentage}
-                        onChange={(value) =>
-                          setScenarioParams({
-                            ...scenarioParams,
-                            renewable_target: value,
-                          })
-                        }
-                      />
-                      <Slider
-                        label="Electricity Access Target"
-                        icon={<EnergyAccessIcon />}
-                        value={scenarioParams.energy_access_target}
-                        min={0}
-                        max={100}
-                        step={1}
-                        formatValue={formatPercentage}
-                        onChange={(value) =>
-                          setScenarioParams({
-                            ...scenarioParams,
-                            energy_access_target: value,
-                          })
-                        }
-                      />
-                      <Slider
-                        label="Clean Cooking Access Target"
-                        icon={<CleanCookingIcon />}
-                        value={scenarioParams.clean_cooking_target}
-                        min={0}
-                        max={100}
-                        step={1}
-                        formatValue={formatPercentage}
-                        onChange={(value) =>
-                          setScenarioParams({
-                            ...scenarioParams,
-                            clean_cooking_target: value,
-                          })
-                        }
-                      />
-                      <Slider
-                        label="Electricity Demand Growth"
-                        icon={<TargetIcon />}
-                        value={scenarioParams.demand_growth_rate * 100}
-                        min={-2}
-                        max={8}
-                        step={0.1}
-                        formatValue={(v) => `${v.toFixed(1)}%/yr`}
-                        onChange={(value) =>
-                          setScenarioParams({
-                            ...scenarioParams,
-                            demand_growth_rate: value / 100,
-                          })
-                        }
-                      />
-                      <Slider
-                        label="Population Growth Rate"
-                        icon={<PopulationIcon />}
-                        value={scenarioParams.population_growth_rate * 100}
-                        min={0}
-                        max={5}
-                        step={0.1}
-                        formatValue={(v) => `${v.toFixed(1)}%`}
-                        onChange={(value) =>
-                          setScenarioParams({
-                            ...scenarioParams,
-                            population_growth_rate: value / 100,
-                          })
-                        }
-                      />
-                      <Slider
-                        label="GDP Growth Rate"
-                        icon={<TargetIcon />}
-                        value={scenarioParams.gdp_growth_rate * 100}
-                        min={-2}
-                        max={10}
-                        step={0.1}
-                        formatValue={(v) => `${v.toFixed(1)}%/yr`}
-                        onChange={(value) =>
-                          setScenarioParams({
-                            ...scenarioParams,
-                            gdp_growth_rate: value / 100,
-                          })
-                        }
-                      />
-                    </div>
-                  )}
+                    {yearOptions.slice(0, 50).map((year) => (
+                      <option key={year} value={year}>
+                        {year}
+                      </option>
+                    ))}
+                  </select>
                 </div>
-
-                {/* Ready to Simulate */}
-                <button
-                  onClick={handleSimulate}
-                  disabled={isSimulating}
-                  className="w-full border-2 border-dashed border-grey-2 rounded-[8px] p-12 flex flex-col items-center justify-center gap-4 hover:border-blue-1 hover:bg-blue-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  <svg
-                    width="40"
-                    height="40"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    xmlns="http://www.w3.org/2000/svg"
-                    className="text-blue-1"
+                <div>
+                  <label className="text-[0.875rem] font-inter text-grey-2 mb-2 block">
+                    End Year
+                  </label>
+                  <select
+                    value={scenarioEndYear}
+                    onChange={(e) =>
+                      setScenarioEndYear(Number(e.target.value))
+                    }
+                    className="w-full bg-white-1 border border-grey-1 rounded-[8px] px-4 py-3 text-[0.875rem] font-inter text-black-1 hover:border-grey-2 transition-colors"
                   >
-                    <path
-                      d="M13 2L3 14H12L11 22L21 10H12L13 2Z"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    />
-                  </svg>
-                  <div className="text-center">
-                    <p className="text-[1.125rem] font-inter font-semibold text-black-1 mb-1 flex items-center justify-center min-h-[1.75rem]">
-                      {isSimulating ? (
-                        <ButtonSpinner color="#1E3A8A" />
-                      ) : (
-                        "Ready to simulate"
-                      )}
-                    </p>
-                    <p className="text-[0.875rem] font-inter text-grey-2">
-                      Configure your scenario parameters and generate forecasts
-                    </p>
-                  </div>
+                    {yearOptions
+                      .filter((y) => y >= scenarioStartYear)
+                      .map((year) => (
+                        <option key={year} value={year}>
+                          {year}
+                        </option>
+                      ))}
+                  </select>
+                </div>
+              </div>
+            </div>
+
+            {/* Scenario Parameters Section */}
+            <div className="bg-white-1 border border-grey-1 rounded-[8px] overflow-hidden">
+              <button
+                onClick={() =>
+                  setIsParametersExpanded(!isParametersExpanded)
+                }
+                className="w-full px-6 py-4 flex items-center justify-between hover:bg-grey-1 transition-colors"
+              >
+                <div className="flex items-center gap-3">
+                  <TargetIcon />
+                  <span className="text-[1.125rem] font-inter font-semibold text-black-1">
+                    Scenario Parameters
+                  </span>
+                </div>
+                <svg
+                  width="20"
+                  height="20"
+                  viewBox="0 0 20 20"
+                  fill="none"
+                  className={`transition-transform ${isParametersExpanded ? "rotate-180" : ""}`}
+                >
+                  <path
+                    d="M5 7.5L10 12.5L15 7.5"
+                    stroke="#666"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                </svg>
+              </button>
+              {isParametersExpanded && (
+                <div className="px-6 py-4 border-t border-grey-1 space-y-4">
+                  <Slider
+                    label="Renewable Energy Target"
+                    icon={<RenewableIcon />}
+                    value={scenarioParams.renewable_target}
+                    min={0}
+                    max={100}
+                    step={1}
+                    formatValue={formatPercentage}
+                    onChange={(value) =>
+                      setScenarioParams({
+                        ...scenarioParams,
+                        renewable_target: value,
+                      })
+                    }
+                  />
+                  <Slider
+                    label="Electricity Access Target"
+                    icon={<EnergyAccessIcon />}
+                    value={scenarioParams.energy_access_target}
+                    min={0}
+                    max={100}
+                    step={1}
+                    formatValue={formatPercentage}
+                    onChange={(value) =>
+                      setScenarioParams({
+                        ...scenarioParams,
+                        energy_access_target: value,
+                      })
+                    }
+                  />
+                  <Slider
+                    label="Clean Cooking Access Target"
+                    icon={<CleanCookingIcon />}
+                    value={scenarioParams.clean_cooking_target}
+                    min={0}
+                    max={100}
+                    step={1}
+                    formatValue={formatPercentage}
+                    onChange={(value) =>
+                      setScenarioParams({
+                        ...scenarioParams,
+                        clean_cooking_target: value,
+                      })
+                    }
+                  />
+                  <Slider
+                    label="Electricity Demand Growth"
+                    icon={<TargetIcon />}
+                    value={scenarioParams.demand_growth_rate * 100}
+                    min={-2}
+                    max={8}
+                    step={0.1}
+                    formatValue={(v) => `${v.toFixed(1)}%/yr`}
+                    onChange={(value) =>
+                      setScenarioParams({
+                        ...scenarioParams,
+                        demand_growth_rate: value / 100,
+                      })
+                    }
+                  />
+                  <Slider
+                    label="Population Growth Rate"
+                    icon={<PopulationIcon />}
+                    value={scenarioParams.population_growth_rate * 100}
+                    min={0}
+                    max={5}
+                    step={0.1}
+                    formatValue={(v) => `${v.toFixed(1)}%`}
+                    onChange={(value) =>
+                      setScenarioParams({
+                        ...scenarioParams,
+                        population_growth_rate: value / 100,
+                      })
+                    }
+                  />
+                  <Slider
+                    label="GDP Growth Rate"
+                    icon={<TargetIcon />}
+                    value={scenarioParams.gdp_growth_rate * 100}
+                    min={-2}
+                    max={10}
+                    step={0.1}
+                    formatValue={(v) => `${v.toFixed(1)}%/yr`}
+                    onChange={(value) =>
+                      setScenarioParams({
+                        ...scenarioParams,
+                        gdp_growth_rate: value / 100,
+                      })
+                    }
+                  />
+                </div>
+              )}
+            </div>
+
+            {/* Ready to Simulate */}
+            <button
+              onClick={handleSimulate}
+              disabled={isSimulating}
+              className="w-full border-2 border-dashed border-grey-2 rounded-[8px] p-12 flex flex-col items-center justify-center gap-4 hover:border-blue-1 hover:bg-blue-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              <svg
+                width="40"
+                height="40"
+                viewBox="0 0 24 24"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+                className="text-blue-1"
+              >
+                <path
+                  d="M13 2L3 14H12L11 22L21 10H12L13 2Z"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+              </svg>
+              <div className="text-center">
+                <p className="text-[1.125rem] font-inter font-semibold text-black-1 mb-1 flex items-center justify-center min-h-[1.75rem]">
+                  {isSimulating ? (
+                    <ButtonSpinner color="#1E3A8A" />
+                  ) : (
+                    "Ready to simulate"
+                  )}
+                </p>
+                <p className="text-[0.875rem] font-inter text-grey-2">
+                  Configure your scenario parameters and generate forecasts
+                </p>
+              </div>
+            </button>
+          </div>
+        ) : (
+          scenarioResult && (
+            <div className="space-y-6">
+              {/* Overview Metrics */}
+              <div className="bg-white-1 border border-grey-1 rounded-lg p-6 flex items-center justify-between">
+                <h2 className="text-[1.5rem] font-inter font-semibold text-black-1">
+                  Forecast Overview: {scenarioCountry} (
+                  {scenarioResult.timeline.start_year} -{" "}
+                  {scenarioResult.timeline.end_year})
+                </h2>
+                <button
+                  onClick={() => {
+                    setHasSimulated(false);
+                    setScenarioResult(null);
+                  }}
+                  className="bg-yellow-1 text-blue-2 px-4 py-2 rounded-[8px] text-[0.875rem] font-inter font-medium hover:bg-yellow-200 transition-colors"
+                >
+                  New Simulation
                 </button>
               </div>
-            ) : (
-              scenarioResult && (
-                <div className="space-y-6">
-                  {/* Overview Metrics */}
-                  <div className="bg-white-1 border border-grey-1 rounded-lg p-6 flex items-center justify-between">
-                    <h2 className="text-[1.5rem] font-inter font-semibold text-black-1">
-                      Forecast Overview: {scenarioCountry} (
-                      {scenarioResult.timeline.start_year} -{" "}
-                      {scenarioResult.timeline.end_year})
-                    </h2>
-                    <button
-                      onClick={() => {
-                        setHasSimulated(false);
-                        setScenarioResult(null);
-                      }}
-                      className="bg-yellow-1 text-blue-2 px-4 py-2 rounded-[8px] text-[0.875rem] font-inter font-medium hover:bg-yellow-200 transition-colors"
-                    >
-                      New Simulation
-                    </button>
+
+              {/* Charts */}
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <ChartCard title="Electricity Demand (TWh)">
+                  <div
+                    ref={electricityAccessChartContainerRef}
+                    className="w-full"
+                  >
+                    <svg
+                      ref={electricityAccessChartRef}
+                      className="w-full h-auto"
+                    ></svg>
                   </div>
-
-                  {/* Charts */}
-                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                    <ChartCard title="Electricity Demand (TWh)">
-                      <div
-                        ref={electricityAccessChartContainerRef}
-                        className="w-full"
-                      >
-                        <svg
-                          ref={electricityAccessChartRef}
-                          className="w-full h-auto"
-                        ></svg>
-                      </div>
-                      <div className="flex gap-4 mt-2 text-[0.75rem] font-inter">
-                        <div className="flex items-center gap-2">
-                          <div className="w-3 h-3 bg-blue-1"></div>
-                          <span className="text-grey-2">Demand</span>
-                        </div>
-                      </div>
-                    </ChartCard>
-
-                    <ChartCard title="Electricity Demand Per Capita (MWh/person)">
-                      <div
-                        ref={electricityPerCapitaChartContainerRef}
-                        className="w-full"
-                      >
-                        <svg
-                          ref={electricityPerCapitaChartRef}
-                          className="w-full h-auto"
-                        ></svg>
-                      </div>
-                      <div className="flex gap-4 mt-2 text-[0.75rem] font-inter">
-                        <div className="flex items-center gap-2">
-                          <div
-                            className="w-3 h-3"
-                            style={{ backgroundColor: "#9333EA" }}
-                          ></div>
-                          <span className="text-grey-2">Per capita</span>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <div className="w-3 h-3 bg-blue-1"></div>
-                          <span className="text-grey-2">
-                            Per capita (with Access)
-                          </span>
-                        </div>
-                      </div>
-                    </ChartCard>
-
-                    <ChartCard title="Energy Poverty (%)">
-                      <div
-                        ref={energyPovertyComparisonChartContainerRef}
-                        className="w-full"
-                      >
-                        <svg
-                          ref={energyPovertyComparisonChartRef}
-                          className="w-full h-auto"
-                        ></svg>
-                      </div>
-                      <div className="flex gap-4 mt-2 text-[0.75rem] font-inter">
-                        <div className="flex items-center gap-2">
-                          <div
-                            className="w-3 h-3"
-                            style={{ backgroundColor: "#DC2626" }}
-                          ></div>
-                          <span className="text-grey-2">Electricity</span>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <div
-                            className="w-3 h-3"
-                            style={{ backgroundColor: "#9333EA" }}
-                          ></div>
-                          <span className="text-grey-2">Multidimensional</span>
-                        </div>
-                      </div>
-                    </ChartCard>
-
-                    <ChartCard title="GHG Emissions (MtCO₂e)">
-                      <div
-                        ref={co2EmissionChartContainerRef}
-                        className="w-full"
-                      >
-                        <svg
-                          ref={co2EmissionChartRef}
-                          className="w-full h-auto"
-                        ></svg>
-                      </div>
-                    </ChartCard>
+                  <div className="flex gap-4 mt-2 text-[0.75rem] font-inter">
+                    <div className="flex items-center gap-2">
+                      <div className="w-3 h-3 bg-blue-1"></div>
+                      <span className="text-grey-2">Demand</span>
+                    </div>
                   </div>
+                </ChartCard>
 
-                  {/* Scenario Parameters Summary */}
-                  <div className="bg-white-1 border border-grey-1 rounded-[8px] p-6">
-                    <h2 className="text-[1.25rem] font-inter font-semibold text-black-1 mb-4">
-                      Scenario Parameters
-                    </h2>
-                    <div className="bg-grey-1 rounded-[8px] p-4">
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-[0.875rem] font-inter">
-                        <div>
-                          <span className="text-grey-2">
-                            Renewable Target:{" "}
-                          </span>
-                          <span className="text-black-1 font-semibold">
-                            {scenarioParams.renewable_target}%
-                          </span>
-                        </div>
-                        <div>
-                          <span className="text-grey-2">
-                            Demand Growth Rate:{" "}
-                          </span>
-                          <span className="text-black-1 font-semibold">
-                            {(scenarioParams.demand_growth_rate * 100).toFixed(
-                              1,
-                            )}
-                            %
-                          </span>
-                        </div>
-                        <div>
-                          <span className="text-grey-2">
-                            Electricity Access Target:{" "}
-                          </span>
-                          <span className="text-black-1 font-semibold">
-                            {scenarioParams.energy_access_target}%
-                          </span>
-                        </div>
-                        <div>
-                          <span className="text-grey-2">GDP Growth Rate: </span>
-                          <span className="text-black-1 font-semibold">
-                            {(scenarioParams.gdp_growth_rate * 100).toFixed(1)}%
-                          </span>
-                        </div>
-                        <div>
-                          <span className="text-grey-2">
-                            Clean Cooking Target:{" "}
-                          </span>
-                          <span className="text-black-1 font-semibold">
-                            {scenarioParams.clean_cooking_target}%
-                          </span>
-                        </div>
-                        <div>
-                          <span className="text-grey-2">
-                            Population Growth Rate:{" "}
-                          </span>
-                          <span className="text-black-1 font-semibold">
-                            {(
-                              scenarioParams.population_growth_rate * 100
-                            ).toFixed(1)}
-                            %
-                          </span>
-                        </div>
-                        <div>
-                          <span className="text-grey-2">Timeline: </span>
-                          <span className="text-black-1 font-semibold">
-                            {scenarioStartYear} - {scenarioEndYear}
-                          </span>
-                        </div>
-                      </div>
+                <ChartCard title="Electricity Demand Per Capita (MWh/person)">
+                  <div
+                    ref={electricityPerCapitaChartContainerRef}
+                    className="w-full"
+                  >
+                    <svg
+                      ref={electricityPerCapitaChartRef}
+                      className="w-full h-auto"
+                    ></svg>
+                  </div>
+                  <div className="flex gap-4 mt-2 text-[0.75rem] font-inter">
+                    <div className="flex items-center gap-2">
+                      <div
+                        className="w-3 h-3"
+                        style={{ backgroundColor: "#9333EA" }}
+                      ></div>
+                      <span className="text-grey-2">Per capita</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <div className="w-3 h-3 bg-blue-1"></div>
+                      <span className="text-grey-2">
+                        Per capita (with Access)
+                      </span>
+                    </div>
+                  </div>
+                </ChartCard>
+
+                <ChartCard title="Energy Poverty (%)">
+                  <div
+                    ref={energyPovertyComparisonChartContainerRef}
+                    className="w-full"
+                  >
+                    <svg
+                      ref={energyPovertyComparisonChartRef}
+                      className="w-full h-auto"
+                    ></svg>
+                  </div>
+                  <div className="flex gap-4 mt-2 text-[0.75rem] font-inter">
+                    <div className="flex items-center gap-2">
+                      <div
+                        className="w-3 h-3"
+                        style={{ backgroundColor: "#DC2626" }}
+                      ></div>
+                      <span className="text-grey-2">Electricity</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <div
+                        className="w-3 h-3"
+                        style={{ backgroundColor: "#9333EA" }}
+                      ></div>
+                      <span className="text-grey-2">Multidimensional</span>
+                    </div>
+                  </div>
+                </ChartCard>
+
+                <ChartCard title="GHG Emissions (MtCO₂e)">
+                  <div
+                    ref={co2EmissionChartContainerRef}
+                    className="w-full"
+                  >
+                    <svg
+                      ref={co2EmissionChartRef}
+                      className="w-full h-auto"
+                    ></svg>
+                  </div>
+                </ChartCard>
+              </div>
+
+              {/* Scenario Parameters Summary */}
+              <div className="bg-white-1 border border-grey-1 rounded-[8px] p-6">
+                <h2 className="text-[1.25rem] font-inter font-semibold text-black-1 mb-4">
+                  Scenario Parameters
+                </h2>
+                <div className="bg-grey-1 rounded-[8px] p-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-[0.875rem] font-inter">
+                    <div>
+                      <span className="text-grey-2">
+                        Renewable Target:{" "}
+                      </span>
+                      <span className="text-black-1 font-semibold">
+                        {scenarioParams.renewable_target}%
+                      </span>
+                    </div>
+                    <div>
+                      <span className="text-grey-2">
+                        Demand Growth Rate:{" "}
+                      </span>
+                      <span className="text-black-1 font-semibold">
+                        {(scenarioParams.demand_growth_rate * 100).toFixed(
+                          1,
+                        )}
+                        %
+                      </span>
+                    </div>
+                    <div>
+                      <span className="text-grey-2">
+                        Electricity Access Target:{" "}
+                      </span>
+                      <span className="text-black-1 font-semibold">
+                        {scenarioParams.energy_access_target}%
+                      </span>
+                    </div>
+                    <div>
+                      <span className="text-grey-2">GDP Growth Rate: </span>
+                      <span className="text-black-1 font-semibold">
+                        {(scenarioParams.gdp_growth_rate * 100).toFixed(1)}%
+                      </span>
+                    </div>
+                    <div>
+                      <span className="text-grey-2">
+                        Clean Cooking Target:{" "}
+                      </span>
+                      <span className="text-black-1 font-semibold">
+                        {scenarioParams.clean_cooking_target}%
+                      </span>
+                    </div>
+                    <div>
+                      <span className="text-grey-2">
+                        Population Growth Rate:{" "}
+                      </span>
+                      <span className="text-black-1 font-semibold">
+                        {(
+                          scenarioParams.population_growth_rate * 100
+                        ).toFixed(1)}
+                        %
+                      </span>
+                    </div>
+                    <div>
+                      <span className="text-grey-2">Timeline: </span>
+                      <span className="text-black-1 font-semibold">
+                        {scenarioStartYear} - {scenarioEndYear}
+                      </span>
                     </div>
                   </div>
                 </div>
-              )
-            )}
+              </div>
+            </div>
+          )
+        )}
 
       </div>
 
