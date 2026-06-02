@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../app/AuthContext";
-import { getEmailInitial } from "./Utils/userInitial";
+import { getEmailInitial } from "./utils/userInitial";
 import { ConfirmLogoutModal } from "./modals/ConfirmLogoutModal";
 import { ProfileMenuModal } from "./modals/ProfileMenuModal";
 

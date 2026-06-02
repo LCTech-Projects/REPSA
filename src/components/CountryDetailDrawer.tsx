@@ -40,6 +40,8 @@ interface CountryDetails {
   }>;
 }
 
+type TimeSeriesRow = CountryDetails["time_series"][number];
+
 export const CountryDetailDrawer = ({
   countryName,
   onClose,
@@ -150,7 +152,11 @@ export const CountryDetailDrawer = ({
   }, [details]);
 
   useEffect(() => {
-    if (!details?.time_series || Object.keys(chartDimensions).length === 0)
+    if (
+      !details ||
+      !details.time_series.length ||
+      Object.keys(chartDimensions).length === 0
+    )
       return;
 
     const margin = { top: 30, right: 30, bottom: 60, left: 70 };
@@ -241,11 +247,11 @@ export const CountryDetailDrawer = ({
       chartWidth: number,
       chartHeight: number,
       x: d3.ScaleLinear<number, number>,
-      rows: (typeof details.time_series)[0][],
-      renderHtml: (d: (typeof details.time_series)[0]) => string,
+      rows: TimeSeriesRow[],
+      renderHtml: (d: TimeSeriesRow) => string,
     ) => {
       const sortedRows = [...rows].sort((a, b) => a.year - b.year);
-      const bisect = d3.bisector<(typeof sortedRows)[0], number>((r) => r.year).left;
+      const bisect = d3.bisector<TimeSeriesRow, number>((r) => r.year).left;
 
       g.append("rect")
         .attr("class", "tooltip-overlay")
@@ -276,8 +282,8 @@ export const CountryDetailDrawer = ({
       chartWidth: number,
       chartHeight: number,
       xBand: d3.ScaleBand<string>,
-      rows: (typeof details.time_series)[0][],
-      renderHtml: (d: (typeof details.time_series)[0]) => string,
+      rows: TimeSeriesRow[],
+      renderHtml: (d: TimeSeriesRow) => string,
     ) => {
       const byYear = new Map(rows.map((r) => [String(r.year), r]));
       const domain = xBand.domain();
@@ -413,18 +419,6 @@ export const CountryDetailDrawer = ({
         .attr("transform", "rotate(-45)");
 
       g.append("g").call(d3.axisLeft(y));
-      addBandOverlayTooltip(
-        g,
-        chartWidth,
-        chartHeight,
-        x,
-        filteredTimeSeries,
-        (d) => {
-          const clean = d.clean_cooking_access || 0;
-          const traditional = 100 - clean;
-          return `Year: ${d.year}<br/>Clean: ${clean.toFixed(1)}%<br/>Traditional: ${traditional.toFixed(1)}%`;
-        },
-      );
       addYearOverlayTooltip(
         g,
         chartWidth,
@@ -579,15 +573,6 @@ export const CountryDetailDrawer = ({
         .attr("transform", "rotate(-45)");
 
       g.append("g").call(d3.axisLeft(y));
-      addBandOverlayTooltip(
-        g,
-        chartWidth,
-        chartHeight,
-        x,
-        details.time_series,
-        (d) =>
-          `Year: ${d.year}<br/>Energy Poverty: ${(d.energy_poverty || 0).toFixed(1)}%`,
-      );
       addYearOverlayTooltip(
         g,
         chartWidth,
@@ -851,14 +836,17 @@ export const CountryDetailDrawer = ({
         .attr("transform", "rotate(-45)");
 
       g.append("g").call(d3.axisLeft(y));
-      addYearOverlayTooltip(
+      addBandOverlayTooltip(
         g,
         chartWidth,
         chartHeight,
         x,
-        details.time_series,
-        (d) =>
-          `Year: ${d.year}<br/>Per Capita: ${(d.electricity_demand_per_capita || 0).toFixed(3)} MWh<br/>Per Capita (with Access): ${(d.electricity_demand_per_capita_with_access || 0).toFixed(3)} MWh`,
+        filteredTimeSeries,
+        (d) => {
+          const clean = d.clean_cooking_access || 0;
+          const traditional = 100 - clean;
+          return `Year: ${d.year}<br/>Clean: ${clean.toFixed(1)}%<br/>Traditional: ${traditional.toFixed(1)}%`;
+        },
       );
     }
 
@@ -938,7 +926,7 @@ export const CountryDetailDrawer = ({
         .attr("transform", "rotate(-45)");
 
       g.append("g").call(d3.axisLeft(y));
-      addYearOverlayTooltip(
+      addBandOverlayTooltip(
         g,
         chartWidth,
         chartHeight,

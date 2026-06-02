@@ -6,7 +6,7 @@ import { AuthHeading } from "../../components/cards/AuthHeading";
 import { AuthField } from "../../components/inputs/AuthField";
 import { AuthButton } from "../../components/buttons/AuthButton";
 import { AuthFooter } from "../../components/cards/AuthFooter";
-import { ButtonSpinner } from "../../components/Utils/ButtonSpinner";
+import { ButtonSpinner } from "../../components/utils/ButtonSpinner";
 import {
   verifyEmailSchema,
   type VerifyEmailFormValues,

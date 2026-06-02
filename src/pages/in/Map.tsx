@@ -7,7 +7,7 @@ import {
   normalizeCountryName,
 } from "../../components/utils/MapGeo";
 import { CountryModal } from "../../components/modals/CountryModal";
-import { africanCountries } from "../../components/utils/CountryData";
+import { africanCountries } from "../../components/utils/countryData";
 import { getCountryFlag } from "../../components/utils/Flags";
 import { ArrowBlackIcon } from "../../components/Icons";
 import { FilterDrawer } from "../../components/FilterDrawer";

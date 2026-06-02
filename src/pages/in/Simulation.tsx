@@ -1,5 +1,4 @@
 import { useState, useEffect, useRef } from "react";
-import { MetricCard } from "../../components/cards/MetricCard";
 import { ChartCard } from "../../components/cards/ChartCard";
 import { Slider } from "../../components/inputs/Slider";
 import { FeedbackModal } from "../../components/modals/FeedbackModal";
@@ -7,7 +6,7 @@ import { useSimulateScenarioMutation } from "../../app/appSlices/apiSlice";
 import { useGetAvailableCountriesQuery } from "../../app/appSlices/apiSlice";
 import * as d3 from "d3";
 import { calculateYearTicks } from "../../components/utils/ChartUtils";
-import { ButtonSpinner } from "../../components/Utils/ButtonSpinner";
+import { ButtonSpinner } from "../../components/utils/ButtonSpinner";
 
 // Scenario Builder Interfaces
 interface ScenarioParameters {

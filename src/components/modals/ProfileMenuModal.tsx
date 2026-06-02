@@ -1,4 +1,4 @@
-import { getEmailInitial } from "../Utils/userInitial";
+import { getEmailInitial } from "../utils/userInitial";
 
 type ProfileMenuModalProps = {
   email: string;

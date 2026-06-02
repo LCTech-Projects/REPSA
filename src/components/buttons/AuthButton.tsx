@@ -1,5 +1,5 @@
 import type { ButtonHTMLAttributes, ReactNode } from "react";
-import { ButtonSpinner } from "../Utils/ButtonSpinner";
+import { ButtonSpinner } from "../utils/ButtonSpinner";
 
 type AuthButtonProps = ButtonHTMLAttributes<HTMLButtonElement> & {
   loading?: boolean;
