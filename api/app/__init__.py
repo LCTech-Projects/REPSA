@@ -44,8 +44,12 @@ def create_app():
         "yes",
     }:
         with app.app_context():
-            from . import models  # noqa: F401
-            db.create_all()
+            try:
+                from . import models  # noqa: F401
+                db.create_all()
+                app.logger.info("Database tables created or already exist")
+            except Exception:
+                app.logger.exception("DB_AUTO_CREATE_TABLES failed; continuing without blocking startup")
 
     @app.get("/health")
     def health():

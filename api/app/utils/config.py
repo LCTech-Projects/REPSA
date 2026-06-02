@@ -1,8 +1,16 @@
 import os
 
+def _database_url() -> str | None:
+    url = os.environ.get("DATABASE_URL")
+    if url and url.startswith("postgres://"):
+        # Neon/Heroku often use postgres://; SQLAlchemy requires postgresql://
+        url = url.replace("postgres://", "postgresql://", 1)
+    return url
+
+
 class Config:
     SECRET_KEY = os.environ.get('SECRET_KEY') or 'dev-secret-key'
-    SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL')
+    SQLALCHEMY_DATABASE_URI = _database_url()
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     # Neon (and other serverless Postgres) closes idle SSL connections; pre-ping avoids stale pool connections.
     SQLALCHEMY_ENGINE_OPTIONS = {
