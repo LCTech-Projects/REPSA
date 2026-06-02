@@ -223,39 +223,9 @@ npm run lint     # ESLint
 
 ## Production deployment
 
-REPSA is **two deployable parts** plus external services. Typical shared hosting (PHP/static only) cannot run the Python API with pandas, scikit-learn, and optional spaCy.
+**Railway (monolith, repsa.org):** see [DEPLOY.md](DEPLOY.md) for Dockerfile, `railway.toml`, env vars, and first-deploy steps.
 
-### Recommended split
-
-| Component | Suggested hosting |
-|-----------|-------------------|
-| Frontend (`dist/`) | Static host: Netlify, Cloudflare Pages, S3+CDN, or any web host |
-| Flask API | VPS, Railway, Render, Fly.io, or similar with Python 3.12 |
-| Database | Neon Postgres (or any managed Postgres) |
-| Email | Resend with a verified domain |
-
-### Frontend build
-
-```bash
-npm run build
-```
-
-Deploy contents of `dist/`. Set `VITE_API_URL` to the public API origin **at build time**.
-
-Configure the static host so client routes fall back to `index.html` (SPA).
-
-### API production notes
-
-- Run with **gunicorn** (or similar), not Flask’s dev server.
-- Set `DATABASE_URL`, secrets, and Resend variables on the host.
-- `SQLALCHEMY_ENGINE_OPTIONS` uses `pool_pre_ping` and `pool_recycle` for Neon-style Postgres (see `api/app/utils/config.py`).
-- `api/data/historical/` and `api/ml_models/` ship with the repo (or copy them to the server on deploy).
-- Enable CORS for your frontend origin (Flask-CORS is installed; tighten origins in production).
-- Optional: Redis for `ProductionConfig` caching if you switch `CACHE_TYPE`.
-
-### What not to use for the full stack
-
-UK2 (and similar) **shared Linux hosting** plans are fine for the static site and email domains, but not for the Flask + ML API. Use their **VPS** tier or a Python PaaS for the API.
+REPSA is **two deployable parts** plus external services in development; production uses a **single Railway service** that serves the built React app and Flask API together.
 
 ---
 

@@ -6,14 +6,14 @@ from app.utils.config import Config
 from app.utils.cache import cache
 
 _HOURLY_PER_CAPITA_SPECS: Tuple[Tuple[str, float], ...] = (
-    ("electricity_demand_per_capita (MWh/person)", 1.0),
     ("electricity_demand_per_capita (kWh/person)", 1e-3),
+    ("electricity_demand_per_capita (MWh/person)", 1.0),
     ("electricity_demand_per_capita (MWh)", 1.0),
     ("electricity_demand_per_capita (kWh)", 1e-3),
 )
 _HOURLY_PER_CAPITA_WA_SPECS: Tuple[Tuple[str, float], ...] = (
-    ("electricity_demand_per_capita_with_access (MWh/person)", 1.0),
     ("electricity_demand_per_capita_with_access (kWh/person)", 1e-3),
+    ("electricity_demand_per_capita_with_access (MWh/person)", 1.0),
     ("electricity_demand_per_capita_with_access (MWh)", 1.0),
     ("electricity_demand_per_capita_with_access (kWh)", 1e-3),
 )

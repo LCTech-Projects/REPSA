@@ -1,0 +1,34 @@
+# Git / editor
+.git
+.gitignore
+.vscode
+.idea
+.cursor
+
+# Frontend dev artifacts
+node_modules
+dist
+dist-ssr
+*.local
+
+# Python local env
+**/.venv
+**/venv
+**/__pycache__
+**/*.pyc
+**/.pytest_cache
+**/.mypy_cache
+
+# Secrets (set in Railway dashboard)
+**/.env
+**/.env.*
+!**/.env.example
+
+# Local-only pipeline (not needed at runtime)
+api/preprocess
+
+# Docs / misc
+*.md
+!README.md
+emobpy_paper_extract.txt
+reviewer_comments_extract.txt
