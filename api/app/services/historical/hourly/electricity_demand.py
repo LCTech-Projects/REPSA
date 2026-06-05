@@ -6,17 +6,23 @@ from app.utils.config import Config
 from app.utils.cache import cache
 
 _HOURLY_PER_CAPITA_SPECS: Tuple[Tuple[str, float], ...] = (
-    ("electricity_demand_per_capita (kWh/person)", 1e-3),
-    ("electricity_demand_per_capita (MWh/person)", 1.0),
-    ("electricity_demand_per_capita (MWh)", 1.0),
-    ("electricity_demand_per_capita (kWh)", 1e-3),
+    ("electricity_demand_per_capita (kWh/person)", 1.0),
+    ("electricity_demand_per_capita (MWh/person)", 1000.0),
+    ("electricity_demand_per_capita (MWh)", 1000.0),
+    ("electricity_demand_per_capita (kWh)", 1.0),
 )
 _HOURLY_PER_CAPITA_WA_SPECS: Tuple[Tuple[str, float], ...] = (
-    ("electricity_demand_per_capita_with_access (kWh/person)", 1e-3),
-    ("electricity_demand_per_capita_with_access (MWh/person)", 1.0),
-    ("electricity_demand_per_capita_with_access (MWh)", 1.0),
-    ("electricity_demand_per_capita_with_access (kWh)", 1e-3),
+    ("electricity_demand_per_capita_with_access (kWh/person)", 1.0),
+    ("electricity_demand_per_capita_with_access (MWh/person)", 1000.0),
+    ("electricity_demand_per_capita_with_access (MWh)", 1000.0),
+    ("electricity_demand_per_capita_with_access (kWh)", 1.0),
 )
+_HOURLY_EXPORT_COLUMN_LABELS = {
+    "datetime": "datetime",
+    "electricity_demand_MWh": "electricity_demand (MWh)",
+    "electricity_demand_per_capita_kWh": "electricity_demand_per_capita (kWh/person)",
+    "electricity_demand_per_capita_with_access_kWh": "electricity_demand_per_capita_with_access (kWh/person)",
+}
 
 
 def _first_scaled_series(df: pd.DataFrame, specs: Tuple[Tuple[str, float], ...]) -> Optional[pd.Series]:
@@ -26,15 +32,38 @@ def _first_scaled_series(df: pd.DataFrame, specs: Tuple[Tuple[str, float], ...])
     return None
 
 
-def _normalize_hourly_per_capita_mwh(df: pd.DataFrame) -> pd.DataFrame:
+def _normalize_hourly_per_capita_kwh(df: pd.DataFrame) -> pd.DataFrame:
     out = df.copy()
     plain = _first_scaled_series(out, _HOURLY_PER_CAPITA_SPECS)
     if plain is not None:
-        out["electricity_demand_per_capita_MWh"] = plain
+        out["electricity_demand_per_capita_kWh"] = plain
     wa = _first_scaled_series(out, _HOURLY_PER_CAPITA_WA_SPECS)
     if wa is not None:
-        out["electricity_demand_per_capita_with_access_MWh"] = wa
+        out["electricity_demand_per_capita_with_access_kWh"] = wa
     return out
+
+
+def _hourly_row_to_record(row: pd.Series) -> Dict[str, Any]:
+    return {
+        "datetime": row["datetime"].strftime("%Y-%m-%d %H:%M:%S"),
+        "electricity_demand_MWh": float(row["electricity_demand_MWh"])
+        if pd.notna(row["electricity_demand_MWh"])
+        else None,
+        "electricity_demand_per_capita_kWh": float(row["electricity_demand_per_capita_kWh"])
+        if "electricity_demand_per_capita_kWh" in row.index
+        and pd.notna(row["electricity_demand_per_capita_kWh"])
+        else None,
+        "electricity_demand_per_capita_with_access_kWh": float(
+            row["electricity_demand_per_capita_with_access_kWh"]
+        )
+        if "electricity_demand_per_capita_with_access_kWh" in row.index
+        and pd.notna(row["electricity_demand_per_capita_with_access_kWh"])
+        else None,
+    }
+
+
+def _dataframe_for_hourly_csv_export(data: List[Dict[str, Any]]) -> pd.DataFrame:
+    return pd.DataFrame(data).rename(columns=_HOURLY_EXPORT_COLUMN_LABELS)
 
 class HourlyElectricityDemandService:
     def __init__(self):
@@ -89,7 +118,7 @@ class HourlyElectricityDemandService:
         if rename_map:
             df = df.rename(columns=rename_map)
 
-        df = _normalize_hourly_per_capita_mwh(df)
+        df = _normalize_hourly_per_capita_kwh(df)
 
         return df
     
@@ -97,7 +126,7 @@ class HourlyElectricityDemandService:
     def get_hourly_demand_by_date(self, country: str, date: str) -> List[Dict[str, Any]]:
         """
         Get hourly electricity demand data for a specific date
-        Returns: [{datetime, electricity_demand_MWh, electricity_demand_per_capita_MWh, electricity_demand_per_capita_with_access_MWh}]
+        Returns: [{datetime, electricity_demand_MWh, electricity_demand_per_capita_kWh, electricity_demand_per_capita_with_access_kWh}]
         """
         try:
             target_date = pd.to_datetime(date).date()
@@ -115,12 +144,7 @@ class HourlyElectricityDemandService:
         # Convert to required format
         result = []
         for _, row in date_data.iterrows():
-            result.append({
-                'datetime': row['datetime'].strftime('%Y-%m-%d %H:%M:%S'),
-                'electricity_demand_MWh': float(row['electricity_demand_MWh']) if pd.notna(row['electricity_demand_MWh']) else None,
-                'electricity_demand_per_capita_MWh': float(row['electricity_demand_per_capita_MWh']) if 'electricity_demand_per_capita_MWh' in row.index and pd.notna(row['electricity_demand_per_capita_MWh']) else None,
-                'electricity_demand_per_capita_with_access_MWh': float(row['electricity_demand_per_capita_with_access_MWh']) if 'electricity_demand_per_capita_with_access_MWh' in row.index and pd.notna(row['electricity_demand_per_capita_with_access_MWh']) else None,
-            })
+            result.append(_hourly_row_to_record(row))
         
         # Sort by datetime
         result.sort(key=lambda x: x['datetime'])
@@ -131,7 +155,7 @@ class HourlyElectricityDemandService:
     def get_hourly_demand_by_year(self, country: str, year: int) -> List[Dict[str, Any]]:
         """
         Get hourly electricity demand data for a specific year
-        Returns: [{datetime, electricity_demand_MWh, electricity_demand_per_capita_MWh, electricity_demand_per_capita_with_access_MWh}]
+        Returns: [{datetime, electricity_demand_MWh, electricity_demand_per_capita_kWh, electricity_demand_per_capita_with_access_kWh}]
         """
         df = self._load_country_data(country)
         
@@ -144,16 +168,39 @@ class HourlyElectricityDemandService:
         # Convert to required format
         result = []
         for _, row in year_data.iterrows():
-            result.append({
-                'datetime': row['datetime'].strftime('%Y-%m-%d %H:%M:%S'),
-                'electricity_demand_MWh': float(row['electricity_demand_MWh']) if pd.notna(row['electricity_demand_MWh']) else None,
-                'electricity_demand_per_capita_MWh': float(row['electricity_demand_per_capita_MWh']) if 'electricity_demand_per_capita_MWh' in row.index and pd.notna(row['electricity_demand_per_capita_MWh']) else None,
-                'electricity_demand_per_capita_with_access_MWh': float(row['electricity_demand_per_capita_with_access_MWh']) if 'electricity_demand_per_capita_with_access_MWh' in row.index and pd.notna(row['electricity_demand_per_capita_with_access_MWh']) else None,
-            })
+            result.append(_hourly_row_to_record(row))
         
         # Sort by datetime
         result.sort(key=lambda x: x['datetime'])
         
+        return result
+
+    @cache.memoize(timeout=3600)
+    def get_hourly_demand_by_month(self, country: str, month: str) -> List[Dict[str, Any]]:
+        """
+        Get hourly electricity demand data for a specific month (YYYY-MM)
+        Returns: [{datetime, electricity_demand_MWh, ...}]
+        """
+        try:
+            parsed = pd.to_datetime(f"{month}-01")
+            year = int(parsed.year)
+            month_num = int(parsed.month)
+        except ValueError:
+            raise ValueError(f"Invalid month format: {month}. Use YYYY-MM format.")
+
+        df = self._load_country_data(country)
+        month_data = df[
+            (df['datetime'].dt.year == year) & (df['datetime'].dt.month == month_num)
+        ].copy()
+
+        if month_data.empty:
+            return []
+
+        result = []
+        for _, row in month_data.iterrows():
+            result.append(_hourly_row_to_record(row))
+
+        result.sort(key=lambda x: x['datetime'])
         return result
     
     def export_hourly_demand_by_date_to_csv(self, country: str, date: str) -> str:
@@ -167,7 +214,7 @@ class HourlyElectricityDemandService:
             raise ValueError(f"No hourly data found for country {country} on date {date}")
         
         # Convert to DataFrame for CSV export
-        df = pd.DataFrame(data)
+        df = _dataframe_for_hourly_csv_export(data)
         
         # Create temporary file
         temp_file = tempfile.NamedTemporaryFile(mode='w', suffix='.csv', delete=False)
@@ -186,12 +233,28 @@ class HourlyElectricityDemandService:
             raise ValueError(f"No hourly data found for country {country} for year {year}")
         
         # Convert to DataFrame for CSV export
-        df = pd.DataFrame(data)
+        df = _dataframe_for_hourly_csv_export(data)
         
         # Create temporary file
         temp_file = tempfile.NamedTemporaryFile(mode='w', suffix='.csv', delete=False)
         df.to_csv(temp_file.name, index=False)
         
+        return temp_file.name
+
+    def export_hourly_demand_by_month_to_csv(self, country: str, month: str) -> str:
+        """
+        Export hourly demand data for a specific month to CSV
+        Returns path to temporary CSV file
+        """
+        data = self.get_hourly_demand_by_month(country, month)
+
+        if not data:
+            raise ValueError(f"No hourly data found for country {country} for month {month}")
+
+        df = _dataframe_for_hourly_csv_export(data)
+        temp_file = tempfile.NamedTemporaryFile(mode='w', suffix='.csv', delete=False)
+        df.to_csv(temp_file.name, index=False)
+
         return temp_file.name
     
     def get_available_countries(self) -> List[str]:

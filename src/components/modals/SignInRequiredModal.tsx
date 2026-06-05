@@ -1,12 +1,16 @@
 import { createPortal } from "react-dom";
 import { useLocation, useNavigate } from "react-router-dom";
-import type { DownloadFormat } from "../../app/authNavigation";
+import type {
+  DownloadFormat,
+  HourlyDownloadScope,
+} from "../../app/authNavigation";
 
 type SignInRequiredModalProps = {
   isOpen: boolean;
   onClose: () => void;
   returnPath?: string;
   pendingDownloadFormat?: DownloadFormat | null;
+  pendingHourlyDownloadScope?: HourlyDownloadScope | null;
 };
 
 export const SignInRequiredModal = ({
@@ -14,6 +18,7 @@ export const SignInRequiredModal = ({
   onClose,
   returnPath,
   pendingDownloadFormat = null,
+  pendingHourlyDownloadScope = null,
 }: SignInRequiredModalProps) => {
   const navigate = useNavigate();
   const location = useLocation();
@@ -24,7 +29,11 @@ export const SignInRequiredModal = ({
     const from = returnPath ?? `${location.pathname}${location.search}`;
     onClose();
     navigate("/sign-in", {
-      state: { from, pendingDownloadFormat: pendingDownloadFormat ?? undefined },
+      state: {
+        from,
+        pendingDownloadFormat: pendingDownloadFormat ?? undefined,
+        pendingHourlyDownloadScope: pendingHourlyDownloadScope ?? undefined,
+      },
     });
   };
 

@@ -1,4 +1,5 @@
 from flask import Blueprint, request, jsonify, send_file
+from datetime import datetime
 from app.services.historical.hourly.electricity_demand import HourlyElectricityDemandService
 from app.utils.validators import validate_country, validate_year
 from app.utils.config import Config
@@ -13,52 +14,45 @@ def get_hourly_electricity_demand():
     Query parameters:
     - country (required): Specific country
     - date (optional): Specific date (YYYY-MM-DD)
+    - month (optional): Specific month (YYYY-MM)
     - year (optional): Specific year
     - format (optional): 'json' or 'csv' (default: 'json')
-    
+
+    Exactly one of date, month, or year must be provided.
+
     Returns:
     - JSON response or CSV file download
     """
     try:
-        # Get query parameters
         country = request.args.get('country')
         date = request.args.get('date')
+        month = request.args.get('month')
         year = request.args.get('year')
         format_type = request.args.get('format', 'json').lower()
-        
-        # Validate format
+
         if format_type not in ['json', 'csv']:
             return jsonify({
                 'success': False,
                 'error': 'Format must be either "json" or "csv"'
             }), 400
-        
-        # Validate required parameters
+
         if not country:
             return jsonify({
                 'success': False,
                 'error': 'Country parameter is required'
             }), 400
-        
+
         country = validate_country(country)
-        
-        # Determine request type and validate
-        if date and year:
+
+        scope_params = [param for param in [date, month, year] if param]
+        if len(scope_params) != 1:
             return jsonify({
                 'success': False,
-                'error': 'Use either "date" OR "year", not both'
+                'error': 'Must provide exactly one of "date", "month", or "year"'
             }), 400
-        
-        if not date and not year:
-            return jsonify({
-                'success': False,
-                'error': 'Must provide either "date" or "year" parameter'
-            }), 400
-        
+
         if date:
-            # Validate date is not beyond YEAR_FILTER_LIMIT
             try:
-                from datetime import datetime
                 date_obj = datetime.strptime(date, '%Y-%m-%d')
                 if date_obj.year > Config.YEAR_FILTER_LIMIT:
                     return jsonify({
@@ -70,64 +64,90 @@ def get_hourly_electricity_demand():
                     'success': False,
                     'error': 'Invalid date format. Use YYYY-MM-DD'
                 }), 400
-            
-            # Specific date request
+
             if format_type == 'csv':
-                # Return CSV file for date
                 csv_path = service.export_hourly_demand_by_date_to_csv(country, date)
                 filename = f"hourly_demand_{country}_{date.replace('-', '_')}.csv"
-                
                 return send_file(
                     csv_path,
                     as_attachment=True,
                     download_name=filename,
                     mimetype='text/csv'
                 )
-            else:
-                # Return JSON for date
-                data = service.get_hourly_demand_by_date(country, date)
+
+            data = service.get_hourly_demand_by_date(country, date)
+            return jsonify({
+                'success': True,
+                'data': data,
+                'metadata': {
+                    'country': country,
+                    'date': date,
+                    'total_hours': len(data),
+                    'data_type': 'hourly'
+                }
+            })
+
+        if month:
+            try:
+                month_obj = datetime.strptime(f"{month}-01", '%Y-%m-%d')
+                if month_obj.year > Config.YEAR_FILTER_LIMIT:
+                    return jsonify({
+                        'success': False,
+                        'error': f'Month must be in year {Config.YEAR_FILTER_LIMIT} or earlier'
+                    }), 400
+            except ValueError:
                 return jsonify({
-                    'success': True,
-                    'data': data,
-                    'metadata': {
-                        'country': country,
-                        'date': date,
-                        'total_hours': len(data),
-                        'data_type': 'hourly'
-                    }
-                })
-        
-        else:
-            # Year request
-            year = validate_year(year)
-            # Cap year by YEAR_FILTER_LIMIT
-            if year > Config.YEAR_FILTER_LIMIT:
-                year = Config.YEAR_FILTER_LIMIT
-            
+                    'success': False,
+                    'error': 'Invalid month format. Use YYYY-MM'
+                }), 400
+
             if format_type == 'csv':
-                # Return CSV file for year
-                csv_path = service.export_hourly_demand_by_year_to_csv(country, year)
-                filename = f"hourly_demand_{country}_{year}.csv"
-                
+                csv_path = service.export_hourly_demand_by_month_to_csv(country, month)
+                filename = f"hourly_demand_{country}_{month.replace('-', '_')}.csv"
                 return send_file(
                     csv_path,
                     as_attachment=True,
                     download_name=filename,
                     mimetype='text/csv'
                 )
-            else:
-                # Return JSON for year
-                data = service.get_hourly_demand_by_year(country, year)
-                return jsonify({
-                    'success': True,
-                    'data': data,
-                    'metadata': {
-                        'country': country,
-                        'year': year,
-                        'total_hours': len(data),
-                        'data_type': 'hourly'
-                    }
-                })
+
+            data = service.get_hourly_demand_by_month(country, month)
+            return jsonify({
+                'success': True,
+                'data': data,
+                'metadata': {
+                    'country': country,
+                    'month': month,
+                    'total_hours': len(data),
+                    'data_type': 'hourly'
+                }
+            })
+
+        year = validate_year(year)
+        if year > Config.YEAR_FILTER_LIMIT:
+            year = Config.YEAR_FILTER_LIMIT
+
+        if format_type == 'csv':
+            csv_path = service.export_hourly_demand_by_year_to_csv(country, year)
+            filename = f"hourly_demand_{country}_{year}.csv"
+            return send_file(
+                csv_path,
+                as_attachment=True,
+                download_name=filename,
+                mimetype='text/csv'
+            )
+
+        data = service.get_hourly_demand_by_year(country, year)
+        return jsonify({
+            'success': True,
+            'data': data,
+            'metadata': {
+                'country': country,
+                'year': year,
+                'total_hours': len(data),
+                'data_type': 'hourly'
+            }
+        })
 
     except ValueError as e:
         return jsonify({'success': False, 'error': str(e)}), 400
@@ -161,7 +181,7 @@ def get_available_years(country):
             'success': True,
             'data': {
                 'years': years,
-                'data': years  # Also include as 'data' for backward compatibility
+                'data': years
             },
             'metadata': {
                 'country': country,
@@ -172,7 +192,6 @@ def get_available_years(country):
     except ValueError as e:
         return jsonify({'success': False, 'error': str(e)}), 400
     except FileNotFoundError:
-        # Return empty years list instead of 404 when no hourly data exists
         return jsonify({
             'success': True,
             'data': {

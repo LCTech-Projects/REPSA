@@ -1,7 +1,11 @@
 import { useState, useEffect, useRef } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../../app/AuthContext";
-import type { ReturnLocationState } from "../../app/authNavigation";
+import type {
+  ReturnLocationState,
+  HourlyDownloadScope,
+} from "../../app/authNavigation";
+import { getApiBaseUrl } from "../../app/apiBaseUrl";
 import { SignInRequiredModal } from "../../components/modals/SignInRequiredModal";
 import {
   useGetAvailableYearsQuery,
@@ -49,7 +53,14 @@ export const Visualization = () => {
   const [pendingDownloadFormat, setPendingDownloadFormat] = useState<
     "csv" | "json" | null
   >(null);
-  const pendingFormatAfterAuthRef = useRef<"csv" | "json" | null>(null);
+  const [hourlyDownloadScope, setHourlyDownloadScope] =
+    useState<HourlyDownloadScope>("day");
+  const [pendingHourlyDownloadScope, setPendingHourlyDownloadScope] =
+    useState<HourlyDownloadScope | null>(null);
+  const pendingDownloadAfterAuthRef = useRef<{
+    format: "csv" | "json";
+    hourlyScope?: HourlyDownloadScope;
+  } | null>(null);
   const [liveRealtimeCounterValues, setLiveRealtimeCounterValues] = useState<
     Record<string, number>
   >({});
@@ -405,7 +416,10 @@ export const Visualization = () => {
     return hourlyData?.data || hourlyData || null;
   };
 
-  const hasDownloadData = !!getCurrentDownloadData();
+  const hasDownloadData =
+    dataMode === "historical" && viewMode === "hourly"
+      ? !!(selectedCountry && selectedDate)
+      : !!getCurrentDownloadData();
 
   const escapeCsvCell = (value: unknown): string => {
     if (value === null || value === undefined) return "";
@@ -467,10 +481,14 @@ export const Visualization = () => {
       const hourly: Record<string, string> = {
         "electricity_demand (MWh)": "MWh",
         electricity_demand_MWh: "MWh",
-        electricity_demand_per_capita_MWh: "MWh/person",
-        electricity_demand_per_capita_with_access_MWh: "MWh/person",
-        "electricity_demand_per_capita (MWh/person)": "MWh/person",
-        "electricity_demand_per_capita_with_access (MWh/person)": "MWh/person",
+        electricity_demand_per_capita_kWh: "kWh/person",
+        electricity_demand_per_capita_with_access_kWh: "kWh/person",
+        electricity_demand_per_capita_MWh: "kWh/person",
+        electricity_demand_per_capita_with_access_MWh: "kWh/person",
+        "electricity_demand_per_capita (kWh/person)": "kWh/person",
+        "electricity_demand_per_capita_with_access (kWh/person)": "kWh/person",
+        "electricity_demand_per_capita (MWh/person)": "kWh/person",
+        "electricity_demand_per_capita_with_access (MWh/person)": "kWh/person",
       };
       return hourly[normalized] || common[normalized] || null;
     }
@@ -491,6 +509,17 @@ export const Visualization = () => {
     return common[normalized] || null;
   };
 
+  const getHourlyDownloadColumnName = (key: string, unit: string | null) => {
+    if (key === "electricity_demand_MWh") return "electricity_demand (MWh)";
+    if (key === "electricity_demand_per_capita_kWh") {
+      return "electricity_demand_per_capita (kWh/person)";
+    }
+    if (key === "electricity_demand_per_capita_with_access_kWh") {
+      return "electricity_demand_per_capita_with_access (kWh/person)";
+    }
+    return unit ? `${key} (${unit})` : key;
+  };
+
   const withUnitHeaders = (
     rows: Record<string, unknown>[],
     mode: "historical" | "realtime",
@@ -500,7 +529,13 @@ export const Visualization = () => {
       const out: Record<string, unknown> = {};
       for (const [k, v] of Object.entries(row)) {
         const unit = getUnitLabel(k, mode, historicalView);
-        out[unit ? `${k} (${unit})` : k] = v;
+        const header =
+          mode === "historical" && historicalView === "hourly"
+            ? getHourlyDownloadColumnName(k, unit)
+            : unit
+              ? `${k} (${unit})`
+              : k;
+        out[header] = v;
       }
       return out;
     });
@@ -575,22 +610,156 @@ export const Visualization = () => {
     return [headerLine, ...lines].join("\n");
   };
 
+  const triggerFileDownload = (
+    content: BlobPart,
+    filename: string,
+    mimeType: string,
+  ) => {
+    const blob = new Blob([content], { type: mimeType });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = filename;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+  };
+
+  const parseContentDispositionFilename = (
+    disposition: string | null,
+    fallback: string,
+  ) => {
+    if (!disposition) return fallback;
+    const match = disposition.match(/filename="?([^";]+)"?/i);
+    return match?.[1] ?? fallback;
+  };
+
+  const formatHourlyMonthLabel = (date: string) => {
+    const [year, month] = date.slice(0, 7).split("-");
+    const monthName = new Date(Number(year), Number(month) - 1, 1).toLocaleString(
+      "en-US",
+      { month: "long" },
+    );
+    return `${monthName} ${year}`;
+  };
+
+  const buildHourlyDownloadParams = (scope: HourlyDownloadScope) => {
+    const params = new URLSearchParams({
+      country: selectedCountry,
+    });
+    let scopeLabel = "";
+
+    if (scope === "day") {
+      params.set("date", selectedDate);
+      scopeLabel = selectedDate;
+    } else if (scope === "month") {
+      const month = selectedDate.slice(0, 7);
+      params.set("month", month);
+      scopeLabel = month;
+    } else {
+      const year = selectedDate.slice(0, 4);
+      params.set("year", year);
+      scopeLabel = year;
+    }
+
+    return { params, scopeLabel };
+  };
+
+  const downloadHourlyData = async (
+    format: "json" | "csv",
+    scope: HourlyDownloadScope,
+  ) => {
+    if (!selectedCountry || !selectedDate) return;
+
+    const { params, scopeLabel } = buildHourlyDownloadParams(scope);
+    params.set("format", format);
+
+    const response = await fetch(
+      `${getApiBaseUrl()}/api/historical/hourly-electricity-demand?${params.toString()}`,
+    );
+
+    if (!response.ok) {
+      console.error("Hourly download failed:", await response.text());
+      return;
+    }
+
+    const countrySlug = selectedCountry.replace(/\s+/g, "_");
+    const fallbackFilename = `hourly_demand_${countrySlug}_${scopeLabel.replace(/-/g, "_")}.${format}`;
+
+    if (format === "csv") {
+      const blob = await response.blob();
+      triggerFileDownload(
+        blob,
+        parseContentDispositionFilename(
+          response.headers.get("Content-Disposition"),
+          fallbackFilename,
+        ),
+        "text/csv;charset=utf-8;",
+      );
+      return;
+    }
+
+    const json = await response.json();
+    const currentData = json.data;
+    if (!currentData) return;
+
+    const rawRows = toCsvRows(currentData);
+    const csvRows = filterDownloadRows(rawRows, "historical", "hourly");
+    const columnUnits = buildColumnUnits(csvRows, "historical", "hourly");
+
+    const payload = {
+      exported_at: new Date().toISOString(),
+      data_mode: "historical" as const,
+      view_mode: "hourly" as const,
+      download_scope: scope,
+      country: selectedCountry,
+      selected_date: selectedDate,
+      column_units: columnUnits,
+      data: csvRows,
+      metadata: json.metadata ?? null,
+    };
+
+    triggerFileDownload(
+      JSON.stringify(payload, null, 2),
+      fallbackFilename,
+      "application/json",
+    );
+  };
+
   const handleDownloadClick = () => {
     if (!hasDownloadData) return;
+    if (dataMode === "historical" && viewMode === "hourly") {
+      setHourlyDownloadScope("day");
+    }
     setShowDownloadPopup(true);
   };
 
   const handleFormatSelect = (format: "json" | "csv") => {
     if (!isAuthenticated) {
       setPendingDownloadFormat(format);
+      setPendingHourlyDownloadScope(
+        dataMode === "historical" && viewMode === "hourly"
+          ? hourlyDownloadScope
+          : null,
+      );
       setShowDownloadPopup(false);
       setShowSignInRequired(true);
       return;
     }
-    handleDownloadData(format);
+    void handleDownloadData(format);
   };
 
-  const handleDownloadData = (format: "json" | "csv") => {
+  const handleDownloadData = async (
+    format: "json" | "csv",
+    scopeOverride?: HourlyDownloadScope,
+  ) => {
+    if (dataMode === "historical" && viewMode === "hourly") {
+      await downloadHourlyData(format, scopeOverride ?? hourlyDownloadScope);
+      setShowDownloadPopup(false);
+      return;
+    }
+
     const currentData = getCurrentDownloadData();
     if (!currentData) return;
     const rawRows = toCsvRows(currentData);
@@ -630,16 +799,7 @@ export const Visualization = () => {
     const mimeType =
       format === "json" ? "application/json" : "text/csv;charset=utf-8;";
     const extension = format === "json" ? "json" : "csv";
-    const blob = new Blob([content], { type: mimeType });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement("a");
-
-    link.href = url;
-    link.download = `${fileBase}.${extension}`;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    URL.revokeObjectURL(url);
+    triggerFileDownload(content, `${fileBase}.${extension}`, mimeType);
     setShowDownloadPopup(false);
   };
 
@@ -648,17 +808,23 @@ export const Visualization = () => {
     if (!state?.downloadFormat) return;
 
     navigate(`${location.pathname}${location.search}`, { replace: true, state: {} });
-    pendingFormatAfterAuthRef.current = state.downloadFormat;
+    pendingDownloadAfterAuthRef.current = {
+      format: state.downloadFormat,
+      hourlyScope: state.hourlyDownloadScope,
+    };
+    if (state.hourlyDownloadScope) {
+      setHourlyDownloadScope(state.hourlyDownloadScope);
+    }
     setShowDownloadPopup(false);
   }, [location.pathname, location.search, location.state, navigate]);
 
   useEffect(() => {
-    const format = pendingFormatAfterAuthRef.current;
-    if (!format || !isAuthenticated || !hasDownloadData) {
+    const pending = pendingDownloadAfterAuthRef.current;
+    if (!pending || !isAuthenticated || !hasDownloadData) {
       return;
     }
-    pendingFormatAfterAuthRef.current = null;
-    handleDownloadData(format);
+    pendingDownloadAfterAuthRef.current = null;
+    void handleDownloadData(pending.format, pending.hourlyScope);
   }, [isAuthenticated, hasDownloadData]);
 
   return (
@@ -777,17 +943,64 @@ export const Visualization = () => {
         onClose={() => {
           setShowSignInRequired(false);
           setPendingDownloadFormat(null);
+          setPendingHourlyDownloadScope(null);
         }}
         returnPath={`${location.pathname}${location.search}`}
         pendingDownloadFormat={pendingDownloadFormat}
+        pendingHourlyDownloadScope={pendingHourlyDownloadScope}
       />
 
       {showDownloadPopup && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
           <div className="bg-white-1 rounded-lg border border-grey-1 p-5 w-[90%] max-w-sm">
             <h3 className="text-[1rem] font-inter font-semibold text-black-1 mb-4">
-              Download format
+              {dataMode === "historical" && viewMode === "hourly"
+                ? "Download hourly data"
+                : "Download format"}
             </h3>
+            {dataMode === "historical" && viewMode === "hourly" && selectedDate && (
+              <div className="mb-4">
+                <p className="text-[0.875rem] font-inter text-grey-2 mb-2">
+                  Range
+                </p>
+                <div className="flex flex-col gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setHourlyDownloadScope("day")}
+                    className={`w-full px-4 py-2 cursor-pointer rounded-lg border text-[0.875rem] font-inter text-black-1 transition-colors ${
+                      hourlyDownloadScope === "day"
+                        ? "border-blue-1 bg-blue-1/5"
+                        : "border-grey-2 bg-white-1 hover:bg-grey-1"
+                    }`}
+                  >
+                    Selected day ({selectedDate})
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setHourlyDownloadScope("month")}
+                    className={`w-full px-4 py-2 cursor-pointer rounded-lg border text-[0.875rem] font-inter text-black-1 transition-colors ${
+                      hourlyDownloadScope === "month"
+                        ? "border-blue-1 bg-blue-1/5"
+                        : "border-grey-2 bg-white-1 hover:bg-grey-1"
+                    }`}
+                  >
+                    Selected month ({formatHourlyMonthLabel(selectedDate)})
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setHourlyDownloadScope("year")}
+                    className={`w-full px-4 py-2 cursor-pointer rounded-lg border text-[0.875rem] font-inter text-black-1 transition-colors ${
+                      hourlyDownloadScope === "year"
+                        ? "border-blue-1 bg-blue-1/5"
+                        : "border-grey-2 bg-white-1 hover:bg-grey-1"
+                    }`}
+                  >
+                    Selected year ({selectedDate.slice(0, 4)})
+                  </button>
+                </div>
+              </div>
+            )}
+            <p className="text-[0.875rem] font-inter text-grey-2 mb-2">Format</p>
             <div className="flex flex-col gap-2">
               <button
                 type="button"
@@ -3021,9 +3234,16 @@ const HourlyCharts = ({ data }: { data: any }) => {
     const parsedData = hourlyRecords.map((record: any) => ({
       datetime: new Date(record.datetime),
       demand: record.electricity_demand_MWh || 0,
-      perCapita: record.electricity_demand_per_capita_MWh ?? 0,
+      perCapita:
+        record.electricity_demand_per_capita_kWh ??
+        (record.electricity_demand_per_capita_MWh != null
+          ? record.electricity_demand_per_capita_MWh * 1000
+          : 0),
       perCapitaWithAccess:
-        record.electricity_demand_per_capita_with_access_MWh ?? 0,
+        record.electricity_demand_per_capita_with_access_kWh ??
+        (record.electricity_demand_per_capita_with_access_MWh != null
+          ? record.electricity_demand_per_capita_with_access_MWh * 1000
+          : 0),
     }));
 
     // Electricity Demand Chart
@@ -3289,7 +3509,7 @@ const HourlyCharts = ({ data }: { data: any }) => {
         .style("text-anchor", "middle")
         .style("font-size", "12px")
         .style("fill", "#666")
-        .text("Per capita (MWh)");
+        .text("Per capita (kWh/person)");
 
       // Tooltip interactions for two series
       const bisect = d3.bisector<(typeof parsedData)[0], Date>(
@@ -3317,7 +3537,7 @@ const HourlyCharts = ({ data }: { data: any }) => {
               : d1;
           tooltip
             .html(
-              `Time: ${fmt(d.datetime)}<br/>Per capita: ${Number(d.perCapita ?? 0).toFixed(6)} MWh<br/>With access: ${Number(d.perCapitaWithAccess ?? 0).toFixed(6)} MWh`,
+              `Time: ${fmt(d.datetime)}<br/>Per capita: ${Number(d.perCapita ?? 0).toFixed(3)} kWh/person<br/>With access: ${Number(d.perCapitaWithAccess ?? 0).toFixed(3)} kWh/person`,
             )
             .style("left", event.pageX + 12 + "px")
             .style("top", event.pageY - 36 + "px")
@@ -3356,7 +3576,7 @@ const HourlyCharts = ({ data }: { data: any }) => {
         </div>
       </ChartCard>
 
-      <ChartCard title="Electricity Demand Per Capita">
+      <ChartCard title="Electricity Demand Per Capita (kWh/person)">
         <div ref={containerRefs.perCapitaDemand} className="w-full">
           <svg ref={chartRefs.perCapitaDemand} className="w-full h-auto"></svg>
         </div>

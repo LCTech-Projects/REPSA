@@ -17,41 +17,6 @@ export const apiSlice = createApi({
   }),
   tagTypes: ["User"],
   endpoints: (builder) => ({
-    getSiteLevelPV: builder.mutation({
-      query: (args) => ({
-        url: `/get_pv_data`,
-        method: "POST",
-        body: args,
-      }),
-    }),
-    getSiteLevelWind: builder.mutation({
-      query: (args) => ({
-        url: `/get_wind_data`,
-        method: "POST",
-        body: args,
-      }),
-    }),
-    getElectricityDemand: builder.mutation({
-      query: (args) => ({
-        url: `/get_electricity_demand_data`,
-        method: "POST",
-        body: args,
-      }),
-    }),
-    getPopulationData: builder.mutation({
-      query: (args) => ({
-        url: `/get_population_data`,
-        method: "POST",
-        body: args,
-      }),
-    }),
-    getEnergyUsePerCapitaData: builder.mutation({
-      query: (args) => ({
-        url: `/get_energy_use_per_capita`,
-        method: "POST",
-        body: args,
-      }),
-    }),
     getCountrySummary: builder.query<any, { country: string; year?: number }>({
       query: ({ country, year }) => ({
         url: `/api/historical/country-summary`,
@@ -128,21 +93,11 @@ export const apiSlice = createApi({
 });
 
 export const {
-  useGetSiteLevelWindMutation,
-  useGetSiteLevelPVMutation,
-  useGetElectricityDemandMutation,
-  useGetPopulationDataMutation,
-  useGetEnergyUsePerCapitaDataMutation,
-  useSimulateScenarioMutation,
-} = apiSlice;
-
-export const {
-  useGetCountrySummaryQuery,
   useGetCountryDetailsQuery,
   useGetAvailableYearsQuery,
-  useGetAllCountriesEnergyPovertyQuery,
   useGetHourlyElectricityDemandQuery,
   useGetAvailableCountriesQuery,
   useGetAvailableDatesQuery,
   useGetRealtimeDataQuery,
+  useSimulateScenarioMutation,
 } = apiSlice;

@@ -5,7 +5,7 @@ const AuthLayout = () => {
     <div className="min-h-screen bg-white-1 flex flex-col items-center px-4 py-10 md:justify-center md:py-12">
       <div className="w-full max-w-[373px] flex flex-col items-center">
         <Link
-          to="/in"
+          to="/in/map"
           aria-label="REPSA"
           className="flex items-center gap-3 mb-8 hover:opacity-90 transition-opacity"
         >

@@ -39,10 +39,13 @@ const SignIn = () => {
     try {
       await signIn(data.email.trim(), data.password);
       const authState = location.state as SignInLocationState | null;
-      const from = authState?.from ?? "/in";
+      const from = authState?.from ?? "/in/map";
       const returnState: ReturnLocationState | undefined =
         authState?.pendingDownloadFormat
-          ? { downloadFormat: authState.pendingDownloadFormat }
+          ? {
+              downloadFormat: authState.pendingDownloadFormat,
+              hourlyDownloadScope: authState.pendingHourlyDownloadScope,
+            }
           : undefined;
       navigate(from, { replace: true, state: returnState });
     } catch (err) {

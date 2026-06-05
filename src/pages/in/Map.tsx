@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, useCallback, useMemo } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import * as d3 from "d3";
 import {
   AFRICAN_GEO_DATA,
@@ -23,20 +23,17 @@ const ENERGY_POVERTY_COLORS = {
   noData: "#E5E5E5",
 };
 
-// Function to get color based on energy poverty level
-// Gradient: Dark Green (best) -> Light Green -> Yellow -> Orange -> Red/Dark Red (worst)
 const getCountryColorByEnergyPoverty = (
   energyPoverty: number | null | undefined,
 ): string => {
   if (energyPoverty === null || energyPoverty === undefined)
-    return ENERGY_POVERTY_COLORS.noData; // Default grey for no data
+    return ENERGY_POVERTY_COLORS.noData;
 
-  // Energy poverty ranges (higher = worse)
-  if (energyPoverty >= 50) return ENERGY_POVERTY_COLORS.severe; // Dark Red (worst)
-  if (energyPoverty >= 30) return ENERGY_POVERTY_COLORS.high; // Orange
-  if (energyPoverty >= 15) return ENERGY_POVERTY_COLORS.moderate; // Yellow
-  if (energyPoverty >= 5) return ENERGY_POVERTY_COLORS.low; // Light Green
-  return ENERGY_POVERTY_COLORS.minimal; // Dark Green (best)
+  if (energyPoverty >= 50) return ENERGY_POVERTY_COLORS.severe;
+  if (energyPoverty >= 30) return ENERGY_POVERTY_COLORS.high;
+  if (energyPoverty >= 15) return ENERGY_POVERTY_COLORS.moderate;
+  if (energyPoverty >= 5) return ENERGY_POVERTY_COLORS.low;
+  return ENERGY_POVERTY_COLORS.minimal;
 };
 
 export const Map = () => {
@@ -101,7 +98,6 @@ export const Map = () => {
   const legendGradient = legendStops.map((stop) => stop.color).join(", ");
   const legendTicks = [0, 20, 40, 60, 80, 100];
 
-  // Fetch available years on mount and set default to 2023 (or latest year if 2023 not available)
   useEffect(() => {
     dispatch(apiSlice.endpoints.getAvailableYears.initiate())
       .then((result: any) => {
@@ -109,7 +105,6 @@ export const Map = () => {
           const years = result.data.data.years;
           const latestYear = result.data.data.latest_year;
           setAvailableYears(years);
-          // Default to 2023 if available, otherwise use latest year
           const defaultYear = years.includes(2023) ? 2023 : latestYear;
           setSelectedYear(defaultYear);
         }
@@ -119,7 +114,6 @@ export const Map = () => {
       });
   }, [dispatch]);
 
-  // Fetch energy poverty data for all countries when year changes
   useEffect(() => {
     if (selectedYear !== null) {
       dispatch(
@@ -138,7 +132,6 @@ export const Map = () => {
     }
   }, [selectedYear, dispatch]);
 
-  // Refresh hover popup when year changes
   useEffect(() => {
     if (hoveredCountryName && selectedYear !== null) {
       setSummaryLoading(true);
@@ -163,23 +156,17 @@ export const Map = () => {
     }
   }, [selectedYear, hoveredCountryName, dispatch]);
 
-  // Update dimensions on resize and initial load
   useEffect(() => {
     const updateDimensions = () => {
       if (containerRef.current) {
         const width = containerRef.current.offsetWidth || window.innerWidth;
         const height = containerRef.current.offsetHeight || window.innerHeight;
-        setDimensions({
-          width,
-          height,
-        });
+        setDimensions({ width, height });
       }
     };
 
-    // Initial update
     updateDimensions();
 
-    // Use ResizeObserver for better dimension tracking
     const resizeObserver = new ResizeObserver(() => {
       updateDimensions();
     });
@@ -198,11 +185,9 @@ export const Map = () => {
     };
   }, []);
 
-  // Draw map function - extracted so it can be called when energy poverty data changes
   const drawMap = useCallback(() => {
     if (!geoData || !svgRef.current) return;
 
-    // Ensure we have valid dimensions
     const width =
       dimensions.width ||
       containerRef.current?.offsetWidth ||
@@ -215,11 +200,9 @@ export const Map = () => {
     if (width === 0 || height === 0) return;
 
     const svg = d3.select(svgRef.current);
-    svg.selectAll("*").remove(); // Clear previous render
+    svg.selectAll("*").remove();
 
     const { pathGenerator } = createAfricaProjection(geoData, width, height);
-
-    // Create country paths
     const countries = svg.append("g").attr("class", "countries");
 
     geoData.features.forEach((feature: any) => {
@@ -227,7 +210,6 @@ export const Map = () => {
         feature.properties.NAME || feature.properties.name || "";
       const resolvedCountryName = findCountryByName(countryName);
 
-      // Get energy poverty for this country
       const countryEnergyPoverty = resolvedCountryName
         ? energyPovertyMap[resolvedCountryName]
         : null;
@@ -247,7 +229,6 @@ export const Map = () => {
             setHoveredCountryName(resolvedCountryName);
             setHoveredCountryFlag(getCountryFlag(resolvedCountryName));
             setSummaryLoading(true);
-            // Fetch country summary with selected year
             dispatch(
               apiSlice.endpoints.getCountrySummary.initiate({
                 country: resolvedCountryName,
@@ -282,7 +263,6 @@ export const Map = () => {
         })
         .on("click", function () {
           if (resolvedCountryName) {
-            // Navigate to Visualization page with country and year
             navigate("/in/visualization", {
               state: {
                 country: resolvedCountryName,
@@ -293,7 +273,6 @@ export const Map = () => {
         });
     });
 
-    // Add zoom behavior
     const zoom = d3
       .zoom<SVGSVGElement, unknown>()
       .scaleExtent([0.5, 4])
@@ -308,18 +287,13 @@ export const Map = () => {
     energyPovertyMap,
     selectedYear,
     dispatch,
-    setHoveredCountryName,
-    setHoveredCountryFlag,
-    setSummaryLoading,
-    setCountrySummary,
     navigate,
+    findCountryByName,
   ]);
 
-  // Draw map when data and dimensions are ready
   useEffect(() => {
     if (!geoData || !svgRef.current) return;
 
-    // Ensure we have valid dimensions
     const width =
       dimensions.width ||
       containerRef.current?.offsetWidth ||
@@ -330,7 +304,6 @@ export const Map = () => {
       window.innerHeight;
 
     if (width === 0 || height === 0) {
-      // Retry after a short delay if dimensions aren't ready
       const timer = setTimeout(() => {
         if (containerRef.current) {
           const w = containerRef.current.offsetWidth || window.innerWidth;
@@ -347,19 +320,44 @@ export const Map = () => {
   }, [geoData, dimensions, drawMap, energyPovertyMap]);
 
   return (
-    <section className="w-full h-screen relative bg-[url('/images/bg1.png')] bg-cover bg-center bg-no-repeat">
-      {/* Filter Button */}
-      <div className="absolute top-4 left-4 z-50">
-        <button
-          onClick={() => setIsFilterOpen(true)}
-          className="bg-white-1 rounded-lg shadow-lg px-4 py-2 flex items-center gap-2 text-[0.875rem] font-inter hover:bg-grey-1 transition-colors"
-        >
-          Filters
-          <ArrowBlackIcon />
-        </button>
+    <section className="w-full h-screen flex flex-col">
+      <div className="shrink-0 bg-white-1 px-6 py-4">
+        <div className="md:flex md:items-start md:justify-between md:gap-6">
+          <div className="w-full md:w-1/2 md:max-w-[50%]">
+            <h1 className="text-[1.5rem] font-inter font-semibold text-black-1 mb-2">
+              Energy poverty map
+            </h1>
+            <p className="text-[0.875rem] font-inter text-grey-2 leading-relaxed">
+              Explore electricity access gaps across Africa. Each country is shaded by
+              energy poverty for the selected year. Use Filters to change the year.
+            </p>
+            <p className="text-[0.875rem] font-inter text-grey-2 leading-relaxed mt-2">
+              Hover a country to see a quick summary with electricity access, renewable
+              share, and energy poverty. Click a country to open detailed visualization page or{" "} <Link to="/in/visualization" className="text-blue-1 hover:underline">
+                download data
+              </Link>
+              .
+            </p>
+          </div>
+          <button
+            onClick={() => setIsFilterOpen(true)}
+            className="hidden md:flex shrink-0 bg-white-1 rounded-lg shadow-lg px-4 py-2 items-center gap-2 text-[0.875rem] font-inter hover:bg-grey-1 transition-colors"
+          >
+            Filters
+            <ArrowBlackIcon />
+          </button>
+        </div>
+        <div className="md:hidden mt-3 flex justify-end">
+          <button
+            onClick={() => setIsFilterOpen(true)}
+            className="shrink-0 bg-white-1 rounded-lg shadow-lg px-4 py-2 flex items-center gap-2 text-[0.875rem] font-inter hover:bg-grey-1 transition-colors"
+          >
+            Filters
+            <ArrowBlackIcon />
+          </button>
+        </div>
       </div>
 
-      {/* Filter Drawer */}
       <FilterDrawer
         isOpen={isFilterOpen}
         onClose={() => setIsFilterOpen(false)}
@@ -368,48 +366,47 @@ export const Map = () => {
         onYearChange={handleYearChange}
       />
 
-      {/* Hover Popup */}
-      {hoveredCountryName && (
-        <div className="absolute top-20 left-4 z-50">
-          <CountryModal
-            countryName={hoveredCountryName}
-            countryFlag={hoveredCountryFlag}
-            summary={countrySummary}
-            loading={summaryLoading}
+      <div className="flex-1 min-h-0 relative bg-[url('/images/bg1.png')] bg-cover bg-center bg-no-repeat">
+        {hoveredCountryName && (
+          <div className="absolute top-4 left-4 z-50">
+            <CountryModal
+              countryName={hoveredCountryName}
+              countryFlag={hoveredCountryFlag}
+              summary={countrySummary}
+              loading={summaryLoading}
+            />
+          </div>
+        )}
+
+        <div
+          ref={containerRef}
+          className="w-full h-full flex items-center justify-center"
+        >
+          <svg
+            ref={svgRef}
+            width="100%"
+            height="100%"
+            style={{ cursor: "grab" }}
           />
         </div>
-      )}
 
-
-      <div
-        ref={containerRef}
-        className="w-full h-full flex items-center justify-center"
-      >
-        <svg
-          ref={svgRef}
-          width="100%"
-          height="100%"
-          style={{ cursor: "grab" }}
-        />
-      </div>
-
-      {/* Energy poverty color bar legend */}
-      <div className="absolute bottom-6 left-6 z-40 max-w-[320px]">
-        <div className="bg-black/60 text-white rounded-xl px-4 py-3 backdrop-blur-md shadow-lg">
-          <p className="text-[0.75rem] uppercase tracking-[0.15em] mb-2 text-white/80">
-            Energy Poverty Level (%)
-          </p>
-          <div>
-            <div
-              className="h-3 rounded-full"
-              style={{
-                background: `linear-gradient(90deg, ${legendGradient})`,
-              }}
-            />
-            <div className="flex justify-between text-[0.65rem] mt-1 text-white/80">
-              {legendTicks.map((tick) => (
-                <span key={tick}>{tick}</span>
-              ))}
+        <div className="absolute bottom-6 left-6 z-40 max-w-[320px]">
+          <div className="bg-black/60 text-white rounded-xl px-4 py-3 backdrop-blur-md shadow-lg">
+            <p className="text-[0.75rem] uppercase tracking-[0.15em] mb-2 text-white/80">
+              Energy Poverty Level (%)
+            </p>
+            <div>
+              <div
+                className="h-3 rounded-full"
+                style={{
+                  background: `linear-gradient(90deg, ${legendGradient})`,
+                }}
+              />
+              <div className="flex justify-between text-[0.65rem] mt-1 text-white/80">
+                {legendTicks.map((tick) => (
+                  <span key={tick}>{tick}</span>
+                ))}
+              </div>
             </div>
           </div>
         </div>

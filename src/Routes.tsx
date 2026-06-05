@@ -18,7 +18,7 @@ import { Simulation } from "./pages/in/Simulation";
 export const routes = createBrowserRouter([
   {
     path: "/",
-    element: <Navigate to="/in" replace />,
+    element: <Navigate to="/in/map" replace />,
   },
   {
     path: "/in",
@@ -26,6 +26,10 @@ export const routes = createBrowserRouter([
     children: [
       {
         index: true,
+        element: <Navigate to="map" replace />,
+      },
+      {
+        path: "home",
         element: <Home />,
       },
       {
