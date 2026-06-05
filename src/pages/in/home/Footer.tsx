@@ -1,7 +1,7 @@
 import { Link } from "react-router-dom";
-import { ExternalLinkIcon } from "../../../components/Icons";
 
 export const Footer = () => {
+    const currentYear = new Date().getFullYear();
 
     return (
         <footer className="w-full bg-black-1 py-[60px] px-[22px]">
@@ -34,16 +34,12 @@ export const Footer = () => {
                         <div className="flex flex-col gap-y-[16px]">
                             <h3 className="text-white-1 text-[0.875rem] font-inter font-semibold uppercase tracking-wide">RESOURCES</h3>
                             <div className="flex flex-col gap-y-[12px]">
-                                <Link to="/about" className="text-black-4 text-[0.875rem] font-inter hover:text-white-1 transition-colors">About REPSA</Link>
-                                <Link to="/methodology" className="text-black-4 text-[0.875rem] font-inter hover:text-white-1 transition-colors">Methodology</Link>
-                                <Link to="/data-sources" className="text-black-4 text-[0.875rem] font-inter hover:text-white-1 transition-colors">Data Sources</Link>
-                                <a href="#" target="_blank" rel="noopener noreferrer" className="text-black-4 text-[0.875rem] font-inter hover:text-white-1 transition-colors flex items-center gap-1">
-                                    Documentation <ExternalLinkIcon />
-                                </a>
-                                <a href="#" target="_blank" rel="noopener noreferrer" className="text-black-4 text-[0.875rem] font-inter hover:text-white-1 transition-colors flex items-center gap-1">
-                                    API Access <ExternalLinkIcon />
-                                </a>
-                                <Link to="/research" className="text-black-4 text-[0.875rem] font-inter hover:text-white-1 transition-colors">Research Papers</Link>
+                                <Link to="/in/about" className="text-black-4 text-[0.875rem] font-inter hover:text-white-1 transition-colors">About REPSA</Link>
+                                <Link to="/in/methodology" className="text-black-4 text-[0.875rem] font-inter hover:text-white-1 transition-colors">Methodology</Link>
+                                <Link to="/in/data-sources" className="text-black-4 text-[0.875rem] font-inter hover:text-white-1 transition-colors">Data Sources</Link>
+                                <Link to="/in/documentation" className="text-black-4 text-[0.875rem] font-inter hover:text-white-1 transition-colors">Documentation</Link>
+                                <Link to="/in/api-access" className="text-black-4 text-[0.875rem] font-inter hover:text-white-1 transition-colors">API Access</Link>
+                                <Link to="/in/research" className="text-black-4 text-[0.875rem] font-inter hover:text-white-1 transition-colors">Research Papers</Link>
                             </div>
                         </div>
 
@@ -51,9 +47,9 @@ export const Footer = () => {
                         <div className="flex flex-col gap-y-[16px]">
                             <h3 className="text-white-1 text-[0.875rem] font-inter font-semibold uppercase tracking-wide">SUPPORT</h3>
                             <div className="flex flex-col gap-y-[12px]">
-                                <Link to="/contact" className="text-black-4 text-[0.875rem] font-inter hover:text-white-1 transition-colors">Contact Us</Link>
-                                <Link to="/faq" className="text-black-4 text-[0.875rem] font-inter hover:text-white-1 transition-colors">FAQ</Link>
-                                <Link to="/help" className="text-black-4 text-[0.875rem] font-inter hover:text-white-1 transition-colors">Help Center</Link>
+                                <Link to="/in/contact" className="text-black-4 text-[0.875rem] font-inter hover:text-white-1 transition-colors">Contact Us</Link>
+                                <Link to="/in/faq" className="text-black-4 text-[0.875rem] font-inter hover:text-white-1 transition-colors">FAQ</Link>
+                                <Link to="/in/help" className="text-black-4 text-[0.875rem] font-inter hover:text-white-1 transition-colors">Help Center</Link>
                             </div>
                         </div>
 
@@ -61,9 +57,9 @@ export const Footer = () => {
                         <div className="flex flex-col gap-y-[16px]">
                             <h3 className="text-white-1 text-[0.875rem] font-inter font-semibold uppercase tracking-wide">PARTNERS</h3>
                             <div className="flex flex-col gap-y-[12px]">
-                                <Link to="/partners" className="text-black-4 text-[0.875rem] font-inter hover:text-white-1 transition-colors">Our Partners</Link>
-                                <Link to="/collaborate" className="text-black-4 text-[0.875rem] font-inter hover:text-white-1 transition-colors">Collaborate</Link>
-                                <Link to="/sponsors" className="text-black-4 text-[0.875rem] font-inter hover:text-white-1 transition-colors">Sponsors</Link>
+                                <Link to="/in/partners" className="text-black-4 text-[0.875rem] font-inter hover:text-white-1 transition-colors">Our Partners</Link>
+                                <Link to="/in/collaborate" className="text-black-4 text-[0.875rem] font-inter hover:text-white-1 transition-colors">Collaborate</Link>
+                                <Link to="/in/sponsors" className="text-black-4 text-[0.875rem] font-inter hover:text-white-1 transition-colors">Sponsors</Link>
                             </div>
                         </div>
                     </div>
@@ -74,7 +70,7 @@ export const Footer = () => {
 
                 {/* Bottom Section - Copyright */}
                 <div>
-                    <p className="text-black-4 text-[0.875rem] font-inter">© 2025 REPSA, INC. All right reserved.</p>
+                    <p className="text-black-4 text-[0.875rem] font-inter">© {currentYear} REPSA. All rights reserved.</p>
                 </div>
             </div>
         </footer>

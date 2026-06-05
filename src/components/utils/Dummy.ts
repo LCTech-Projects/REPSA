@@ -49,7 +49,7 @@ export const explore=[
         subtext: "side-by-side comparison of energy across multiple african countries.",
         features: ["Comparison Table"],
         actionLabel: "Compare Now",
-        actionLink: "/in/comparison"
+        actionLink: "/in/compare"
     },
     
 ]

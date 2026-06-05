@@ -36,7 +36,7 @@ export const MetricCard = ({
 
     return (
         <div 
-            className={`rounded-[8px] p-4 flex-1 min-w-[200px] ${backgroundColor || 'bg-grey-1'}`}
+            className={`rounded-[8px] p-4 flex-1 min-w-0 basis-[140px] ${backgroundColor || 'bg-grey-1'}`}
         >
             <div className="flex items-center justify-between mb-2">
                 <div className={`text-[0.875rem] font-inter ${backgroundColor ? 'text-white-1' : 'text-grey-2'}`}>

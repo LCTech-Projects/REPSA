@@ -1,0 +1,4 @@
+country,reference_source,anchor_reference_year,recon_comparison_year,same_calendar_year,monthly_share_pearson_r,monthly_share_mape_pct
+South Africa,Eskom residual demand,2024,2023,False,0.9827768948674868,0.5274782693147312
+Nigeria,Mendeley suppressed national demand,2016,2016,True,1.0,6.1897536480152624e-15
+Morocco,UCI smart-meter zones (aggregated),2023,2023,True,0.9999999999999999,1.492354729465851e-14

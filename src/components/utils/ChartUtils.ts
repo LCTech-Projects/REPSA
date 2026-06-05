@@ -1,5 +1,57 @@
+export type ChartMargin = {
+  top: number;
+  right: number;
+  bottom: number;
+  left: number;
+};
+
+export function getChartSize(
+  containerWidth: number,
+  padding = 0,
+  aspectRatio = 0.6,
+) {
+  const width = Math.max(200, containerWidth - padding);
+  const height = Math.max(160, width * aspectRatio);
+  return { width, height };
+}
+
+export function getChartMargins(
+  totalWidth: number,
+  options?: { rotateXLabels?: boolean },
+): ChartMargin {
+  const narrow = totalWidth < 480;
+  const veryNarrow = totalWidth < 360;
+
+  return {
+    top: veryNarrow ? 24 : 30,
+    right: veryNarrow ? 12 : narrow ? 20 : 30,
+    bottom: options?.rotateXLabels
+      ? veryNarrow
+        ? 72
+        : narrow
+          ? 64
+          : 60
+      : narrow
+        ? 48
+        : 60,
+    left: veryNarrow ? 40 : narrow ? 52 : 70,
+  };
+}
+
+export function measureChartContainer(
+  container: HTMLElement | null,
+  padding = 0,
+  aspectRatio = 0.6,
+) {
+  const containerWidth = container?.offsetWidth ?? 0;
+  return getChartSize(containerWidth, padding, aspectRatio);
+}
+
 // Pick year tick spacing from the data range.
-export function calculateYearTicks(years: number[]): {
+export function calculateYearTicks(
+  years: number[],
+  chartWidth?: number,
+): {
   tickInterval: number;
   tickValues: number[];
 } {
@@ -39,5 +91,20 @@ export function calculateYearTicks(years: number[]): {
     tickValues.push(maxYear);
   }
 
+  if (chartWidth && chartWidth < 480 && tickValues.length > 6) {
+    const step = Math.max(2, Math.ceil(tickValues.length / 5));
+    const thinned = tickValues.filter(
+      (_, index) =>
+        index === 0 ||
+        index === tickValues.length - 1 ||
+        index % step === 0,
+    );
+    return { tickInterval, tickValues: thinned };
+  }
+
   return { tickInterval, tickValues };
+}
+
+export function getAxisFontSize(totalWidth: number) {
+  return totalWidth < 360 ? "10px" : totalWidth < 480 ? "11px" : "12px";
 }

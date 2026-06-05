@@ -1,0 +1,19 @@
+model,split,target,r2,rmse,mae
+growth_model,walkforward_pooled,electricity_demand (TWh),0.998067837974834,1.9497650454933346,0.6523535017722865
+growth_model,walkforward_pooled,electricity_demand_per_capita (MWh),0.9965321189107025,0.05668291270751629,0.0297986083866812
+growth_model,walkforward_pooled,electricity_demand_per_capita_with_access (MWh),0.9913585040868305,0.09279614852160954,0.05331183482810917
+growth_model,walkforward_pooled,energy_poverty_electricity (% of total population),0.9617366595012351,5.191127209452099,2.053776299543375
+growth_model,walkforward_pooled,energy_poverty_multidimensional (% of total population),0.9976283039894489,1.3964524185845648,0.7917611502588274
+growth_model,walkforward_pooled,greenhouse_gas_emissions,0.9965750552747008,1.7669987735129074,0.5425350290730803
+persistence,walkforward_pooled,electricity_demand (TWh),0.998580091168117,1.6714398006046023,0.6802972028456112
+persistence,walkforward_pooled,electricity_demand_per_capita (MWh),0.9969783397119412,0.05291062340666696,0.028159678317532674
+persistence,walkforward_pooled,electricity_demand_per_capita_with_access (MWh),0.9910169066092478,0.0946124838801442,0.05340982464839986
+persistence,walkforward_pooled,energy_poverty_electricity (% of total population),0.9908817443974924,2.5341137845936057,1.6123762376237631
+persistence,walkforward_pooled,energy_poverty_multidimensional (% of total population),0.9971677817249571,1.5260191773706417,1.0550742574257428
+persistence,walkforward_pooled,greenhouse_gas_emissions,0.9979777246253684,1.357780638089416,0.447574297574782
+country_growth,walkforward_pooled,electricity_demand (TWh),0.9988268793652155,1.519259099339582,0.606917429620509
+country_growth,walkforward_pooled,electricity_demand_per_capita (MWh),0.9961441185644281,0.05976981281488094,0.03243795737615632
+country_growth,walkforward_pooled,electricity_demand_per_capita_with_access (MWh),0.9896377920612213,0.10161589307162389,0.05994135093354729
+country_growth,walkforward_pooled,energy_poverty_electricity (% of total population),0.9933285816769138,2.1676008713739936,1.1219631648323642
+country_growth,walkforward_pooled,energy_poverty_multidimensional (% of total population),0.9984954819301339,1.1122318696422189,0.5828148811064308
+country_growth,walkforward_pooled,greenhouse_gas_emissions,0.9985815863813823,1.1371320776479632,0.4190603847247735

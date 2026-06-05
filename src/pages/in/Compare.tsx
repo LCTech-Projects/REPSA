@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, type CSSProperties } from "react";
 import { useDispatch } from "react-redux";
 import {
   useGetAvailableYearsQuery,
@@ -8,6 +8,8 @@ import {
 import { FilterField } from "../../components/inputs/FilterField";
 import { SelectIcon } from "../../components/Icons";
 import * as d3 from "d3";
+import { getChartMargins, getChartSize } from "../../components/utils/ChartUtils";
+import { useSidebar, SIDEBAR_WIDTH_COLLAPSED } from "../../app/SidebarContext";
 
 type ChartType = "line" | "bar" | "pie";
 type Metric =
@@ -56,6 +58,11 @@ const METRIC_UNITS: Record<Metric, string> = {
 };
 
 export const Compare = () => {
+  const { width: sidebarWidth, expanded: sidebarExpanded } = useSidebar();
+  const filtersPanelWidth = 320;
+  const chartAreaOffset = sidebarExpanded
+    ? sidebarWidth + filtersPanelWidth - SIDEBAR_WIDTH_COLLAPSED
+    : filtersPanelWidth;
   const [selectedCountries, setSelectedCountries] = useState<string[]>([]);
   const [selectedMetric, setSelectedMetric] = useState<Metric | null>(null);
   const [selectedYear, setSelectedYear] = useState<number | null>(null);
@@ -66,6 +73,8 @@ export const Compare = () => {
   const chartContainerRef = useRef<HTMLDivElement>(null);
   const countryDropdownRef = useRef<HTMLDivElement>(null);
   const [isCountryDropdownOpen, setIsCountryDropdownOpen] = useState(false);
+  const [isFiltersOpen, setIsFiltersOpen] = useState(false);
+  const [chartSize, setChartSize] = useState({ width: 0, height: 320 });
 
   // Fetch available years
   const { data: yearsData } = useGetAvailableYearsQuery();
@@ -185,32 +194,62 @@ export const Compare = () => {
     })
     .filter((d) => d.value !== null && d.value !== undefined);
 
+  // Observe chart container width for responsive D3 rendering
+  useEffect(() => {
+    const container = chartContainerRef.current;
+    if (!container) return;
+
+    const updateSize = () => {
+      const containerWidth = container.offsetWidth || window.innerWidth;
+      const { width } = getChartSize(containerWidth, 0, 0.55);
+      setChartSize({
+        width,
+        height: Math.max(240, Math.min(400, width * 0.55)),
+      });
+    };
+
+    updateSize();
+    const resizeObserver = new ResizeObserver(updateSize);
+    resizeObserver.observe(container);
+    window.addEventListener("resize", updateSize);
+
+    return () => {
+      resizeObserver.disconnect();
+      window.removeEventListener("resize", updateSize);
+    };
+  }, [selectedMetric, chartData.length, selectedYear]);
+
   // Render chart
   useEffect(() => {
     if (
       !chartRef.current ||
       !selectedMetric ||
       chartData.length === 0 ||
-      !selectedYear
+      !selectedYear ||
+      chartSize.width === 0
     )
       return;
 
     const container = chartContainerRef.current;
     if (!container) return;
 
-    const margin = { top: 30, right: 30, bottom: 60, left: 70 };
-    const containerWidth = container.offsetWidth || 800;
-    const width = Math.max(300, containerWidth - margin.left - margin.right);
-    const height = 400 - margin.top - margin.bottom;
+    const totalWidth = chartSize.width;
+    const margin = getChartMargins(totalWidth, { rotateXLabels: true });
+    const width = Math.max(80, totalWidth - margin.left - margin.right);
+    const height = Math.max(
+      140,
+      chartSize.height - margin.top - margin.bottom,
+    );
+    const axisFontSize = totalWidth < 360 ? "10px" : "11px";
 
     const svg = d3.select(chartRef.current);
     svg.selectAll("*").remove();
     svg
-      .attr("width", containerWidth)
+      .attr("width", totalWidth)
       .attr("height", height + margin.top + margin.bottom)
       .attr(
         "viewBox",
-        `0 0 ${containerWidth} ${height + margin.top + margin.bottom}`,
+        `0 0 ${totalWidth} ${height + margin.top + margin.bottom}`,
       )
       .attr("preserveAspectRatio", "xMidYMid meet");
 
@@ -219,20 +258,18 @@ export const Compare = () => {
       .attr("transform", `translate(${margin.left},${margin.top})`);
 
     if (chartType === "pie") {
-      // Pie Chart
-      const radius = Math.min(width, height) / 2 - 20; // Leave space for legend
+      const isNarrow = totalWidth < 520;
+      const radius = Math.min(width, isNarrow ? height * 0.45 : height) / 2 - 12;
       const pie = d3.pie<(typeof chartData)[0]>().value((d) => d.value);
       const arc = d3
         .arc<d3.PieArcDatum<(typeof chartData)[0]>>()
         .innerRadius(0)
-        .outerRadius(radius);
+        .outerRadius(Math.max(20, radius));
 
       const colorScale = d3.scaleOrdinal(d3.schemeCategory10);
 
-      // Calculate legend width to position pie chart properly
-      const legendWidth = 150;
-      const pieCenterX = (width - legendWidth) / 2;
-      const pieCenterY = height / 2;
+      const pieCenterX = isNarrow ? width / 2 : (width - 150) / 2;
+      const pieCenterY = isNarrow ? height * 0.32 : height / 2;
 
       const arcs = g
         .selectAll(".arc")
@@ -249,30 +286,41 @@ export const Compare = () => {
         .attr("stroke", "#fff")
         .attr("stroke-width", 2);
 
-      // Legend - positioned to the right of the pie chart
-      const legend = g
-        .append("g")
-        .attr(
+      const legend = g.append("g");
+
+      if (isNarrow) {
+        legend.attr(
           "transform",
-          `translate(${width - legendWidth + 10}, ${(height - chartData.length * 25) / 2})`,
+          `translate(0, ${height * 0.62})`,
         );
+      } else {
+        legend.attr(
+          "transform",
+          `translate(${width - 140}, ${(height - chartData.length * 25) / 2})`,
+        );
+      }
 
       chartData.forEach((d, i) => {
         const legendItem = legend
           .append("g")
-          .attr("transform", `translate(0, ${i * 25})`);
+          .attr(
+            "transform",
+            isNarrow
+              ? `translate(${(i % 2) * (width / 2)}, ${Math.floor(i / 2) * 22})`
+              : `translate(0, ${i * 25})`,
+          );
 
         legendItem
           .append("rect")
-          .attr("width", 15)
-          .attr("height", 15)
+          .attr("width", 12)
+          .attr("height", 12)
           .attr("fill", colorScale(d.country));
 
         legendItem
           .append("text")
-          .attr("x", 20)
-          .attr("y", 12)
-          .style("font-size", "11px")
+          .attr("x", 18)
+          .attr("y", 11)
+          .style("font-size", axisFontSize)
           .style("font-family", "Inter, sans-serif")
           .style("fill", "#666")
           .text(
@@ -321,10 +369,11 @@ export const Compare = () => {
         .attr("transform", `translate(0,${height})`)
         .call(d3.axisBottom(x))
         .selectAll("text")
-        .style("text-anchor", "end")
+        .style("text-anchor", totalWidth < 480 ? "end" : "end")
+        .style("font-size", axisFontSize)
         .attr("dx", "-.8em")
         .attr("dy", ".15em")
-        .attr("transform", "rotate(-45)");
+        .attr("transform", totalWidth < 480 ? "rotate(-60)" : "rotate(-45)");
 
       // Y-axis
       g.append("g").call(d3.axisLeft(y));
@@ -392,10 +441,11 @@ export const Compare = () => {
         .attr("transform", `translate(0,${height})`)
         .call(d3.axisBottom(x))
         .selectAll("text")
-        .style("text-anchor", "end")
+        .style("text-anchor", totalWidth < 480 ? "end" : "end")
+        .style("font-size", axisFontSize)
         .attr("dx", "-.8em")
         .attr("dy", ".15em")
-        .attr("transform", "rotate(-45)");
+        .attr("transform", totalWidth < 480 ? "rotate(-60)" : "rotate(-45)");
 
       // Y-axis
       g.append("g").call(d3.axisLeft(y));
@@ -407,14 +457,14 @@ export const Compare = () => {
         .attr("x", 0 - height / 2)
         .attr("dy", "1em")
         .style("text-anchor", "middle")
-        .style("font-size", "12px")
+        .style("font-size", axisFontSize)
         .style("font-family", "Inter, sans-serif")
         .style("fill", "#666")
         .text(
           `${METRIC_LABELS[selectedMetric]} (${METRIC_UNITS[selectedMetric]})`,
         );
     }
-  }, [chartData, selectedMetric, chartType, selectedYear]);
+  }, [chartData, selectedMetric, chartType, selectedYear, chartSize]);
 
   const handleCountrySelect = (country: string) => {
     if (selectedCountries.includes(country)) {
@@ -448,189 +498,228 @@ export const Compare = () => {
     };
   }, [isCountryDropdownOpen]);
 
-  return (
-    <div className="flex h-screen bg-grey-1">
-      {/* Left Sidebar */}
-      <div className="w-[320px] bg-white-1 border-r border-grey-1 p-6 overflow-y-auto">
-        <h2 className="text-[1.25rem] font-inter font-semibold text-black-1 mb-2">
-          Compare Countries
-        </h2>
-        <p className="text-[0.875rem] font-inter text-grey-2 mb-6">
-          See how african countries use and produce energy
-        </p>
+  const filtersPanel = (
+    <>
+      <h2 className="text-[1.25rem] font-inter font-semibold text-black-1 mb-2">
+        Compare Countries
+      </h2>
+      <p className="text-[0.875rem] font-inter text-grey-2 mb-6">
+        See how african countries use and produce energy
+      </p>
 
-        {/* Select Countries */}
-        <div className="mb-6">
-          <h3 className="text-[0.875rem] font-inter font-semibold text-black-1 mb-3">
-            Select Countries
-          </h3>
-          {selectedCountries.length > 0 && (
-            <div className="flex flex-wrap gap-2 mb-3">
-              {selectedCountries.map((country) => (
-                <div
-                  key={country}
-                  className="bg-blue-1 text-white-1 px-3 py-1 rounded-full text-[0.75rem] font-inter flex items-center gap-2"
+      <div className="mb-6">
+        <h3 className="text-[0.875rem] font-inter font-semibold text-black-1 mb-3">
+          Select Countries
+        </h3>
+        {selectedCountries.length > 0 && (
+          <div className="flex flex-wrap gap-2 mb-3">
+            {selectedCountries.map((country) => (
+              <div
+                key={country}
+                className="bg-blue-1 text-white-1 px-3 py-1 rounded-full text-[0.75rem] font-inter flex items-center gap-2"
+              >
+                <span>{country}</span>
+                <button
+                  onClick={() => handleCountryRemove(country)}
+                  className="hover:bg-blue-600 rounded-full w-4 h-4 flex items-center justify-center"
                 >
-                  <span>{country}</span>
-                  <button
-                    onClick={() => handleCountryRemove(country)}
-                    className="hover:bg-blue-600 rounded-full w-4 h-4 flex items-center justify-center"
-                  >
-                    ×
-                  </button>
-                </div>
-              ))}
+                  ×
+                </button>
+              </div>
+            ))}
+          </div>
+        )}
+        <div className="relative" ref={countryDropdownRef}>
+          <button
+            onClick={() => setIsCountryDropdownOpen(!isCountryDropdownOpen)}
+            className="w-full bg-white-1 border border-grey-1 rounded-lg px-4 py-3 flex items-center justify-between text-[0.875rem] font-inter text-black-1 hover:border-grey-2 transition-colors"
+          >
+            <span className="text-grey-2">
+              {selectedCountries.length === 0
+                ? "Search Country..."
+                : `Select ${selectedCountries.length < 5 ? "more" : ""} countries`}
+            </span>
+            <SelectIcon />
+          </button>
+          {isCountryDropdownOpen && (
+            <div className="absolute top-full left-0 right-0 mt-1 bg-white-1 border border-grey-1 rounded-lg shadow-lg z-50">
+              <div className="p-2 border-b border-grey-1">
+                <input
+                  type="text"
+                  placeholder="Search Country..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  onClick={(e) => e.stopPropagation()}
+                  className="w-full bg-white-1 border border-grey-1 rounded-lg px-3 py-2 text-[0.875rem] font-inter text-black-1"
+                />
+              </div>
+              <div className="max-h-50 overflow-y-auto">
+                {filteredCountries
+                  .filter(
+                    (country: string) => !selectedCountries.includes(country),
+                  )
+                  .map((country: string) => (
+                    <button
+                      key={country}
+                      onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        handleCountrySelect(country);
+                        if (selectedCountries.length >= 3) {
+                          setIsCountryDropdownOpen(false);
+                        }
+                      }}
+                      disabled={selectedCountries.length >= 5}
+                      className="w-full px-4 py-2 text-left text-[0.875rem] font-inter hover:bg-grey-1 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      {country}
+                    </button>
+                  ))}
+                {filteredCountries.filter(
+                  (country: string) => !selectedCountries.includes(country),
+                ).length === 0 && (
+                  <div className="px-4 py-2 text-[0.875rem] font-inter text-grey-2 text-center">
+                    No countries found
+                  </div>
+                )}
+              </div>
+              <div className="p-2 border-t border-grey-1">
+                <p className="text-[0.75rem] font-inter text-grey-2">
+                  You can select up to 5 countries
+                </p>
+              </div>
             </div>
           )}
-          <div className="relative" ref={countryDropdownRef}>
-            <button
-              onClick={() => setIsCountryDropdownOpen(!isCountryDropdownOpen)}
-              className="w-full bg-white-1 border border-grey-1 rounded-lg px-4 py-3 flex items-center justify-between text-[0.875rem] font-inter text-black-1 hover:border-grey-2 transition-colors"
-            >
-              <span className="text-grey-2">
-                {selectedCountries.length === 0
-                  ? "Search Country..."
-                  : `Select ${selectedCountries.length < 5 ? "more" : ""} countries`}
-              </span>
-              <SelectIcon />
-            </button>
-            {isCountryDropdownOpen && (
-              <div className="absolute top-full left-0 right-0 mt-1 bg-white-1 border border-grey-1 rounded-lg shadow-lg z-50">
-                <div className="p-2 border-b border-grey-1">
-                  <input
-                    type="text"
-                    placeholder="Search Country..."
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    onClick={(e) => e.stopPropagation()}
-                    className="w-full bg-white-1 border border-grey-1 rounded-lg px-3 py-2 text-[0.875rem] font-inter text-black-1"
-                  />
-                </div>
-                <div className="max-h-50 overflow-y-auto">
-                  {filteredCountries
-                    .filter(
-                      (country: string) => !selectedCountries.includes(country),
-                    )
-                    .map((country: string) => (
-                      <button
-                        key={country}
-                        onClick={(e) => {
-                          e.preventDefault();
-                          e.stopPropagation();
-                          handleCountrySelect(country);
-                          if (selectedCountries.length >= 3) {
-                            setIsCountryDropdownOpen(false);
-                          }
-                        }}
-                        disabled={selectedCountries.length >= 5}
-                        className="w-full px-4 py-2 text-left text-[0.875rem] font-inter hover:bg-grey-1 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                      >
-                        {country}
-                      </button>
-                    ))}
-                  {filteredCountries.filter(
-                    (country: string) => !selectedCountries.includes(country),
-                  ).length === 0 && (
-                    <div className="px-4 py-2 text-[0.875rem] font-inter text-grey-2 text-center">
-                      No countries found
-                    </div>
-                  )}
-                </div>
-                <div className="p-2 border-t border-grey-1">
-                  <p className="text-[0.75rem] font-inter text-grey-2">
-                    You can select up to 5 countries
-                  </p>
-                </div>
-              </div>
-            )}
-          </div>
-        </div>
-
-        {/* Choose Metrics */}
-        <div className="mb-6">
-          <h3 className="text-[0.875rem] font-inter font-semibold text-black-1 mb-3">
-            Choose Metrics
-          </h3>
-          <div className="space-y-2">
-            {Object.entries(METRIC_LABELS).map(([key, label]) => (
-              <label
-                key={key}
-                className="flex items-center gap-2 cursor-pointer"
-              >
-                <input
-                  type="radio"
-                  name="metric"
-                  value={key}
-                  checked={selectedMetric === key}
-                  onChange={() => setSelectedMetric(key as Metric)}
-                  className="w-4.5 h-4.5 text-blue-1 cursor-pointer"
-                  style={{ minWidth: "18px", minHeight: "18px" }}
-                />
-                <span className="text-[0.875rem] font-inter text-black-1">
-                  {label}
-                </span>
-              </label>
-            ))}
-          </div>
-        </div>
-
-        {/* Select Year */}
-        <div className="mb-6">
-          <FilterField
-            label="Select Year"
-            placeholder="Select Year"
-            options={availableYears.map((y: number) => y.toString()).reverse()}
-            selectedValue={selectedYear ? selectedYear.toString() : null}
-            onValueChange={(value) => {
-              setSelectedYear(value ? Number(value) : null);
-            }}
-          />
-        </div>
-
-        {/* Select Chart Type */}
-        <div className="mb-6">
-          <h3 className="text-[0.875rem] font-inter font-semibold text-black-1 mb-3">
-            Select Chart Type
-          </h3>
-          <div className="space-y-2">
-            {(["line", "bar", "pie"] as ChartType[]).map((type) => (
-              <label
-                key={type}
-                className="flex items-center gap-2 cursor-pointer"
-              >
-                <input
-                  type="radio"
-                  name="chartType"
-                  value={type}
-                  checked={chartType === type}
-                  onChange={() => setChartType(type)}
-                  className="w-4.5 h-4.5 text-blue-1 cursor-pointer"
-                  style={{ minWidth: "18px", minHeight: "18px" }}
-                />
-                <span className="text-[0.875rem] font-inter text-black-1 capitalize">
-                  {type} Chart
-                </span>
-              </label>
-            ))}
-          </div>
         </div>
       </div>
 
-      {/* Main Content */}
-      <div className="flex-1 overflow-y-auto p-6">
-        <h1 className="text-[1.5rem] font-inter font-semibold text-black-1 mb-6">
-          Overview
-        </h1>
+      <div className="mb-6">
+        <h3 className="text-[0.875rem] font-inter font-semibold text-black-1 mb-3">
+          Choose Metrics
+        </h3>
+        <div className="space-y-2">
+          {Object.entries(METRIC_LABELS).map(([key, label]) => (
+            <label
+              key={key}
+              className="flex items-center gap-2 cursor-pointer"
+            >
+              <input
+                type="radio"
+                name="metric"
+                value={key}
+                checked={selectedMetric === key}
+                onChange={() => setSelectedMetric(key as Metric)}
+                className="w-4.5 h-4.5 text-blue-1 cursor-pointer"
+                style={{ minWidth: "18px", minHeight: "18px" }}
+              />
+              <span className="text-[0.875rem] font-inter text-black-1">
+                {label}
+              </span>
+            </label>
+          ))}
+        </div>
+      </div>
+
+      <div className="mb-6">
+        <FilterField
+          label="Select Year"
+          placeholder="Select Year"
+          options={availableYears.map((y: number) => y.toString()).reverse()}
+          selectedValue={selectedYear ? selectedYear.toString() : null}
+          onValueChange={(value) => {
+            setSelectedYear(value ? Number(value) : null);
+          }}
+        />
+      </div>
+
+      <div className="mb-6">
+        <h3 className="text-[0.875rem] font-inter font-semibold text-black-1 mb-3">
+          Select Chart Type
+        </h3>
+        <div className="space-y-2">
+          {(["line", "bar", "pie"] as ChartType[]).map((type) => (
+            <label
+              key={type}
+              className="flex items-center gap-2 cursor-pointer"
+            >
+              <input
+                type="radio"
+                name="chartType"
+                value={type}
+                checked={chartType === type}
+                onChange={() => setChartType(type)}
+                className="w-4.5 h-4.5 text-blue-1 cursor-pointer"
+                style={{ minWidth: "18px", minHeight: "18px" }}
+              />
+              <span className="text-[0.875rem] font-inter text-black-1 capitalize">
+                {type} Chart
+              </span>
+            </label>
+          ))}
+        </div>
+      </div>
+    </>
+  );
+
+  return (
+    <div className="min-h-screen bg-grey-1">
+      {isFiltersOpen && (
+        <div
+          className="fixed inset-0 bg-black/50 z-[60] lg:hidden"
+          onClick={() => setIsFiltersOpen(false)}
+          aria-hidden
+        />
+      )}
+
+      <div
+        className={`fixed top-0 bottom-0 z-[50] left-0 lg:left-[var(--sidebar-offset)] w-full max-w-[320px] bg-white-1 border-r border-grey-1 p-4 sm:p-6 overflow-y-auto shadow-[4px_0_12px_0_rgba(0,0,0,0.06)] transform transition-[transform,left] duration-300 ease-in-out ${
+          isFiltersOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"
+        }`}
+        style={{ "--sidebar-offset": `${sidebarWidth}px` } as React.CSSProperties}
+      >
+        <div className="flex items-center justify-between mb-4 lg:hidden">
+          <h2 className="text-[1rem] font-inter font-semibold text-black-1">
+            Filters
+          </h2>
+          <button
+            type="button"
+            onClick={() => setIsFiltersOpen(false)}
+            className="text-grey-2 hover:text-black-1"
+            aria-label="Close filters"
+          >
+            ×
+          </button>
+        </div>
+        {filtersPanel}
+      </div>
+
+      <div
+        data-scroll-root
+        className="min-h-screen overflow-y-auto p-4 md:p-6 ml-0 lg:ml-[var(--chart-offset)] transition-[margin] duration-300 ease-in-out"
+        style={{ "--chart-offset": `${chartAreaOffset}px` } as CSSProperties}
+      >
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between mb-6">
+          <h1 className="text-[1.25rem] md:text-[1.5rem] font-inter font-semibold text-black-1">
+            Overview
+          </h1>
+          <button
+            type="button"
+            onClick={() => setIsFiltersOpen(true)}
+            className="lg:hidden shrink-0 self-start bg-white-1 border border-grey-1 rounded-lg px-4 py-2 text-[0.875rem] font-inter text-black-1 hover:bg-grey-1 transition-colors"
+          >
+            Filters
+          </button>
+        </div>
 
         {/* Chart Section */}
         {selectedMetric && chartData.length > 0 && selectedYear && (
-          <div className="bg-white-1 border border-grey-1 rounded-lg p-6 mb-6">
-            <div className="flex items-center justify-between mb-4">
-              <div>
+          <div className="bg-white-1 border border-grey-1 rounded-lg p-4 md:p-6 mb-6 overflow-hidden">
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between mb-4">
+              <div className="min-w-0">
                 <h2 className="text-[1.125rem] font-inter font-semibold text-black-1">
                   {METRIC_LABELS[selectedMetric]}
                 </h2>
-                <p className="text-[0.875rem] font-inter text-grey-2">
+                <p className="text-[0.875rem] font-inter text-grey-2 break-words">
                   Comparing {selectedCountries.join(", ")}
                 </p>
               </div>
@@ -670,8 +759,8 @@ export const Compare = () => {
                 </button>
               </div>
             </div>
-            <div ref={chartContainerRef} className="w-full">
-              <svg ref={chartRef} className="w-full h-auto"></svg>
+            <div ref={chartContainerRef} className="w-full min-w-0 overflow-x-auto">
+              <svg ref={chartRef} className="w-full h-auto max-w-full"></svg>
             </div>
             {chartType !== "pie" && (
               <div className="mt-4 text-center">

@@ -1,0 +1,7 @@
+target,best_model_by_rmse,rmse,mae,r2
+electricity_demand (TWh),country_growth,1.519259099339582,0.606917429620509,0.9988268793652156
+electricity_demand_per_capita (kWh),persistence,0.0529106234066669,0.0281596783175326,0.9969783397119412
+electricity_demand_per_capita_with_access (kWh),growth_model,0.0927961485216095,0.0533118348281091,0.9913585040868303
+energy_poverty_electricity (% of total population),country_growth,2.1676008713739936,1.1219631648323642,0.9933285816769138
+energy_poverty_multidimensional (% of total population),country_growth,1.1122318696422189,0.5828148811064308,0.998495481930134
+greenhouse_gas_emissions,country_growth,1.1371320776479632,0.4190603847247735,0.9985815863813824

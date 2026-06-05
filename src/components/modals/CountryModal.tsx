@@ -33,7 +33,7 @@ export const CountryModal = ({
   };
 
   return (
-    <div className="bg-white-1 rounded-[12px] p-[20px] shadow-lg backdrop-blur-sm bg-opacity-95 min-w-[280px]">
+    <div className="bg-white-1 rounded-[12px] p-[20px] shadow-lg backdrop-blur-sm bg-opacity-95 w-full min-w-0">
       <div className="flex items-center justify-between gap-[10px] mb-[16px]">
         <div className="flex items-center gap-[10px]">
           <div className="w-8 h-5 rounded overflow-hidden bg-white-1">

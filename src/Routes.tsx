@@ -14,12 +14,47 @@ import { Map } from "./pages/in/Map";
 import { Visualization } from "./pages/in/Visualization";
 import { Compare } from "./pages/in/Compare";
 import { Simulation } from "./pages/in/Simulation";
+import About from "./pages/in/About";
+import Collaborate from "./pages/in/Collaborate";
+import Methodology from "./pages/in/Methodology";
+import DataSources from "./pages/in/DataSources";
+import Research from "./pages/in/Research";
+import Contact from "./pages/in/Contact";
+import FAQ from "./pages/in/FAQ";
+import Help from "./pages/in/Help";
+import Partners from "./pages/in/Partners";
+import Sponsors from "./pages/in/Sponsors";
+import Documentation from "./pages/in/Documentation";
+import ApiAccess from "./pages/in/ApiAccess";
+import { ScrollToTopLayout } from "./components/ScrollToTopLayout";
+
+const contentRedirects = [
+  "about",
+  "collaborate",
+  "methodology",
+  "data-sources",
+  "research",
+  "contact",
+  "faq",
+  "help",
+  "partners",
+  "sponsors",
+  "documentation",
+  "api-access",
+] as const;
 
 export const routes = createBrowserRouter([
+  {
+    element: <ScrollToTopLayout />,
+    children: [
   {
     path: "/",
     element: <Navigate to="/in/map" replace />,
   },
+  ...contentRedirects.map((segment) => ({
+    path: `/${segment}`,
+    element: <Navigate to={`/in/${segment}`} replace />,
+  })),
   {
     path: "/in",
     element: <InLayout />,
@@ -49,6 +84,54 @@ export const routes = createBrowserRouter([
         element: <Simulation />,
       },
       {
+        path: "about",
+        element: <About />,
+      },
+      {
+        path: "collaborate",
+        element: <Collaborate />,
+      },
+      {
+        path: "methodology",
+        element: <Methodology />,
+      },
+      {
+        path: "data-sources",
+        element: <DataSources />,
+      },
+      {
+        path: "research",
+        element: <Research />,
+      },
+      {
+        path: "contact",
+        element: <Contact />,
+      },
+      {
+        path: "faq",
+        element: <FAQ />,
+      },
+      {
+        path: "help",
+        element: <Help />,
+      },
+      {
+        path: "partners",
+        element: <Partners />,
+      },
+      {
+        path: "sponsors",
+        element: <Sponsors />,
+      },
+      {
+        path: "documentation",
+        element: <Documentation />,
+      },
+      {
+        path: "api-access",
+        element: <ApiAccess />,
+      },
+      {
         path: "*",
         element: <NotFoundIn />,
       },
@@ -70,5 +153,7 @@ export const routes = createBrowserRouter([
   {
     path: "*",
     element: <NotFoundAuth />,
+  },
+    ],
   },
 ]);

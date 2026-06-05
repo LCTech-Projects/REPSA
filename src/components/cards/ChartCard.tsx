@@ -15,7 +15,7 @@ export const ChartCard = ({
 }: ChartCardProps) => {
     return (
         <div 
-            className={`bg-white-1 border border-grey-1 rounded-[8px] p-4 ${fullWidth ? 'w-full' : 'flex-1 min-w-[500px]'} ${className}`}
+            className={`bg-white-1 border border-grey-1 rounded-[8px] p-4 min-w-0 w-full ${fullWidth ? "" : "flex-1"} ${className}`}
         >
             <h3 className="text-[0.875rem] font-inter font-semibold text-black-1 mb-4">
                 {title}

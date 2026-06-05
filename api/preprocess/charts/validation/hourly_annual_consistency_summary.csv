@@ -1,0 +1,2 @@
+records_compared,countries_compared,years_compared_min,years_compared_max,mean_abs_error_mwh,median_abs_error_mwh,max_abs_error_mwh,mean_relative_error_pct,median_relative_error_pct,max_relative_error_pct
+422,54,2016,2023,0.0,0.0,0.0,0.0,0.0,0.0

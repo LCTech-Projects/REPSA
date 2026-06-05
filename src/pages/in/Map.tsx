@@ -321,7 +321,7 @@ export const Map = () => {
 
   return (
     <section className="w-full h-screen flex flex-col">
-      <div className="shrink-0 bg-white-1 px-6 py-4">
+      <div className="shrink-0 bg-white-1 px-4 md:px-6 py-4">
         <div className="md:flex md:items-start md:justify-between md:gap-6">
           <div className="w-full md:w-1/2 md:max-w-[50%]">
             <h1 className="text-[1.5rem] font-inter font-semibold text-black-1 mb-2">
@@ -368,7 +368,7 @@ export const Map = () => {
 
       <div className="flex-1 min-h-0 relative bg-[url('/images/bg1.png')] bg-cover bg-center bg-no-repeat">
         {hoveredCountryName && (
-          <div className="absolute top-4 left-4 z-50">
+          <div className="absolute z-50 top-auto bottom-20 left-4 right-4 md:top-4 md:bottom-auto md:left-4 md:right-auto max-w-[min(100%,320px)]">
             <CountryModal
               countryName={hoveredCountryName}
               countryFlag={hoveredCountryFlag}
@@ -390,7 +390,7 @@ export const Map = () => {
           />
         </div>
 
-        <div className="absolute bottom-6 left-6 z-40 max-w-[320px]">
+        <div className="absolute bottom-20 left-4 right-4 md:bottom-6 md:left-6 md:right-auto z-40 max-w-[min(100%,320px)]">
           <div className="bg-black/60 text-white rounded-xl px-4 py-3 backdrop-blur-md shadow-lg">
             <p className="text-[0.75rem] uppercase tracking-[0.15em] mb-2 text-white/80">
               Energy Poverty Level (%)

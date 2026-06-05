@@ -33,6 +33,3 @@ dist-ssr
 *.sw?
 
 ```
-
-# Offline ML/data pipeline (local only; not published to GitHub)
-/api/preprocess/

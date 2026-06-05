@@ -1,0 +1,256 @@
+{
+  "rows_clean": 414,
+  "rows_panel": 361,
+  "years_source": [
+    2016,
+    2017,
+    2018,
+    2019,
+    2020,
+    2021,
+    2022,
+    2023
+  ],
+  "forecast_years_eval": [
+    2017,
+    2018,
+    2019,
+    2020,
+    2021,
+    2022,
+    2023
+  ],
+  "features": [
+    "country",
+    "year",
+    "population",
+    "gdp",
+    "Access to electricity (% of total population)",
+    "Access to Clean Fuels and Technologies for cooking (% of total population)",
+    "renewables_share_elec",
+    "electricity_demand (TWh)",
+    "electricity_demand_per_capita (MWh)",
+    "electricity_demand_per_capita_with_access (MWh)",
+    "energy_poverty_electricity (% of total population)",
+    "energy_poverty_multidimensional (% of total population)",
+    "greenhouse_gas_emissions",
+    "lag_growth::electricity_demand (TWh)",
+    "lag_growth::electricity_demand_per_capita (MWh)",
+    "lag_growth::electricity_demand_per_capita_with_access (MWh)",
+    "lag_growth::energy_poverty_electricity (% of total population)",
+    "lag_growth::energy_poverty_multidimensional (% of total population)",
+    "lag_growth::greenhouse_gas_emissions"
+  ],
+  "targets": [
+    "electricity_demand (TWh)",
+    "electricity_demand_per_capita (MWh)",
+    "electricity_demand_per_capita_with_access (MWh)",
+    "energy_poverty_electricity (% of total population)",
+    "energy_poverty_multidimensional (% of total population)",
+    "greenhouse_gas_emissions"
+  ],
+  "metrics": [
+    {
+      "model": "growth_model",
+      "split": "walkforward_pooled",
+      "target": "electricity_demand (TWh)",
+      "r2": 0.998067837974834,
+      "rmse": 1.9497650454933346,
+      "mae": 0.6523535017722865
+    },
+    {
+      "model": "growth_model",
+      "split": "walkforward_pooled",
+      "target": "electricity_demand_per_capita (MWh)",
+      "r2": 0.9965321189107025,
+      "rmse": 0.05668291270751629,
+      "mae": 0.0297986083866812
+    },
+    {
+      "model": "growth_model",
+      "split": "walkforward_pooled",
+      "target": "electricity_demand_per_capita_with_access (MWh)",
+      "r2": 0.9913585040868305,
+      "rmse": 0.09279614852160954,
+      "mae": 0.05331183482810917
+    },
+    {
+      "model": "growth_model",
+      "split": "walkforward_pooled",
+      "target": "energy_poverty_electricity (% of total population)",
+      "r2": 0.9617366595012351,
+      "rmse": 5.191127209452099,
+      "mae": 2.053776299543375
+    },
+    {
+      "model": "growth_model",
+      "split": "walkforward_pooled",
+      "target": "energy_poverty_multidimensional (% of total population)",
+      "r2": 0.9976283039894489,
+      "rmse": 1.3964524185845648,
+      "mae": 0.7917611502588274
+    },
+    {
+      "model": "growth_model",
+      "split": "walkforward_pooled",
+      "target": "greenhouse_gas_emissions",
+      "r2": 0.9965750552747008,
+      "rmse": 1.7669987735129074,
+      "mae": 0.5425350290730803
+    },
+    {
+      "model": "persistence",
+      "split": "walkforward_pooled",
+      "target": "electricity_demand (TWh)",
+      "r2": 0.998580091168117,
+      "rmse": 1.6714398006046023,
+      "mae": 0.6802972028456112
+    },
+    {
+      "model": "persistence",
+      "split": "walkforward_pooled",
+      "target": "electricity_demand_per_capita (MWh)",
+      "r2": 0.9969783397119412,
+      "rmse": 0.05291062340666696,
+      "mae": 0.028159678317532674
+    },
+    {
+      "model": "persistence",
+      "split": "walkforward_pooled",
+      "target": "electricity_demand_per_capita_with_access (MWh)",
+      "r2": 0.9910169066092478,
+      "rmse": 0.0946124838801442,
+      "mae": 0.05340982464839986
+    },
+    {
+      "model": "persistence",
+      "split": "walkforward_pooled",
+      "target": "energy_poverty_electricity (% of total population)",
+      "r2": 0.9908817443974924,
+      "rmse": 2.5341137845936057,
+      "mae": 1.6123762376237631
+    },
+    {
+      "model": "persistence",
+      "split": "walkforward_pooled",
+      "target": "energy_poverty_multidimensional (% of total population)",
+      "r2": 0.9971677817249571,
+      "rmse": 1.5260191773706417,
+      "mae": 1.0550742574257428
+    },
+    {
+      "model": "persistence",
+      "split": "walkforward_pooled",
+      "target": "greenhouse_gas_emissions",
+      "r2": 0.9979777246253684,
+      "rmse": 1.357780638089416,
+      "mae": 0.447574297574782
+    },
+    {
+      "model": "country_growth",
+      "split": "walkforward_pooled",
+      "target": "electricity_demand (TWh)",
+      "r2": 0.9988268793652155,
+      "rmse": 1.519259099339582,
+      "mae": 0.606917429620509
+    },
+    {
+      "model": "country_growth",
+      "split": "walkforward_pooled",
+      "target": "electricity_demand_per_capita (MWh)",
+      "r2": 0.9961441185644281,
+      "rmse": 0.05976981281488094,
+      "mae": 0.03243795737615632
+    },
+    {
+      "model": "country_growth",
+      "split": "walkforward_pooled",
+      "target": "electricity_demand_per_capita_with_access (MWh)",
+      "r2": 0.9896377920612213,
+      "rmse": 0.10161589307162389,
+      "mae": 0.05994135093354729
+    },
+    {
+      "model": "country_growth",
+      "split": "walkforward_pooled",
+      "target": "energy_poverty_electricity (% of total population)",
+      "r2": 0.9933285816769138,
+      "rmse": 2.1676008713739936,
+      "mae": 1.1219631648323642
+    },
+    {
+      "model": "country_growth",
+      "split": "walkforward_pooled",
+      "target": "energy_poverty_multidimensional (% of total population)",
+      "r2": 0.9984954819301339,
+      "rmse": 1.1122318696422189,
+      "mae": 0.5828148811064308
+    },
+    {
+      "model": "country_growth",
+      "split": "walkforward_pooled",
+      "target": "greenhouse_gas_emissions",
+      "r2": 0.9985815863813823,
+      "rmse": 1.1371320776479632,
+      "mae": 0.4190603847247735
+    }
+  ],
+  "coverage": [
+    {
+      "target": "electricity_demand (TWh)",
+      "pi_nominal": 0.8,
+      "resid_q_low": -0.6686671661507361,
+      "resid_q_high": 0.6210079999194926,
+      "coverage_empirical": 0.7920792079207921
+    },
+    {
+      "target": "electricity_demand_per_capita (MWh)",
+      "pi_nominal": 0.8,
+      "resid_q_low": -0.04415018591827512,
+      "resid_q_high": 0.03598010979218581,
+      "coverage_empirical": 0.7920792079207921
+    },
+    {
+      "target": "electricity_demand_per_capita_with_access (MWh)",
+      "pi_nominal": 0.8,
+      "resid_q_low": -0.08670575278959883,
+      "resid_q_high": 0.07736958693849558,
+      "coverage_empirical": 0.7920792079207921
+    },
+    {
+      "target": "energy_poverty_electricity (% of total population)",
+      "pi_nominal": 0.8,
+      "resid_q_low": -1.368713562736881,
+      "resid_q_high": 2.5224588738729508,
+      "coverage_empirical": 0.7920792079207921
+    },
+    {
+      "target": "energy_poverty_multidimensional (% of total population)",
+      "pi_nominal": 0.8,
+      "resid_q_low": -0.5924807440786922,
+      "resid_q_high": 1.3356016269137743,
+      "coverage_empirical": 0.7920792079207921
+    },
+    {
+      "target": "greenhouse_gas_emissions",
+      "pi_nominal": 0.8,
+      "resid_q_low": -0.3523230411126919,
+      "resid_q_high": 0.2962301998279005,
+      "coverage_empirical": 0.7920792079207921
+    }
+  ],
+  "artifacts": {
+    "predictions_csv": "C:\\Users\\Lenovo\\Documents\\myProjects\\web\\REPSA\\api\\app\\utils\\preprocess\\charts\\yearly_global_growth_paper\\walkforward_predictions.csv",
+    "metrics_csv": "C:\\Users\\Lenovo\\Documents\\myProjects\\web\\REPSA\\api\\app\\utils\\preprocess\\charts\\yearly_global_growth_paper\\metrics_by_model.csv",
+    "fold_metrics_csv": "C:\\Users\\Lenovo\\Documents\\myProjects\\web\\REPSA\\api\\app\\utils\\preprocess\\charts\\yearly_global_growth_paper\\fold_metrics.csv",
+    "model_path": "C:\\Users\\Lenovo\\Documents\\myProjects\\web\\REPSA\\api\\ml_models\\scenario_builder.joblib",
+    "plots": [
+      "C:\\Users\\Lenovo\\Documents\\myProjects\\web\\REPSA\\api\\app\\utils\\preprocess\\charts\\yearly_global_growth_paper\\model_vs_baseline_rmse.png",
+      "C:\\Users\\Lenovo\\Documents\\myProjects\\web\\REPSA\\api\\app\\utils\\preprocess\\charts\\yearly_global_growth_paper\\coverage_80pi_by_target.png",
+      "C:\\Users\\Lenovo\\Documents\\myProjects\\web\\REPSA\\api\\app\\utils\\preprocess\\charts\\yearly_global_growth_paper\\parity_model_test.png",
+      "C:\\Users\\Lenovo\\Documents\\myProjects\\web\\REPSA\\api\\app\\utils\\preprocess\\charts\\yearly_global_growth_paper\\test_parity_plots.png",
+      "C:\\Users\\Lenovo\\Documents\\myProjects\\web\\REPSA\\api\\app\\utils\\preprocess\\charts\\yearly_global_growth_paper\\test_residual_distributions.png",
+      "C:\\Users\\Lenovo\\Documents\\myProjects\\web\\REPSA\\api\\app\\utils\\preprocess\\charts\\yearly_global_growth_paper\\test_yearly_mean_trends.png"
+    ]
+  }
+}

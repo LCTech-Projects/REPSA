@@ -20,7 +20,7 @@ import { ChartCard } from "../../components/cards/ChartCard";
 import { FilterField } from "../../components/inputs/FilterField";
 import { AnimatedNumber } from "../../components/AnimatedNumber";
 import * as d3 from "d3";
-import { calculateYearTicks } from "../../components/utils/ChartUtils";
+import { calculateYearTicks, getChartMargins, getChartSize } from "../../components/utils/ChartUtils";
 
 type ViewMode = "yearly" | "hourly";
 type DataMode = "historical" | "realtime";
@@ -828,10 +828,10 @@ export const Visualization = () => {
   }, [isAuthenticated, hasDownloadData]);
 
   return (
-    <div className="p-6 bg-white-1 min-h-screen">
+    <div className="p-4 md:p-6 bg-white-1 min-h-screen min-w-0 overflow-x-hidden">
       {/* Header */}
       <div className="mb-6">
-        <h1 className="text-[2rem] font-inter font-semibold text-black-1 mb-4">
+        <h1 className="text-[1.5rem] md:text-[2rem] font-inter font-semibold text-black-1 mb-4">
           Visualization
         </h1>
 
@@ -1455,7 +1455,7 @@ export const Visualization = () => {
           </div>
 
           {/* Charts Section - Two Column Layout */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 min-w-0">
             {viewMode === "yearly" ? (
               <YearlyCharts data={yearlyData?.data} />
             ) : (
@@ -1522,9 +1522,7 @@ const YearlyCharts = ({ data }: { data: any }) => {
         const container =
           containerRefs[key as keyof typeof containerRefs].current;
         if (container) {
-          const containerWidth = container.offsetWidth || 500;
-          const width = Math.max(300, containerWidth - 32);
-          const height = Math.max(200, width * 0.6);
+          const { width, height } = getChartSize(container.offsetWidth || 0, 0);
           newDimensions[key] = { width, height };
         }
       });
@@ -1556,7 +1554,11 @@ const YearlyCharts = ({ data }: { data: any }) => {
   useEffect(() => {
     if (!data?.time_series || Object.keys(chartDimensions).length === 0) return;
 
-    const margin = { top: 30, right: 30, bottom: 60, left: 70 };
+    const narrowestWidth = Math.min(
+      ...Object.values(chartDimensions).map((d) => d?.width ?? 500),
+    );
+    const margin = getChartMargins(narrowestWidth, { rotateXLabels: true });
+    const plotWidthForTicks = narrowestWidth - margin.left - margin.right;
     const timeSeries = data.time_series;
 
     // Create or select tooltip div
@@ -1802,7 +1804,7 @@ const YearlyCharts = ({ data }: { data: any }) => {
 
       // Calculate year ticks
       const years = timeSeries.map((d: any) => d.year);
-      const { tickValues } = calculateYearTicks(years);
+      const { tickValues } = calculateYearTicks(years, plotWidthForTicks);
 
       // X-axis with rotated labels
       const xAxis = g
@@ -1962,7 +1964,7 @@ const YearlyCharts = ({ data }: { data: any }) => {
 
       // Calculate year ticks
       const years = timeSeries.map((d: any) => d.year);
-      const { tickValues } = calculateYearTicks(years);
+      const { tickValues } = calculateYearTicks(years, plotWidthForTicks);
 
       // X-axis with rotated labels
       const xAxis = g
@@ -2081,7 +2083,7 @@ const YearlyCharts = ({ data }: { data: any }) => {
 
       // Calculate year ticks
       const years = timeSeries.map((d: any) => d.year);
-      const { tickValues } = calculateYearTicks(years);
+      const { tickValues } = calculateYearTicks(years, plotWidthForTicks);
 
       // X-axis with rotated labels
       const xAxis = g
@@ -2162,7 +2164,7 @@ const YearlyCharts = ({ data }: { data: any }) => {
 
       // Filter to most recent 16 years and calculate tick values
       const allYears = timeSeries.map((d: any) => d.year);
-      const { tickValues } = calculateYearTicks(allYears);
+      const { tickValues } = calculateYearTicks(allYears, plotWidthForTicks);
 
       // Filter time series to only show years in tickValues (max 16)
       const filteredTimeSeries = timeSeries.filter((d: any) =>
@@ -2284,7 +2286,7 @@ const YearlyCharts = ({ data }: { data: any }) => {
 
       // Filter to most recent 16 years and calculate tick values
       const allYears = timeSeries.map((d: any) => d.year);
-      const { tickValues } = calculateYearTicks(allYears);
+      const { tickValues } = calculateYearTicks(allYears, plotWidthForTicks);
 
       // Filter time series to only show years in tickValues (max 16)
       const filteredTimeSeries = timeSeries.filter((d: any) =>
@@ -2454,7 +2456,7 @@ const YearlyCharts = ({ data }: { data: any }) => {
 
       // Calculate year ticks
       const years = timeSeries.map((d: any) => d.year);
-      const { tickValues } = calculateYearTicks(years);
+      const { tickValues } = calculateYearTicks(years, plotWidthForTicks);
 
       // X-axis with rotated labels
       const xAxis = g
@@ -2659,7 +2661,7 @@ const YearlyCharts = ({ data }: { data: any }) => {
 
       // Calculate year ticks
       const years = timeSeries.map((d: any) => d.year);
-      const { tickValues } = calculateYearTicks(years);
+      const { tickValues } = calculateYearTicks(years, plotWidthForTicks);
 
       // X-axis with rotated labels
       const xAxis = g
@@ -2677,71 +2679,15 @@ const YearlyCharts = ({ data }: { data: any }) => {
         .attr("transform", "rotate(-45)");
 
       g.append("g").call(d3.axisLeft(y));
-
-      // Add hover circles for electricity line
-      g.selectAll(".ep-electricity-circle")
-        .data(
-          timeSeries.filter(
-            (d: any) =>
-              d.energy_poverty !== null && d.energy_poverty !== undefined,
-          ),
-        )
-        .enter()
-        .append("circle")
-        .attr("class", "ep-electricity-circle")
-        .attr("cx", (d: any) => x(d.year))
-        .attr("cy", (d: any) => y(d.energy_poverty || 0))
-        .attr("r", 4)
-        .attr("fill", "#DC2626")
-        .attr("opacity", 0)
-        .style("cursor", "pointer")
-        .on("mouseover", function (event, d: any) {
-          tooltip.transition().duration(200).style("opacity", 1);
-          tooltip
-            .html(
-              `Year: ${d.year}<br/>Electricity: ${(d.energy_poverty || 0).toFixed(1)}%`,
-            )
-            .style("left", event.pageX + 10 + "px")
-            .style("top", event.pageY - 10 + "px");
-          d3.select(this).attr("r", 6).attr("opacity", 1);
-        })
-        .on("mouseout", function () {
-          tooltip.transition().duration(200).style("opacity", 0);
-          d3.select(this).attr("r", 4).attr("opacity", 0);
-        });
-
-      // Add hover circles for multidimensional line
-      g.selectAll(".ep-multidimensional-circle")
-        .data(
-          timeSeries.filter(
-            (d: any) =>
-              d.energy_poverty_multidimensional !== null &&
-              d.energy_poverty_multidimensional !== undefined,
-          ),
-        )
-        .enter()
-        .append("circle")
-        .attr("class", "ep-multidimensional-circle")
-        .attr("cx", (d: any) => x(d.year))
-        .attr("cy", (d: any) => y(d.energy_poverty_multidimensional || 0))
-        .attr("r", 4)
-        .attr("fill", "#9333EA")
-        .attr("opacity", 0)
-        .style("cursor", "pointer")
-        .on("mouseover", function (event, d: any) {
-          tooltip.transition().duration(200).style("opacity", 1);
-          tooltip
-            .html(
-              `Year: ${d.year}<br/>Multidimensional: ${(d.energy_poverty_multidimensional || 0).toFixed(1)}%`,
-            )
-            .style("left", event.pageX + 10 + "px")
-            .style("top", event.pageY - 10 + "px");
-          d3.select(this).attr("r", 6).attr("opacity", 1);
-        })
-        .on("mouseout", function () {
-          tooltip.transition().duration(200).style("opacity", 0);
-          d3.select(this).attr("r", 4).attr("opacity", 0);
-        });
+      addYearOverlayTooltip(
+        g,
+        chartWidth,
+        chartHeight,
+        x,
+        timeSeries,
+        (d: any) =>
+          `Year: ${d.year}<br/>Electricity: ${(d.energy_poverty || 0).toFixed(1)}%<br/>Multidimensional: ${(d.energy_poverty_multidimensional || 0).toFixed(1)}%`,
+      );
     }
 
     // Energy Poverty Rural vs Urban Chart
@@ -2850,7 +2796,7 @@ const YearlyCharts = ({ data }: { data: any }) => {
 
       // Calculate year ticks
       const years = timeSeries.map((d: any) => d.year);
-      const { tickValues } = calculateYearTicks(years);
+      const { tickValues } = calculateYearTicks(years, plotWidthForTicks);
 
       // X-axis with rotated labels
       const xAxis = g
@@ -2868,72 +2814,15 @@ const YearlyCharts = ({ data }: { data: any }) => {
         .attr("transform", "rotate(-45)");
 
       g.append("g").call(d3.axisLeft(y));
-
-      // Add hover circles for rural line
-      g.selectAll(".ep-rural-circle")
-        .data(
-          timeSeries.filter(
-            (d: any) =>
-              d.energy_poverty_rural !== null &&
-              d.energy_poverty_rural !== undefined,
-          ),
-        )
-        .enter()
-        .append("circle")
-        .attr("class", "ep-rural-circle")
-        .attr("cx", (d: any) => x(d.year))
-        .attr("cy", (d: any) => y(d.energy_poverty_rural || 0))
-        .attr("r", 4)
-        .attr("fill", "#F97316")
-        .attr("opacity", 0)
-        .style("cursor", "pointer")
-        .on("mouseover", function (event, d: any) {
-          tooltip.transition().duration(200).style("opacity", 1);
-          tooltip
-            .html(
-              `Year: ${d.year}<br/>Rural: ${(d.energy_poverty_rural || 0).toFixed(1)}%`,
-            )
-            .style("left", event.pageX + 10 + "px")
-            .style("top", event.pageY - 10 + "px");
-          d3.select(this).attr("r", 6).attr("opacity", 1);
-        })
-        .on("mouseout", function () {
-          tooltip.transition().duration(200).style("opacity", 0);
-          d3.select(this).attr("r", 4).attr("opacity", 0);
-        });
-
-      // Add hover circles for urban line
-      g.selectAll(".ep-urban-circle")
-        .data(
-          timeSeries.filter(
-            (d: any) =>
-              d.energy_poverty_urban !== null &&
-              d.energy_poverty_urban !== undefined,
-          ),
-        )
-        .enter()
-        .append("circle")
-        .attr("class", "ep-urban-circle")
-        .attr("cx", (d: any) => x(d.year))
-        .attr("cy", (d: any) => y(d.energy_poverty_urban || 0))
-        .attr("r", 4)
-        .attr("fill", "#10B981")
-        .attr("opacity", 0)
-        .style("cursor", "pointer")
-        .on("mouseover", function (event, d: any) {
-          tooltip.transition().duration(200).style("opacity", 1);
-          tooltip
-            .html(
-              `Year: ${d.year}<br/>Urban: ${(d.energy_poverty_urban || 0).toFixed(1)}%`,
-            )
-            .style("left", event.pageX + 10 + "px")
-            .style("top", event.pageY - 10 + "px");
-          d3.select(this).attr("r", 6).attr("opacity", 1);
-        })
-        .on("mouseout", function () {
-          tooltip.transition().duration(200).style("opacity", 0);
-          d3.select(this).attr("r", 4).attr("opacity", 0);
-        });
+      addYearOverlayTooltip(
+        g,
+        chartWidth,
+        chartHeight,
+        x,
+        timeSeries,
+        (d: any) =>
+          `Year: ${d.year}<br/>Rural: ${(d.energy_poverty_rural || 0).toFixed(1)}%<br/>Urban: ${(d.energy_poverty_urban || 0).toFixed(1)}%`,
+      );
     }
 
     // Cleanup tooltip on unmount
@@ -3109,9 +2998,7 @@ const HourlyCharts = ({ data }: { data: any }) => {
         const container =
           containerRefs[key as keyof typeof containerRefs].current;
         if (container) {
-          const containerWidth = container.offsetWidth || 500;
-          const width = Math.max(300, containerWidth - 32);
-          const height = Math.max(200, width * 0.6);
+          const { width, height } = getChartSize(container.offsetWidth || 0, 0);
           newDimensions[key] = { width, height };
         }
       });
@@ -3162,7 +3049,10 @@ const HourlyCharts = ({ data }: { data: any }) => {
       return;
     }
 
-    const margin = { top: 30, right: 30, bottom: 60, left: 70 };
+    const narrowestWidth = Math.min(
+      ...Object.values(chartDimensions).map((d) => d?.width ?? 500),
+    );
+    const margin = getChartMargins(narrowestWidth, { rotateXLabels: true });
 
     // Create or select tooltip div
     let tooltip = d3.select("body").select<HTMLDivElement>(".chart-tooltip");
@@ -3320,7 +3210,12 @@ const HourlyCharts = ({ data }: { data: any }) => {
       g.append("g")
         .attr("transform", `translate(0,${chartHeight})`)
         .call(
-          d3.axisBottom(x).tickFormat((d) => {
+          d3
+            .axisBottom(x)
+            .ticks(
+              chartWidth < 360 ? 4 : chartWidth < 520 ? 6 : chartWidth < 768 ? 8 : 12,
+            )
+            .tickFormat((d) => {
             if (d instanceof Date) {
               return timeFormat(d);
             }
@@ -3491,7 +3386,12 @@ const HourlyCharts = ({ data }: { data: any }) => {
       g.append("g")
         .attr("transform", `translate(0,${chartHeight})`)
         .call(
-          d3.axisBottom(x).tickFormat((d) => {
+          d3
+            .axisBottom(x)
+            .ticks(
+              chartWidth < 360 ? 4 : chartWidth < 520 ? 6 : chartWidth < 768 ? 8 : 12,
+            )
+            .tickFormat((d) => {
             if (d instanceof Date) {
               return timeFormat2(d);
             }

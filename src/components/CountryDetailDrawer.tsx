@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { apiSlice } from "../app/appSlices/apiSlice";
 import { useAppDispatch } from "../app/hooks";
 import * as d3 from "d3";
-import { calculateYearTicks } from "./utils/ChartUtils";
+import { calculateYearTicks, getChartMargins, getChartSize } from "./utils/ChartUtils";
 
 interface CountryDetailDrawerProps {
   countryName: string;
@@ -120,9 +120,7 @@ export const CountryDetailDrawer = ({
         const container =
           containerRefs[key as keyof typeof containerRefs].current;
         if (container) {
-          const containerWidth = container.offsetWidth || 500;
-          const width = Math.max(300, containerWidth - 32); // Subtract padding
-          const height = Math.max(200, width * 0.6); // Maintain aspect ratio
+          const { width, height } = getChartSize(container.offsetWidth || 0, 32); // Maintain aspect ratio
           newDimensions[key] = { width, height };
         }
       });
@@ -159,7 +157,11 @@ export const CountryDetailDrawer = ({
     )
       return;
 
-    const margin = { top: 30, right: 30, bottom: 60, left: 70 };
+    const narrowestWidth = Math.min(
+      ...Object.values(chartDimensions).map((d) => d?.width ?? 500),
+    );
+    const margin = getChartMargins(narrowestWidth, { rotateXLabels: true });
+    const plotWidthForTicks = narrowestWidth - margin.left - margin.right;
 
     // Create or select tooltip div
     let tooltip = d3.select("body").select<HTMLDivElement>(".chart-tooltip");
@@ -401,7 +403,7 @@ export const CountryDetailDrawer = ({
 
       // Calculate year ticks
       const years = details.time_series.map((d) => d.year);
-      const { tickValues } = calculateYearTicks(years);
+      const { tickValues } = calculateYearTicks(years, plotWidthForTicks);
 
       // X-axis with rotated labels
       const xAxis = g
@@ -555,7 +557,7 @@ export const CountryDetailDrawer = ({
 
       // Calculate year ticks
       const years = details.time_series.map((d) => d.year);
-      const { tickValues } = calculateYearTicks(years);
+      const { tickValues } = calculateYearTicks(years, plotWidthForTicks);
 
       // X-axis with rotated labels
       const xAxis = g
@@ -669,7 +671,7 @@ export const CountryDetailDrawer = ({
 
       // Calculate year ticks
       const years = details.time_series.map((d) => d.year);
-      const { tickValues } = calculateYearTicks(years);
+      const { tickValues } = calculateYearTicks(years, plotWidthForTicks);
 
       // X-axis with rotated labels
       const xAxis = g
@@ -750,7 +752,7 @@ export const CountryDetailDrawer = ({
 
       // Filter to most recent 16 years and calculate tick values
       const allYears = details.time_series.map((d) => d.year);
-      const { tickValues } = calculateYearTicks(allYears);
+      const { tickValues } = calculateYearTicks(allYears, plotWidthForTicks);
 
       // Filter time series to only show years in tickValues (max 16)
       const filteredTimeSeries = details.time_series.filter((d) =>
@@ -870,7 +872,7 @@ export const CountryDetailDrawer = ({
 
       // Get unique years and calculate tick values
       const allYears = details.time_series.map((d) => d.year);
-      const { tickValues } = calculateYearTicks(allYears);
+      const { tickValues } = calculateYearTicks(allYears, plotWidthForTicks);
 
       // Limit displayed years to tick values (max 16)
       const uniqueYears = tickValues;
@@ -1032,7 +1034,7 @@ export const CountryDetailDrawer = ({
 
       // Calculate year ticks
       const years = details.time_series.map((d) => d.year);
-      const { tickValues } = calculateYearTicks(years);
+      const { tickValues } = calculateYearTicks(years, plotWidthForTicks);
 
       // X-axis with rotated labels
       const xAxis = g
@@ -1231,7 +1233,7 @@ export const CountryDetailDrawer = ({
 
       // Calculate year ticks
       const years = details.time_series.map((d) => d.year);
-      const { tickValues } = calculateYearTicks(years);
+      const { tickValues } = calculateYearTicks(years, plotWidthForTicks);
 
       // X-axis with rotated labels
       const xAxis = g
@@ -1418,7 +1420,7 @@ export const CountryDetailDrawer = ({
 
       // Calculate year ticks
       const years = details.time_series.map((d) => d.year);
-      const { tickValues } = calculateYearTicks(years);
+      const { tickValues } = calculateYearTicks(years, plotWidthForTicks);
 
       // X-axis with rotated labels
       const xAxis = g
@@ -1601,7 +1603,7 @@ export const CountryDetailDrawer = ({
               {/* Charts Grid */}
               <div className="flex flex-wrap gap-4">
                 {/* Electricity Access Chart */}
-                <div className="bg-white-1 border border-grey-1 rounded-[8px] p-4 flex-1 min-w-[500px] max-w-full">
+                <div className="bg-white-1 border border-grey-1 rounded-[8px] p-4 flex-1 min-w-0 w-full max-w-full">
                   <h3 className="text-[0.875rem] font-inter font-semibold text-black-1 mb-4">
                     Electricity Demand & Generation (TWh)
                   </h3>
@@ -1624,7 +1626,7 @@ export const CountryDetailDrawer = ({
                 </div>
 
                 {/* CO2 Emission Chart */}
-                <div className="bg-white-1 border border-grey-1 rounded-[8px] p-4 flex-1 min-w-[500px] max-w-full">
+                <div className="bg-white-1 border border-grey-1 rounded-[8px] p-4 flex-1 min-w-0 w-full max-w-full">
                   <h3 className="text-[0.875rem] font-inter font-semibold text-black-1 mb-4">
                     CO2 Emission per Capita (gCO₂/kWh)
                   </h3>
@@ -1637,7 +1639,7 @@ export const CountryDetailDrawer = ({
                 </div>
 
                 {/* Population Chart */}
-                <div className="bg-white-1 border border-grey-1 rounded-[8px] p-4 flex-1 min-w-[500px] max-w-full">
+                <div className="bg-white-1 border border-grey-1 rounded-[8px] p-4 flex-1 min-w-0 w-full max-w-full">
                   <h3 className="text-[0.875rem] font-inter font-semibold text-black-1 mb-4">
                     Population (Millions)
                   </h3>
@@ -1650,7 +1652,7 @@ export const CountryDetailDrawer = ({
                 </div>
 
                 {/* Clean Cooking Access Chart */}
-                <div className="bg-white-1 border border-grey-1 rounded-[8px] p-4 flex-1 min-w-[500px] max-w-full">
+                <div className="bg-white-1 border border-grey-1 rounded-[8px] p-4 flex-1 min-w-0 w-full max-w-full">
                   <h3 className="text-[0.875rem] font-inter font-semibold text-black-1 mb-4">
                     Clean Cooking Access (%)
                   </h3>
@@ -1673,7 +1675,7 @@ export const CountryDetailDrawer = ({
                 </div>
 
                 {/* Energy Poverty Chart */}
-                <div className="bg-white-1 border border-grey-1 rounded-[8px] p-4 flex-1 min-w-[500px] max-w-full">
+                <div className="bg-white-1 border border-grey-1 rounded-[8px] p-4 flex-1 min-w-0 w-full max-w-full">
                   <h3 className="text-[0.875rem] font-inter font-semibold text-black-1 mb-4">
                     Energy Poverty Index (%)
                   </h3>
@@ -1686,7 +1688,7 @@ export const CountryDetailDrawer = ({
                 </div>
 
                 {/* Electricity Per Capita Chart */}
-                <div className="bg-white-1 border border-grey-1 rounded-[8px] p-4 flex-1 min-w-[500px] max-w-full">
+                <div className="bg-white-1 border border-grey-1 rounded-[8px] p-4 flex-1 min-w-0 w-full max-w-full">
                   <h3 className="text-[0.875rem] font-inter font-semibold text-black-1 mb-4">
                     Electricity Per Capita (MWh/year)
                   </h3>
@@ -1717,7 +1719,7 @@ export const CountryDetailDrawer = ({
                 </div>
 
                 {/* Energy Poverty Comparison Chart */}
-                <div className="bg-white-1 border border-grey-1 rounded-[8px] p-4 flex-1 min-w-[500px] max-w-full">
+                <div className="bg-white-1 border border-grey-1 rounded-[8px] p-4 flex-1 min-w-0 w-full max-w-full">
                   <h3 className="text-[0.875rem] font-inter font-semibold text-black-1 mb-4">
                     Energy Poverty Comparison (%)
                   </h3>
@@ -1746,7 +1748,7 @@ export const CountryDetailDrawer = ({
                 </div>
 
                 {/* Energy Poverty Rural vs Urban Chart */}
-                <div className="bg-white-1 border border-grey-1 rounded-[8px] p-4 flex-1 min-w-[500px] max-w-full">
+                <div className="bg-white-1 border border-grey-1 rounded-[8px] p-4 flex-1 min-w-0 w-full max-w-full">
                   <h3 className="text-[0.875rem] font-inter font-semibold text-black-1 mb-4">
                     Energy Poverty: Rural vs Urban (%)
                   </h3>

@@ -5,7 +5,7 @@ import { FeedbackModal } from "../../components/modals/FeedbackModal";
 import { useSimulateScenarioMutation } from "../../app/appSlices/apiSlice";
 import { useGetAvailableCountriesQuery } from "../../app/appSlices/apiSlice";
 import * as d3 from "d3";
-import { calculateYearTicks } from "../../components/utils/ChartUtils";
+import { calculateYearTicks, getChartMargins, getChartSize } from "../../components/utils/ChartUtils";
 import { ButtonSpinner } from "../../components/utils/ButtonSpinner";
 
 // Scenario Builder Interfaces
@@ -359,9 +359,7 @@ export const Simulation = () => {
         const container =
           containerRefs[key as keyof typeof containerRefs].current;
         if (container) {
-          const containerWidth = container.offsetWidth || 500;
-          const width = Math.max(300, containerWidth - 32);
-          const height = Math.max(200, width * 0.6);
+          const { width, height } = getChartSize(container.offsetWidth || 0, 0);
           newDimensions[key] = { width, height };
         }
       });
@@ -392,7 +390,11 @@ export const Simulation = () => {
   useEffect(() => {
     if (!scenarioResult || Object.keys(chartDimensions).length === 0) return;
 
-    const margin = { top: 30, right: 30, bottom: 60, left: 70 };
+    const narrowestWidth = Math.min(
+      ...Object.values(chartDimensions).map((d) => d?.width ?? 500),
+    );
+    const margin = getChartMargins(narrowestWidth, { rotateXLabels: true });
+    const plotWidthForTicks = narrowestWidth - margin.left - margin.right;
 
     // Transform forecast data to time_series format for compatibility with yearly chart logic
     const demandData = scenarioResult.forecasts.electricity_demand || [];
@@ -690,7 +692,7 @@ export const Simulation = () => {
 
       // Calculate year ticks
       const years = timeSeries.map((d: any) => d.year);
-      const { tickValues } = calculateYearTicks(years);
+      const { tickValues } = calculateYearTicks(years, plotWidthForTicks);
 
       const xAxis = g
         .append("g")
@@ -837,7 +839,7 @@ export const Simulation = () => {
 
       // Calculate year ticks
       const years = timeSeries.map((d: any) => d.year);
-      const { tickValues } = calculateYearTicks(years);
+      const { tickValues } = calculateYearTicks(years, plotWidthForTicks);
 
       const xAxis = g
         .append("g")
@@ -949,7 +951,7 @@ export const Simulation = () => {
 
       // Calculate year ticks
       const years = timeSeries.map((d: any) => d.year);
-      const { tickValues } = calculateYearTicks(years);
+      const { tickValues } = calculateYearTicks(years, plotWidthForTicks);
 
       const xAxis = g
         .append("g")
@@ -1094,7 +1096,7 @@ export const Simulation = () => {
 
       // Calculate year ticks
       const years = timeSeries.map((d: any) => d.year);
-      const { tickValues } = calculateYearTicks(years);
+      const { tickValues } = calculateYearTicks(years, plotWidthForTicks);
 
       const xAxis = g
         .append("g")
@@ -1282,7 +1284,7 @@ export const Simulation = () => {
 
       // Calculate year ticks
       const years = timeSeries.map((d: any) => d.year);
-      const { tickValues } = calculateYearTicks(years);
+      const { tickValues } = calculateYearTicks(years, plotWidthForTicks);
 
       const xAxis = g
         .append("g")
@@ -1465,7 +1467,7 @@ export const Simulation = () => {
 
       // Calculate year ticks
       const years = timeSeries.map((d: any) => d.year);
-      const { tickValues } = calculateYearTicks(years);
+      const { tickValues } = calculateYearTicks(years, plotWidthForTicks);
 
       const xAxis = g
         .append("g")
@@ -1567,10 +1569,10 @@ export const Simulation = () => {
   const yearOptions = Array.from({ length: 76 }, (_, i) => 2025 + i);
 
   return (
-    <div className="p-6 bg-grey-1 min-h-screen">
+    <div className="p-4 md:p-6 bg-grey-1 min-h-screen min-w-0 overflow-x-hidden">
       <div className="max-w-7xl mx-auto">
         <div className="mb-6">
-          <h1 className="text-[2rem] font-inter font-semibold text-black-1 mb-2">
+          <h1 className="text-[1.5rem] md:text-[2rem] font-inter font-semibold text-black-1 mb-2">
             Scenario Simulation Lab
           </h1>
           <p className="text-[1rem] font-inter text-grey-2">
@@ -1826,7 +1828,7 @@ export const Simulation = () => {
               </div>
 
               {/* Charts */}
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 min-w-0">
                 <ChartCard title="Electricity Demand (TWh)">
                   <div
                     ref={electricityAccessChartContainerRef}
