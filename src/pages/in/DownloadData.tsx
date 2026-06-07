@@ -4,7 +4,7 @@ import { HiArrowDownTray } from "react-icons/hi2";
 import { getApiBaseUrl } from "../../app/apiBaseUrl";
 import { useGetAvailableCountriesQuery } from "../../app/appSlices/apiSlice";
 import { getCountryFlag } from "../../components/utils/Flags";
-import { DownloadDataListSkeleton } from "../../components/skeletons";
+import { DownloadDataListSkeleton } from "../../components/skeletons/DownloadDataListSkeleton";
 import { ContentPage, prose } from "./ContentPage";
 
 type CountryDownload = {

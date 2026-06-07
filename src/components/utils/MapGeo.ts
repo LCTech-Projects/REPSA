@@ -4,7 +4,7 @@ import africaGeoRaw from "./africa.geojson?raw";
 
 export type AfricanGeoData = GeoJSON.FeatureCollection;
 
-// Local GeoJSON — no fetch.
+// Local GeoJSON
 export const AFRICAN_GEO_DATA = JSON.parse(africaGeoRaw) as AfricanGeoData;
 
 export function normalizeCountryName(value: string): string {
