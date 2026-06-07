@@ -1,40 +1,67 @@
-import { FeatureCard } from "../../../components/cards/FeatureCard";
-import { WorldIcon } from "../../../components/Icons"
-import { features } from "../../../components/utils/Dummy";
+import { Link } from "react-router-dom";
+import { HiOutlineArrowRight } from "react-icons/hi2";
+import { PillarCard } from "../../../components/cards/PillarCard";
+import { pillars } from "../../../components/utils/Dummy";
 import { useRevealAnimation } from "../../../components/utils/UseRevealAnimation";
 
 export const Frame2 = () => {
-    const { ref: badgeRef, isVisible: badgeVisible } = useRevealAnimation();
-    const { ref: headingRef, isVisible: headingVisible } = useRevealAnimation();
-    const { ref: textRef, isVisible: textVisible } = useRevealAnimation();
+  const { ref: introRef, isVisible: introVisible } =
+    useRevealAnimation<HTMLDivElement>();
+  const { ref: teamRef, isVisible: teamVisible } =
+    useRevealAnimation<HTMLDivElement>();
 
-    return (
-        <section className="w-full bg-grey-3 py-[60px] px-[22px]">
-            <div className="max-w-[904px] mx-auto flex flex-col gap-y-[24px] items-center text-center">
-                <div ref={badgeRef} className={`relative inline-flex items-center justify-center rounded-[100px] p-[2px] shadow-[0px_0px_10px_0px_rgba(0,0,0,0.1)] overflow-hidden ${badgeVisible ? 'reveal-up' : 'opacity-0'}`}>
-                    <div
-                        className="absolute rounded-[100px]"
-                        style={{
-                            background: 'conic-gradient(from 0deg, #FFD43B 0%, #FF6B35 25%, #FFD43B 50%, #FF6B35 75%, #FFD43B 100%)',
-                            top: '-2px',
-                            left: '-2px',
-                            right: '-2px',
-                            bottom: '-2px'
-                        }}
-                    ></div>
-                    <div className="relative flex items-center justify-center gap-[10px] rounded-[100px] bg-white-1 p-[15px] z-10">
-                        <WorldIcon />
-                        <span className="text-black-3 text-[0.75rem] font-inter">Renewable Energy Planning for Sustainable Africa</span>
-                    </div>
-                </div>
-                <h2 ref={headingRef} className={`text-blue-1 font-libre font-bold leading-16 tracking-[0.25%] ${headingVisible ? 'reveal-up' : 'opacity-0'}`} style={{ fontSize: 'clamp(2.25rem, 5vw, 3.5625rem)' }}>Can Africa Power Its Future?</h2>
-                <p ref={textRef} className={`text-grey-2 text-[1rem] font-inter leading-6 tracking-[0.5%] ${textVisible ? 'reveal-up' : 'opacity-0'}`}>600 million people live without electricity. Millions more cook with wood and charcoal, sacrificing health and opportunity. REPSA puts the power of data in your hands to understand, simulate, and envision pathways to universal energy access.</p>
-            </div>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-[24px] mt-[60px]">
-                {features.map((feature, index) => (
-                    <FeatureCard key={index} {...feature} />
-                ))}
-            </div>
-        </section>
-    );
+  return (
+    <section className="w-full bg-white-1 py-[60px] px-[22px]">
+      <div className="max-w-[1100px] mx-auto">
+        <div
+          ref={introRef}
+          className={`max-w-[720px] mx-auto text-center mb-12 md:mb-16 ${introVisible ? "reveal-up" : "opacity-0"}`}
+        >
+          <h2 className="text-blue-1 font-libre font-bold leading-tight mb-4" style={{ fontSize: "clamp(1.75rem, 4vw, 2.5rem)" }}>
+            Research grade energy data, ready to use
+          </h2>
+          <p className="text-grey-2 text-[1rem] md:text-[1.0625rem] font-inter leading-7">
+            REPSA turns scattered indicators into one platform for policymakers,
+            researchers, and planners working to close Africa&apos;s energy access
+            gap. Less hunting for files, more time for decisions.{" "}
+            <Link
+              to="/in/download-data"
+              className="text-blue-1 font-medium hover:underline"
+            >
+              Click here to explore data
+            </Link>
+            .
+          </p>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12 md:mb-16">
+          {pillars.map(({ icon, title, body }) => (
+            <PillarCard key={title} icon={icon} title={title} body={body} />
+          ))}
+        </div>
+
+        <div
+          ref={teamRef}
+          className={`rounded-[12px] bg-grey-3 px-6 py-8 md:px-10 md:py-10 text-center ${teamVisible ? "reveal-up" : "opacity-0"}`}
+        >
+          <h3 className="text-[1.125rem] font-inter font-semibold text-black-1 mb-3">
+            Who builds REPSA
+          </h3>
+          <p className="text-[0.9375rem] md:text-[1rem] font-inter leading-7 text-grey-2 max-w-[640px] mx-auto mb-6">
+            REPSA is developed by researchers from Chengdu University of
+            Technology, China, and Imperial College London, UK. These researchers
+            work at the intersection of energy systems, data science, and African
+            energy planning.
+          </p>
+          <Link
+            to="/in/about"
+            className="inline-flex items-center gap-2 text-[0.875rem] font-inter font-medium text-blue-1 hover:underline"
+          >
+            Learn more about REPSA
+            <HiOutlineArrowRight className="size-4" aria-hidden />
+          </Link>
+        </div>
+      </div>
+    </section>
+  );
 };

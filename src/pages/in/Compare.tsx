@@ -665,19 +665,19 @@ export const Compare = () => {
     <div className="min-h-screen bg-grey-1">
       {isFiltersOpen && (
         <div
-          className="fixed inset-0 bg-black/50 z-[60] lg:hidden"
+          className="fixed inset-0 bg-black/50 z-[60] md:hidden"
           onClick={() => setIsFiltersOpen(false)}
           aria-hidden
         />
       )}
 
       <div
-        className={`fixed top-0 bottom-0 z-[50] left-0 lg:left-[var(--sidebar-offset)] w-full max-w-[320px] bg-white-1 border-r border-grey-1 p-4 sm:p-6 overflow-y-auto shadow-[4px_0_12px_0_rgba(0,0,0,0.06)] transform transition-[transform,left] duration-300 ease-in-out ${
-          isFiltersOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"
+        className={`fixed top-0 bottom-0 z-[50] left-0 md:left-[var(--sidebar-offset)] w-full max-w-[320px] bg-white-1 border-r border-grey-1 p-4 sm:p-6 overflow-y-auto shadow-[4px_0_12px_0_rgba(0,0,0,0.06)] transition-[transform,left] duration-300 ease-in-out ${
+          isFiltersOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0"
         }`}
         style={{ "--sidebar-offset": `${sidebarWidth}px` } as React.CSSProperties}
       >
-        <div className="flex items-center justify-between mb-4 lg:hidden">
+        <div className="flex items-center justify-between mb-4 md:hidden">
           <h2 className="text-[1rem] font-inter font-semibold text-black-1">
             Filters
           </h2>
@@ -695,7 +695,7 @@ export const Compare = () => {
 
       <div
         data-scroll-root
-        className="min-h-screen overflow-y-auto p-4 md:p-6 ml-0 lg:ml-[var(--chart-offset)] transition-[margin] duration-300 ease-in-out"
+        className="min-h-screen overflow-y-auto p-4 md:p-6 ml-0 md:ml-[var(--chart-offset)] transition-[margin] duration-300 ease-in-out"
         style={{ "--chart-offset": `${chartAreaOffset}px` } as CSSProperties}
       >
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between mb-6">
@@ -705,7 +705,7 @@ export const Compare = () => {
           <button
             type="button"
             onClick={() => setIsFiltersOpen(true)}
-            className="lg:hidden shrink-0 self-start bg-white-1 border border-grey-1 rounded-lg px-4 py-2 text-[0.875rem] font-inter text-black-1 hover:bg-grey-1 transition-colors"
+            className="md:hidden shrink-0 self-start bg-white-1 border border-grey-1 rounded-lg px-4 py-2 text-[0.875rem] font-inter text-black-1 hover:bg-grey-1 transition-colors"
           >
             Filters
           </button>

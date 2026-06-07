@@ -1,3 +1,10 @@
+import {
+  HiOutlineBeaker,
+  HiOutlineChartBarSquare,
+  HiOutlineGlobeAlt,
+} from "react-icons/hi2";
+import type { IconType } from "react-icons";
+
 export const features=[
     {
         icon: "/images/electricityAccess.png",
@@ -52,6 +59,29 @@ export const explore=[
         actionLink: "/in/compare"
     },
     
+]
+
+
+export const pillars: {
+    icon: IconType;
+    title: string;
+    body: string;
+}[] = [
+    {
+        icon: HiOutlineGlobeAlt,
+        title: "Explore with confidence",
+        body: "Maps, yearly and hourly views, and country comparisons help you see access, demand, and poverty patterns across Africa.",
+    },
+    {
+        icon: HiOutlineChartBarSquare,
+        title: "Plan with evidence",
+        body: "Run scenarios on harmonised data so you can test policy choices before they reach the grid or the budget.",
+    },
+    {
+        icon: HiOutlineBeaker,
+        title: "Built on open methods",
+        body: "Documented sources, transparent processing, and downloadable outputs you can cite in research and policy work.",
+    },
 ]
 
 

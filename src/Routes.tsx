@@ -26,6 +26,7 @@ import Partners from "./pages/in/Partners";
 import Sponsors from "./pages/in/Sponsors";
 import Documentation from "./pages/in/Documentation";
 import ApiAccess from "./pages/in/ApiAccess";
+import DownloadData from "./pages/in/DownloadData";
 import { ScrollToTopLayout } from "./components/ScrollToTopLayout";
 
 const contentRedirects = [
@@ -41,6 +42,7 @@ const contentRedirects = [
   "sponsors",
   "documentation",
   "api-access",
+  "download-data",
 ] as const;
 
 export const routes = createBrowserRouter([
@@ -78,6 +80,10 @@ export const routes = createBrowserRouter([
       {
         path: "compare",
         element: <Compare />,
+      },
+      {
+        path: "download-data",
+        element: <DownloadData />,
       },
       {
         path: "simulation",

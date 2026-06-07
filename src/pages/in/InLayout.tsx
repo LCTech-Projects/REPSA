@@ -1,4 +1,5 @@
 import { Link, Outlet, useLocation } from "react-router-dom";
+import { HiArrowDownTray } from "react-icons/hi2";
 import { MenuIcon, SwitchIcon } from "../../components/Icons";
 import { SidebarProfile } from "../../components/SidebarProfile";
 import { useEffect, useRef, useState } from "react";
@@ -48,15 +49,11 @@ const InLayout = () => {
 
         <div
           ref={sidebarRef}
-          className={`top-0 left-0 bottom-0 bg-white-1 py-[20px] px-[14px] flex flex-col shadow-[4px_0_12px_0_rgba(0,0,0,0.08)] transition-all duration-300 ease-in-out z-[100] overflow-visible ${
-            expand
-              ? "fixed w-[257px] items-flex-start"
-              : "fixed w-[85px] items-center md:relative md:shrink-0 md:z-[100]"
-          } ${
-            isMobileOpen
+          className={`fixed top-0 left-0 bottom-0 bg-white-1 py-[20px] px-[14px] flex flex-col shadow-[4px_0_12px_0_rgba(0,0,0,0.08)] transition-all duration-300 ease-in-out z-[100] overflow-visible ${expand ? "w-[257px] items-flex-start" : "w-[85px] items-center"
+            } ${isMobileOpen
               ? "translate-x-0"
               : "-translate-x-full md:translate-x-0"
-          }`}
+            }`}
         >
           <Link
             to="/in/map"
@@ -114,6 +111,19 @@ const InLayout = () => {
               active={location.pathname === "/in/compare"}
               expand={expand}
             />
+            <MenuIcon
+              link="/in/download-data"
+              label="Download Data"
+              active={location.pathname === "/in/download-data"}
+              expand={expand}
+              icon={
+                <HiArrowDownTray
+                  className="size-5 text-grey-2"
+                  strokeWidth={1}
+                  aria-hidden
+                />
+              }
+            />
           </div>
 
           <div
@@ -142,9 +152,7 @@ const InLayout = () => {
         </button>
 
         <div
-          className={`flex-1 min-w-0 pb-20 md:pb-0 transition-all duration-300 ease-in-out ${
-            expand ? "md:ml-[85px]" : ""
-          }`}
+          className={`flex-1 min-w-0 pb-20 md:pb-0 md:ml-[85px] transition-all duration-300 ease-in-out`}
         >
           <Outlet />
         </div>

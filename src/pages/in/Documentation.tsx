@@ -25,6 +25,7 @@ const sections = [
       { to: "/in/map", label: "Explore Map" },
       { to: "/in/visualization", label: "Visualization" },
       { to: "/in/compare", label: "Compare Countries" },
+      { to: "/in/download-data", label: "Download Data" },
       { to: "/in/simulation", label: "Run Simulation" },
     ],
   },

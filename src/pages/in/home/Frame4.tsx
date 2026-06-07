@@ -1,23 +1,15 @@
-import { ExploreCard } from "../../../components/cards/ExploreCard";
-import { explore } from "../../../components/utils/Dummy";
 import { useRevealAnimation } from "../../../components/utils/UseRevealAnimation";
 
 export const Frame4 = () => {
-    const { ref: headingRef, isVisible: headingVisible } = useRevealAnimation();
-    const { ref: textRef, isVisible: textVisible } = useRevealAnimation();
+    const { ref: imageRef, isVisible: imageVisible } = useRevealAnimation<HTMLImageElement>();
+    const { ref: textRef, isVisible: textVisible } = useRevealAnimation<HTMLDivElement>();
 
     return (
-        <section className="w-full bg-grey-3 pb-[60px] px-[22px] bg-[url('/images/bg3.png')] bg-cover bg-center bg-no-repeat">
-            <div className="w-full flex flex-col items-center text-center gap-y-[16px]">
-                <h2 ref={headingRef} className={`text-blue-1 text-[2.25rem] font-inter font-semibold leading-11 ${headingVisible ? 'reveal-up' : 'opacity-0'}`}>Explore REPSA</h2>
-                <p ref={textRef} className={`text-grey-2 text-[1.375rem] font-inter leading-7 tracking-normal ${textVisible ? 'reveal-up' : 'opacity-0'}`}>
-                    Discover our suite of data visualization, mapping and analysis tools to explore energy access data
-                </p>
-            </div>
-            <div className="w-full grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-4 gap-[20px] mt-[40px]">
-                {explore.map((item, index) => (
-                    <ExploreCard key={index} {...item} />
-                ))}
+        <section className="relative w-full bg-grey-3 py-10 md:py-[60px] px-[22px] bg-[url('/images/bg2.png')] bg-cover bg-center bg-no-repeat">
+            <img ref={imageRef} src="/images/block3Hero.png" alt="" className={`w-full h-auto ${imageVisible ? 'reveal-fade' : 'opacity-0'}`} />
+            <div ref={textRef} className={`mt-6 md:mt-0 md:absolute md:bottom-[140px] md:left-0 max-w-[1125px] md:px-[44px] text-white-1 ${textVisible ? 'reveal-up' : 'opacity-0'}`}>
+                <h3 className="font-inter font-semibold leading-10" style={{ fontSize: 'clamp(1.5rem, 4vw, 2rem)' }}>Empowering Communities</h3>
+                <p className="leading-7 mt-[16px] font-inter text-black-1 md:text-white-1" style={{ fontSize: 'clamp(1rem, 2.5vw, 1.375rem)' }}>Access to clean, reliable energy transform lives, enabling education, healthcare and economic opportunities.</p>
             </div>
         </section>
     );
