@@ -340,33 +340,50 @@ export const Simulation = () => {
   >({});
 
   useEffect(() => {
-    if (!scenarioResult) return;
+    if (!scenarioResult) {
+      setChartDimensions({});
+      return;
+    }
 
     const containerRefs = {
       electricityAccess: electricityAccessChartContainerRef,
       co2Emission: co2EmissionChartContainerRef,
-      cleanCooking: cleanCookingChartContainerRef,
       electricityPerCapita: electricityPerCapitaChartContainerRef,
       energyPovertyComparison: energyPovertyComparisonChartContainerRef,
-      energyPovertyRuralUrban: energyPovertyRuralUrbanChartContainerRef,
     };
 
     const updateDimensions = () => {
-      const newDimensions: Record<string, { width: number; height: number }> =
-        {};
+      requestAnimationFrame(() => {
+        const newDimensions: Record<string, { width: number; height: number }> =
+          {};
 
-      Object.keys(containerRefs).forEach((key) => {
-        const container =
-          containerRefs[key as keyof typeof containerRefs].current;
-        if (container) {
-          const { width, height } = getChartSize(container.offsetWidth || 0, 0);
+        Object.entries(containerRefs).forEach(([key, ref]) => {
+          const container = ref.current;
+          if (!container) return;
+
+          const containerWidth =
+            container.offsetWidth ||
+            container.parentElement?.clientWidth ||
+            window.innerWidth;
+          const { width, height } = getChartSize(containerWidth, 0);
           newDimensions[key] = { width, height };
-        }
-      });
+        });
 
-      if (Object.keys(newDimensions).length > 0) {
-        setChartDimensions(newDimensions);
-      }
+        if (Object.keys(newDimensions).length === 0) return;
+
+        setChartDimensions((prev) => {
+          const keys = Object.keys(newDimensions);
+          const unchanged =
+            keys.length === Object.keys(prev).length &&
+            keys.every(
+              (key) =>
+                prev[key]?.width === newDimensions[key].width &&
+                prev[key]?.height === newDimensions[key].height,
+            );
+
+          return unchanged ? prev : newDimensions;
+        });
+      });
     };
 
     const timer = setTimeout(updateDimensions, 100);
@@ -539,6 +556,8 @@ export const Simulation = () => {
       renderHtml: (d: (typeof timeSeries)[0]) => string,
     ) => {
       const sortedRows = [...rows].sort((a, b) => a.year - b.year);
+      if (sortedRows.length === 0) return;
+
       const bisect = d3.bisector<(typeof sortedRows)[0], number>((r) => r.year).left;
 
       g.append("rect")
@@ -548,7 +567,7 @@ export const Simulation = () => {
         .attr("fill", "transparent")
         .style("pointer-events", "all")
         .on("mousemove", function (event) {
-          const [mx] = d3.pointer(event, this as any);
+          const [mx] = d3.pointer(event, this as Element);
           const targetYear = x.invert(mx);
           const i = Math.max(
             0,
@@ -556,6 +575,7 @@ export const Simulation = () => {
           );
           const d0 = sortedRows[Math.max(0, i - 1)];
           const d1 = sortedRows[Math.min(sortedRows.length - 1, i)];
+          if (!d0 || !d1) return;
           const nearest =
             Math.abs(targetYear - d0.year) <= Math.abs(d1.year - targetYear)
               ? d0
@@ -579,7 +599,13 @@ export const Simulation = () => {
       chartKey: keyof typeof chartRefs,
       renderFn: (
         svg: d3.Selection<SVGSVGElement, unknown, null, undefined>,
-        dims: { width: number; height: number },
+        dims: {
+          width: number;
+          height: number;
+          chartWidth: number;
+          chartHeight: number;
+          margin: ReturnType<typeof getChartMargins>;
+        },
       ) => void,
     ) => {
       const ref = chartRefs[chartKey];
@@ -599,24 +625,38 @@ export const Simulation = () => {
       if (!ref.current || !containerRef.current) return;
 
       const dims = chartDimensions[chartKey] || { width: 500, height: 300 };
+      const chartMargin = getChartMargins(dims.width, { rotateXLabels: true });
+      const safeDims = {
+        width: dims.width,
+        height: dims.height,
+        chartWidth: Math.max(
+          80,
+          dims.width - chartMargin.left - chartMargin.right,
+        ),
+        chartHeight: Math.max(
+          80,
+          dims.height - chartMargin.top - chartMargin.bottom,
+        ),
+        margin: chartMargin,
+      };
       const svg = d3.select(ref.current);
       svg.selectAll("*").remove();
       svg
-        .attr("width", dims.width)
-        .attr("height", dims.height)
-        .attr("viewBox", `0 0 ${dims.width} ${dims.height}`)
+        .attr("width", safeDims.width)
+        .attr("height", safeDims.height)
+        .attr("viewBox", `0 0 ${safeDims.width} ${safeDims.height}`)
         .attr("preserveAspectRatio", "xMidYMid meet");
 
-      renderFn(svg, dims);
+      renderFn(svg, safeDims);
     };
 
     // 1. Electricity Demand & Generation Chart
     renderChart("electricityAccess", (svg, dims) => {
-      const chartWidth = dims.width - margin.left - margin.right;
-      const chartHeight = dims.height - margin.top - margin.bottom;
+      const chartWidth = dims.chartWidth;
+      const chartHeight = dims.chartHeight;
       const g = svg
         .append("g")
-        .attr("transform", `translate(${margin.left},${margin.top})`);
+        .attr("transform", `translate(${dims.margin.left},${dims.margin.top})`);
 
       const yearExtent = d3.extent(timeSeries, (d: any) => d.year) as [
         number | undefined,
@@ -786,11 +826,11 @@ export const Simulation = () => {
 
     // 2. GHG Emissions Chart
     renderChart("co2Emission", (svg, dims) => {
-      const chartWidth = dims.width - margin.left - margin.right;
-      const chartHeight = dims.height - margin.top - margin.bottom;
+      const chartWidth = dims.chartWidth;
+      const chartHeight = dims.chartHeight;
       const g = svg
         .append("g")
-        .attr("transform", `translate(${margin.left},${margin.top})`);
+        .attr("transform", `translate(${dims.margin.left},${dims.margin.top})`);
 
       const yearExtent = d3.extent(timeSeries, (d: any) => d.year) as [
         number | undefined,
@@ -901,11 +941,11 @@ export const Simulation = () => {
 
     // 3. Clean Cooking Access Chart (Line Chart)
     renderChart("cleanCooking", (svg, dims) => {
-      const chartWidth = dims.width - margin.left - margin.right;
-      const chartHeight = dims.height - margin.top - margin.bottom;
+      const chartWidth = dims.chartWidth;
+      const chartHeight = dims.chartHeight;
       const g = svg
         .append("g")
-        .attr("transform", `translate(${margin.left},${margin.top})`);
+        .attr("transform", `translate(${dims.margin.left},${dims.margin.top})`);
 
       const yearExtent = d3.extent(timeSeries, (d: any) => d.year) as [
         number | undefined,
@@ -1013,11 +1053,11 @@ export const Simulation = () => {
 
     // 4. Electricity Per Capita Chart
     renderChart("electricityPerCapita", (svg, dims) => {
-      const chartWidth = dims.width - margin.left - margin.right;
-      const chartHeight = dims.height - margin.top - margin.bottom;
+      const chartWidth = dims.chartWidth;
+      const chartHeight = dims.chartHeight;
       const g = svg
         .append("g")
-        .attr("transform", `translate(${margin.left},${margin.top})`);
+        .attr("transform", `translate(${dims.margin.left},${dims.margin.top})`);
 
       const yearExtent = d3.extent(timeSeries, (d: any) => d.year) as [
         number | undefined,
@@ -1192,11 +1232,11 @@ export const Simulation = () => {
 
     // 5. Energy Poverty Chart
     renderChart("energyPovertyComparison", (svg, dims) => {
-      const chartWidth = dims.width - margin.left - margin.right;
-      const chartHeight = dims.height - margin.top - margin.bottom;
+      const chartWidth = dims.chartWidth;
+      const chartHeight = dims.chartHeight;
       const g = svg
         .append("g")
-        .attr("transform", `translate(${margin.left},${margin.top})`);
+        .attr("transform", `translate(${dims.margin.left},${dims.margin.top})`);
 
       const yearExtent = d3.extent(timeSeries, (d: any) => d.year) as [
         number | undefined,
@@ -1377,11 +1417,11 @@ export const Simulation = () => {
 
     // 7. Energy Poverty Rural vs Urban Chart
     renderChart("energyPovertyRuralUrban", (svg, dims) => {
-      const chartWidth = dims.width - margin.left - margin.right;
-      const chartHeight = dims.height - margin.top - margin.bottom;
+      const chartWidth = dims.chartWidth;
+      const chartHeight = dims.chartHeight;
       const g = svg
         .append("g")
-        .attr("transform", `translate(${margin.left},${margin.top})`);
+        .attr("transform", `translate(${dims.margin.left},${dims.margin.top})`);
 
       const yearExtent = d3.extent(timeSeries, (d: any) => d.year) as [
         number | undefined,
@@ -1810,8 +1850,8 @@ export const Simulation = () => {
           scenarioResult && (
             <div className="space-y-6">
               {/* Overview Metrics */}
-              <div className="bg-white-1 border border-grey-1 rounded-lg p-6 flex items-center justify-between">
-                <h2 className="text-[1.5rem] font-inter font-semibold text-black-1">
+              <div className="bg-white-1 border border-grey-1 rounded-lg p-6 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+                <h2 className="text-[1.25rem] md:text-[1.5rem] font-inter font-semibold text-black-1 min-w-0">
                   Forecast Overview: {scenarioCountry} (
                   {scenarioResult.timeline.start_year} -{" "}
                   {scenarioResult.timeline.end_year})
@@ -1821,7 +1861,7 @@ export const Simulation = () => {
                     setHasSimulated(false);
                     setScenarioResult(null);
                   }}
-                  className="bg-yellow-1 text-blue-2 px-4 py-2 rounded-[8px] text-[0.875rem] font-inter font-medium hover:bg-yellow-200 transition-colors"
+                  className="bg-yellow-1 text-blue-2 px-4 py-2 rounded-[8px] text-[0.875rem] font-inter font-medium hover:bg-yellow-200 transition-colors shrink-0 self-start md:self-auto"
                 >
                   New Simulation
                 </button>
