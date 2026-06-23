@@ -64,7 +64,7 @@ def register_user(email: str, password: str) -> User:
     except EmailSendError as exc:
         raise AuthError(
             "Account created but we could not send a verification email. "
-            "Use resend verification or try again later.",
+            "Try again later.",
             503,
         ) from exc
 
