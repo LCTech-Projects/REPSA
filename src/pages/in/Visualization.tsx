@@ -1,12 +1,7 @@
 import { useState, useEffect, useRef } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
-import { useAuth } from "../../app/AuthContext";
-import type {
-  ReturnLocationState,
-  HourlyDownloadScope,
-} from "../../app/authNavigation";
+import { useLocation } from "react-router-dom";
+import type { HourlyDownloadScope } from "../../app/authNavigation";
 import { getApiBaseUrl } from "../../app/apiBaseUrl";
-import { SignInRequiredModal } from "../../components/modals/SignInRequiredModal";
 import {
   useGetAvailableYearsQuery,
   useGetCountryDetailsQuery,
@@ -32,8 +27,6 @@ const TICKING_LIVE_COUNTER_KEYS = [
 
 export const Visualization = () => {
   const location = useLocation();
-  const navigate = useNavigate();
-  const { isAuthenticated } = useAuth();
   const navigationState = location.state as {
     country?: string;
     year?: number | null;
@@ -49,18 +42,8 @@ export const Visualization = () => {
     navigationState?.country || "Algeria",
   );
   const [showDownloadPopup, setShowDownloadPopup] = useState(false);
-  const [showSignInRequired, setShowSignInRequired] = useState(false);
-  const [pendingDownloadFormat, setPendingDownloadFormat] = useState<
-    "csv" | "json" | null
-  >(null);
   const [hourlyDownloadScope, setHourlyDownloadScope] =
     useState<HourlyDownloadScope>("day");
-  const [pendingHourlyDownloadScope, setPendingHourlyDownloadScope] =
-    useState<HourlyDownloadScope | null>(null);
-  const pendingDownloadAfterAuthRef = useRef<{
-    format: "csv" | "json";
-    hourlyScope?: HourlyDownloadScope;
-  } | null>(null);
   const [liveRealtimeCounterValues, setLiveRealtimeCounterValues] = useState<
     Record<string, number>
   >({});
@@ -736,17 +719,6 @@ export const Visualization = () => {
   };
 
   const handleFormatSelect = (format: "json" | "csv") => {
-    if (!isAuthenticated) {
-      setPendingDownloadFormat(format);
-      setPendingHourlyDownloadScope(
-        dataMode === "historical" && viewMode === "hourly"
-          ? hourlyDownloadScope
-          : null,
-      );
-      setShowDownloadPopup(false);
-      setShowSignInRequired(true);
-      return;
-    }
     void handleDownloadData(format);
   };
 
@@ -802,30 +774,6 @@ export const Visualization = () => {
     triggerFileDownload(content, `${fileBase}.${extension}`, mimeType);
     setShowDownloadPopup(false);
   };
-
-  useEffect(() => {
-    const state = location.state as ReturnLocationState | null;
-    if (!state?.downloadFormat) return;
-
-    navigate(`${location.pathname}${location.search}`, { replace: true, state: {} });
-    pendingDownloadAfterAuthRef.current = {
-      format: state.downloadFormat,
-      hourlyScope: state.hourlyDownloadScope,
-    };
-    if (state.hourlyDownloadScope) {
-      setHourlyDownloadScope(state.hourlyDownloadScope);
-    }
-    setShowDownloadPopup(false);
-  }, [location.pathname, location.search, location.state, navigate]);
-
-  useEffect(() => {
-    const pending = pendingDownloadAfterAuthRef.current;
-    if (!pending || !isAuthenticated || !hasDownloadData) {
-      return;
-    }
-    pendingDownloadAfterAuthRef.current = null;
-    void handleDownloadData(pending.format, pending.hourlyScope);
-  }, [isAuthenticated, hasDownloadData]);
 
   return (
     <div className="p-4 md:p-6 bg-white-1 min-h-screen min-w-0 overflow-x-hidden">
@@ -937,18 +885,6 @@ export const Visualization = () => {
           </div>
         </div>
       </div>
-
-      <SignInRequiredModal
-        isOpen={showSignInRequired}
-        onClose={() => {
-          setShowSignInRequired(false);
-          setPendingDownloadFormat(null);
-          setPendingHourlyDownloadScope(null);
-        }}
-        returnPath={`${location.pathname}${location.search}`}
-        pendingDownloadFormat={pendingDownloadFormat}
-        pendingHourlyDownloadScope={pendingHourlyDownloadScope}
-      />
 
       {showDownloadPopup && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">

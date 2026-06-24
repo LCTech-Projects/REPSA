@@ -31,8 +31,8 @@ const About = () => {
             REPSA data and visualisations are intended for research, education,
             and policy analysis. When you use outputs in publications or reports,
             please cite REPSA and refer to the methodology and data sources
-            documentation. Registered users may download selected datasets from
-            the platform for non commercial analysis. If you are unsure whether
+            documentation. Anyone may download selected datasets from the
+            platform for non commercial analysis. If you are unsure whether
             your use is appropriate, get in touch. We are happy to advise.
           </p>
         </article>

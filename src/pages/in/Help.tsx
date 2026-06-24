@@ -18,7 +18,7 @@ const guides = [
     icon: HiOutlineChartBar,
     title: "Visualization",
     path: "/in/visualization",
-    body: "Pick a country and metric, then choose Historical or Realtime mode. Historical supports yearly trends and hourly views. Hourly mode lets you inspect a single day, month, or full year. Use the download button to export CSV or JSON. Sign in when prompted; you will return here with the file ready.",
+    body: "Pick a country and metric, then choose Historical or Realtime mode. Historical supports yearly trends and hourly views. Hourly mode lets you inspect a single day, month, or full year. Use the download button to export CSV or JSON for the current view.",
   },
   {
     icon: HiOutlineArrowsRightLeft,
@@ -66,12 +66,15 @@ const Help = () => (
 
     <h2 className={sectionHeading}>Accounts and downloads</h2>
     <p className={prose}>
-      Register with email from{" "}
+      Downloads from Visualization and the{" "}
+      <Link to="/in/download-data" className="text-blue-1 hover:underline">
+        Download Data
+      </Link>{" "}
+      page do not require an account. You may still register with email from{" "}
       <Link to="/sign-up" className="text-blue-1 hover:underline">
         Sign up
       </Link>
-      . Verify your address with the code we send. Sign in from the header when
-      you need to download data. Password reset flows are under{" "}
+      . Verify your address with the code we send. Password reset flows are under{" "}
       <Link to="/forgot-password" className="text-blue-1 hover:underline">
         Forgot password
       </Link>
