@@ -47,10 +47,7 @@ const SignUp = () => {
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="w-full flex flex-col gap-4">
-      <AuthHeading
-        title="Create your account"
-        description="Explore electricity data through Repsa’s modern API, interactive dashboard, and powerful database."
-      />
+      <AuthHeading title="Create your account" />
 
       {apiError && (
         <p className="text-sm text-red-600 text-center font-inter">{apiError}</p>

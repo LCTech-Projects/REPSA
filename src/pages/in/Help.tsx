@@ -28,9 +28,9 @@ const guides = [
   },
   {
     icon: HiOutlinePlay,
-    title: "Run Simulation",
-    path: "/in/simulation",
-    body: "Adjust policy sliders such as access expansion and renewable share, then run the scenario builder. Review projected trajectories for demand and related metrics. Treat outputs as exploratory planning aids.",
+    title: "Scenario Simulation",
+    path: "/in/scenario-simulation",
+    body: "Use Explore to set assumptions, or Business as usual for a historical baseline. Run the scenario to see projected outcomes.",
   },
 ] as const;
 

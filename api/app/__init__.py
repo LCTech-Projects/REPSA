@@ -15,7 +15,7 @@ from .routes.historical.yearly.production_aggregate import production_aggregate_
 from .routes.historical.yearly.country_metrics import country_metrics_bp
 from .routes.historical.hourly.electricity_demand import hourly_electricity_demand_bp
 from .routes.realtime.data import realtime_bp
-from .routes.story_mode.forecast import story_mode_bp
+from .routes.scenario_simulation.forecast import scenario_simulation_bp
 from .utils.config import Config
 from .utils.cache import cache
 
@@ -61,7 +61,7 @@ def create_app():
     app.register_blueprint(country_metrics_bp, url_prefix="/api/historical")
     app.register_blueprint(hourly_electricity_demand_bp, url_prefix="/api/historical")
     app.register_blueprint(realtime_bp, url_prefix="/api/realtime")
-    app.register_blueprint(story_mode_bp, url_prefix="/api/story-mode")
+    app.register_blueprint(scenario_simulation_bp, url_prefix="/api/scenario-simulation")
     app.register_blueprint(auth_bp, url_prefix="/api/auth")
 
     if _STATIC_DIST.is_dir():

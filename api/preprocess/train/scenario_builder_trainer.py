@@ -45,7 +45,7 @@ TARGET_COLUMNS = [
     "electricity_demand_per_capita_with_access (MWh)",
     "energy_poverty_electricity (% of total population)",
     "energy_poverty_multidimensional (% of total population)",
-    "greenhouse_gas_emissions",
+    "carbon_intensity_elec",
 ]
 
 EXOGENOUS_COLUMNS = [
@@ -57,10 +57,10 @@ EXOGENOUS_COLUMNS = [
 ]
 
 EPS = 1e-6
-GHG_TARGET = "greenhouse_gas_emissions"
+INTENSITY_TARGET = "carbon_intensity_elec"
 
 DISPLAY_TARGET_LABELS = {
-    "greenhouse_gas_emissions": "greenhouse_gas_emissions (MtCO₂e)",
+    "carbon_intensity_elec": "carbon_intensity_elec (MtCO₂e/TWh)",
     "electricity_demand_per_capita (MWh)": "electricity_demand_per_capita (MWh/person)",
     "electricity_demand_per_capita_with_access (MWh)": "electricity_demand_per_capita_with_access (MWh/person)",
 }
@@ -183,7 +183,7 @@ def _build_pipeline() -> Pipeline:
     ])
 
 
-def _ghg_feature_columns() -> Tuple[List[str], List[str]]:
+def _intensity_feature_columns() -> Tuple[List[str], List[str]]:
     numeric = [
         "year",
         "population",
@@ -195,20 +195,20 @@ def _ghg_feature_columns() -> Tuple[List[str], List[str]]:
         "electricity_demand_per_capita (MWh)",
         "energy_poverty_electricity (% of total population)",
         "energy_poverty_multidimensional (% of total population)",
-        "greenhouse_gas_emissions",
+        "carbon_intensity_elec",
         "lag_growth::electricity_demand (TWh)",
         "lag_growth::electricity_demand_per_capita (MWh)",
         "lag_growth::electricity_demand_per_capita_with_access (MWh)",
         "lag_growth::energy_poverty_electricity (% of total population)",
         "lag_growth::energy_poverty_multidimensional (% of total population)",
-        "lag_growth::greenhouse_gas_emissions",
+        "lag_growth::carbon_intensity_elec",
     ]
     categorical = ["country"]
     return numeric, categorical
 
 
-def _build_ghg_pipeline() -> Pipeline:
-    numeric_cols, categorical_cols = _ghg_feature_columns()
+def _build_intensity_pipeline() -> Pipeline:
+    numeric_cols, categorical_cols = _intensity_feature_columns()
 
     preprocess = ColumnTransformer(
         transformers=[
@@ -295,9 +295,9 @@ def run_walkforward(panel: pd.DataFrame) -> Tuple[pd.DataFrame, pd.DataFrame, pd
     if not test_years:
         raise ValueError("Not enough years to run walk-forward validation.")
 
-    ghg_idx = TARGET_COLUMNS.index(GHG_TARGET)
-    ghg_feature_cols = _ghg_feature_columns()[1] + _ghg_feature_columns()[0]
-    ghg_growth_col = f"y_growth::{GHG_TARGET}"
+    intensity_idx = TARGET_COLUMNS.index(INTENSITY_TARGET)
+    intensity_feature_cols = _intensity_feature_columns()[1] + _intensity_feature_columns()[0]
+    intensity_growth_col = f"y_growth::{INTENSITY_TARGET}"
 
     all_pred_rows: List[Dict[str, float]] = []
     fold_metric_rows: List[Dict[str, float]] = []
@@ -315,15 +315,18 @@ def run_walkforward(panel: pd.DataFrame) -> Tuple[pd.DataFrame, pd.DataFrame, pd
         model = _build_pipeline()
         model.fit(X_train, y_train_growth)
 
-        ghg_model = _build_ghg_pipeline()
-        ghg_model.fit(train_df[ghg_feature_cols], train_df[ghg_growth_col].to_numpy(dtype=float))
+        intensity_model = _build_intensity_pipeline()
+        intensity_model.fit(
+            train_df[intensity_feature_cols],
+            train_df[intensity_growth_col].to_numpy(dtype=float),
+        )
 
         X_test = test_df[feature_cols]
         pred_growth = model.predict(X_test)
 
-        ghg_pred_growth = ghg_model.predict(test_df[ghg_feature_cols])
+        intensity_pred_growth = intensity_model.predict(test_df[intensity_feature_cols])
         pred_growth = np.asarray(pred_growth, dtype=float)
-        pred_growth[:, ghg_idx] = np.asarray(ghg_pred_growth, dtype=float)
+        pred_growth[:, intensity_idx] = np.asarray(intensity_pred_growth, dtype=float)
 
         actual_next = test_df[[f"next::{t}" for t in TARGET_COLUMNS]].to_numpy(dtype=float)
         curr_levels = test_df[TARGET_COLUMNS].to_numpy(dtype=float)
@@ -561,16 +564,19 @@ def train_final_model(panel: pd.DataFrame) -> Dict[str, object]:
     model = _build_pipeline()
     model.fit(X, y_growth)
 
-    ghg_feature_cols = _ghg_feature_columns()[1] + _ghg_feature_columns()[0]
-    ghg_growth_col = f"y_growth::{GHG_TARGET}"
-    ghg_model = _build_ghg_pipeline()
-    ghg_model.fit(panel[ghg_feature_cols], panel[ghg_growth_col].to_numpy(dtype=float))
+    intensity_feature_cols = _intensity_feature_columns()[1] + _intensity_feature_columns()[0]
+    intensity_growth_col = f"y_growth::{INTENSITY_TARGET}"
+    intensity_model = _build_intensity_pipeline()
+    intensity_model.fit(
+        panel[intensity_feature_cols],
+        panel[intensity_growth_col].to_numpy(dtype=float),
+    )
 
     return {
         "pipeline": model,
-        "ghg_pipeline": ghg_model,
-        "ghg_feature_columns": ghg_feature_cols,
-        "ghg_target_column": ghg_growth_col,
+        "intensity_pipeline": intensity_model,
+        "intensity_feature_columns": intensity_feature_cols,
+        "intensity_target_column": intensity_growth_col,
         "feature_columns": feature_cols,
         "target_columns": TARGET_COLUMNS,
         "growth_target_columns": growth_cols,

@@ -81,10 +81,11 @@ export const apiSlice = createApi({
         country?: string;
         start_year?: number;
         target_year?: number;
+        scenario_mode?: string;
       }
     >({
       query: (body) => ({
-        url: `/api/story-mode/simulate-scenario`,
+        url: `/api/scenario-simulation/simulate-scenario`,
         method: "POST",
         body,
       }),

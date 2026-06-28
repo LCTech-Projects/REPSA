@@ -59,21 +59,18 @@ const Methodology = () => (
       comparison, not as operational dispatch data.
     </p>
 
-    <h2 className={sectionHeading}>Scenario simulation</h2>
+    <h2 className={sectionHeading}>Scenario Simulation</h2>
     <p className={prose}>
-      The simulation tool uses a trained scenario builder model (
+      Set assumptions and run a scenario. The model returns projected electricity
+      demand, poverty, and carbon intensity with uncertainty bands and baselines. See{" "}
+      <code className="text-[0.875rem] bg-grey-1 px-1 rounded">
+        /api/scenario-simulation/simulate-scenario
+      </code>{" "}
+      and{" "}
       <code className="text-[0.875rem] bg-grey-1 px-1 rounded">
         scenario_builder.joblib
-      </code>
-      ) loaded by the API at{" "}
-      <code className="text-[0.875rem] bg-grey-1 px-1 rounded">
-        /api/story-mode/simulate-scenario
-      </code>
-      . You adjust policy levers such as access expansion, renewable share, and
-      demand growth; the model returns trajectories for electricity demand,
-      access, and related metrics. Outputs depend on training data and
-      assumptions baked into the model. Use them to explore directions of
-      travel, not as forecasts certified for investment decisions.
+      </code>{" "}
+      for implementation details.
     </p>
 
     <h2 className={sectionHeading}>Validation and updates</h2>

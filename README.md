@@ -1,8 +1,10 @@
 # REPSA
 
-**Renewables and Energy Planning for Sustainable Africa** — an open web platform for exploring energy poverty, historical and near-real-time electricity indicators, cross-country comparison, and scenario planning across African countries.
+**Renewables and Energy Planning for Sustainable Africa** — an open-source web platform for electricity demand and energy poverty modelling across African countries. Explore harmonised country–year indicators, reconstructed hourly demand, statistical nowcasts, cross-country comparison, and scenario simulation.
 
-This repository contains the **deployable application**: a React frontend, a Flask API, and the runtime assets they need (`api/data/`, `api/ml_models/`). Use this document for local development, onboarding, and deployment planning.
+**Live app:** [https://repsa.org](https://repsa.org)
+
+This repository contains the deployable application: a React frontend, a Flask API, runtime CSV panels, and trained model artefacts (`api/data/`, `api/ml_models/`). Use this document for local development, onboarding, and deployment.
 
 ---
 
@@ -31,8 +33,8 @@ flowchart LR
 
 | Layer | Technology | Role |
 |--------|------------|------|
-| Frontend | React 19, TypeScript, Vite, Tailwind CSS 4, Redux Toolkit, D3 | SPA: map, charts, simulation, auth UI |
-| API | Flask 3, Flask-CORS, Flask-Caching | JSON REST API under `/api/*` |
+| Frontend | React 19, TypeScript, Vite 6, Tailwind CSS 4, Redux Toolkit, D3 | SPA: map, charts, scenario simulation, auth UI |
+| API | Flask 3.1, Flask-CORS, Flask-Caching | JSON REST API under `/api/*` |
 | Auth DB | PostgreSQL (Neon) | Users, password hashes, email verification |
 | Email | Resend | Verification and password-reset messages |
 | Analytics data | CSV files under `api/data/` | Historical yearly/hourly panels (not in Postgres) |
@@ -40,7 +42,17 @@ flowchart LR
 
 The API reads **energy data from the filesystem**, not from Postgres. Postgres is used **only for authentication**.
 
-**Not in this repo:** `api/preprocess/` (gitignored) holds maintainer scripts to regenerate CSVs, retrain models, and run validation. **Runtime assets are in the repo:** historical CSVs under `api/data/historical/` (~330 MB hourly + yearly panel) and `api/ml_models/scenario_builder.joblib`, which the API loads for scenario simulation.
+**Maintainer pipeline:** `api/preprocess/` holds scripts to regenerate CSVs, reconstruct hourly demand from anchor profiles, retrain models, and produce validation charts. These scripts are **not required at runtime** (committed CSVs and joblib artefacts are served directly). The production Docker image excludes `api/preprocess/` via `.dockerignore`.
+
+**Data scope (committed runtime assets):**
+
+| Asset | Location | Coverage |
+|--------|----------|----------|
+| Yearly panel | `api/data/historical/yearly_historical_data.csv` | 54 African countries; population, demand, access, poverty, generation, renewable shares |
+| Hourly demand | `api/data/historical/hourly/*.csv` | 54 countries, 2016–2023; reconstructed from three anchor load shapes |
+| Scenario model | `api/ml_models/scenario_builder.joblib` | Random Forest growth-panel model for scenario simulation |
+
+Combined data + models are ~360 MB in a full clone.
 
 ---
 
@@ -50,17 +62,21 @@ The API reads **energy data from the filesystem**, not from Postgres. Postgres i
 
 | Route | Purpose |
 |--------|---------|
-| `/in` | Home and onboarding |
-| `/in/map` | Africa map, energy poverty overlay, country hover summary |
-| `/in/visualization` | Historical / realtime charts, yearly and hourly views, data download |
-| `/in/compare` | Multi-country comparison |
-| `/in/simulation` | Scenario builder (slider-driven forecasts) |
+| `/in/map` | Africa map with energy poverty choropleth, year filter, country hover summary |
+| `/in/visualization` | Historical and nowcast charts; yearly and hourly views; CSV/JSON export |
+| `/in/compare` | Multi-country comparison (up to five countries, one indicator, one year) |
+| `/in/scenario-simulation` | Scenario Simulation — Explore or Business-as-usual modes, slider assumptions, forecast charts |
+| `/in/download-data` | Bulk hourly CSV download per country (latest available year) |
+
+Content pages include `/in/methodology`, `/in/data-sources`, `/in/documentation`, `/in/help`, and related links from the sidebar profile menu.
+
+Legacy redirect: `/in/simulation` → `/in/scenario-simulation`.
 
 ### Auth (`/sign-in`, `/sign-up`, etc.)
 
 Email/password registration with verification codes, sign-in (JWT), forgot/reset password. Google sign-in UI is present but not wired to a provider.
 
-**Download gating:** Exporting CSV/JSON on Visualization requires sign-in. Guests see a modal and are returned after login with the chosen format downloaded automatically.
+Most map, chart, comparison, scenario, and download features work **without sign-in**. Accounts are optional (see `/in/faq`).
 
 ---
 
@@ -71,26 +87,29 @@ REPSA/
 ├── src/                    # React frontend
 │   ├── app/                # Redux store, RTK Query, AuthContext, auth API
 │   ├── pages/              # Route pages (auth, in/*)
-│   ├── components/         # UI, modals, inputs, charts helpers
+│   ├── components/         # UI, charts, map (africa.geojson), modals
 │   └── Routes.tsx
 ├── public/                 # Static assets (flags, images, favicon)
 ├── api/
 │   ├── run.py              # Dev entry: python api/run.py
-│   ├── app/                # Flask application factory and routes
+│   ├── wsgi.py             # Production WSGI entry (Gunicorn)
+│   ├── start.sh            # Production startup script
+│   ├── app/                # Flask application factory, routes, services
 │   ├── data/               # Historical CSVs (hourly per country, yearly panel)
 │   ├── ml_models/          # Trained joblib models (committed)
+│   ├── preprocess/         # Maintainer scripts (regenerate data, train, validate)
 │   └── requirements.txt
+├── Dockerfile              # Multi-stage: Node build + Python runtime
+├── railway.toml            # Railway deployment config
 ├── scripts/                # e.g. Africa GeoJSON build
 └── index.html              # Vite entry
 ```
-
-`api/preprocess/` may exist on your machine for rebuilding data and models; it is **not published to GitHub**.
 
 ---
 
 ## Prerequisites
 
-- **Node.js** 18+ and npm
+- **Node.js** 20+ and npm (matches Docker frontend stage)
 - **Python 3.12** (recommended; 3.14 may lack prebuilt wheels for some deps)
 - **PostgreSQL** connection string (e.g. [Neon](https://neon.tech)) for auth
 - **Resend** API key for transactional email
@@ -110,7 +129,7 @@ npm install --legacy-peer-deps
 
 ### 2. Configure frontend environment
 
-Create `src/.env` (or `.env.local`):
+Create `.env` in the repo root (or `src/.env.local`):
 
 ```env
 VITE_API_URL=http://127.0.0.1:5000
@@ -158,21 +177,31 @@ Open the URL Vite prints (usually `http://localhost:5173`).
 
 ### 5. Data and models
 
-**Historical CSVs** (`api/data/historical/`) and **`api/ml_models/`** are included in git. After clone, the API can serve map, visualization, simulation, and story mode without running preprocess.
+Historical CSVs and `scenario_builder.joblib` are included in git. After clone, the API can serve map, visualization, compare, scenario simulation, and downloads without running preprocess.
 
-To regenerate data or retrain models, maintainers use `api/preprocess/` locally, then commit updated files under `api/data/historical/` and/or `api/ml_models/`.
-
-Retrain the scenario builder (maintainers, local `api/preprocess/`):
+**Maintainers** — regenerate hourly profiles, retrain the scenario model, and refresh validation artefacts:
 
 ```bash
+# Hourly reconstruction (see api/preprocess/README.md)
+python api/preprocess/scripts/regenerate_hourly_from_anchors.py
+
+# Scenario model + walk-forward validation charts
 python api/preprocess/train/scenario_builder.py
 ```
+
+Outputs include updated files under `api/data/historical/`, `api/ml_models/scenario_builder.joblib`, and metrics under `api/preprocess/charts/yearly_global_growth_paper/`. Commit updated runtime artefacts after validation.
 
 ---
 
 ## API overview
 
-Base URL: `{VITE_API_URL}` (default `http://127.0.0.1:5000`).
+Base URL: `{VITE_API_URL}` (default `http://127.0.0.1:5000`). In production, the SPA and API share the same origin (`VITE_API_URL` empty at build time).
+
+### Health
+
+| Method | Path | Description |
+|--------|------|-------------|
+| GET | `/health` | Liveness check (`{"status": "ok"}`) |
 
 ### Auth — `/api/auth`
 
@@ -188,27 +217,59 @@ Base URL: `{VITE_API_URL}` (default `http://127.0.0.1:5000`).
 
 ### Historical — `/api/historical`
 
-Includes country summary, country details, available years/countries, energy poverty map data, hourly electricity demand, and related endpoints used by Map, Visualization, and Compare.
+| Method | Path | Description |
+|--------|------|-------------|
+| GET | `/country-details` | Country time series and key figures |
+| GET | `/country-summary` | Summary for a country/year |
+| GET | `/all-countries-energy-poverty` | Map overlay data |
+| GET | `/available-countries` | Country list |
+| GET | `/available-years` | Available years |
+| GET | `/hourly-electricity-demand` | Hourly demand (query: country, year/date/month, format) |
+| GET | `/energy-poverty` | Energy poverty series |
+| GET | `/electricity-demand` | Electricity demand series |
 
 ### Realtime — `/api/realtime`
 
-Near-real-time style indicators per country (cached; see `REALTIME_CACHE_TIMEOUT`).
+| Method | Path | Description |
+|--------|------|-------------|
+| GET | `/realtime-data?country=` | Statistical nowcast of current-year indicators (cached) |
 
-### Scenario simulation — `/api/story-mode`
+These are trend-based estimates, not live grid telemetry.
+
+### Scenario simulation — `/api/scenario-simulation`
 
 | Method | Path | Description |
 |--------|------|-------------|
-| POST | `/simulate-scenario` | Run scenario builder from manual parameters (`policy_metrics` or `scenario_params`) |
+| POST | `/simulate-scenario` | Run scenario from parameters |
+
+Example request body:
+
+```json
+{
+  "country": "Kenya",
+  "start_year": 2025,
+  "target_year": 2050,
+  "scenario_mode": "explore",
+  "scenario_params": {
+    "renewable_target": 80,
+    "energy_access_target": 100,
+    "clean_cooking_target": 70,
+    "population_growth_rate": 0.025
+  }
+}
+```
+
+`scenario_mode`: `explore` (user targets + population growth) or `bau` (historical CAGR extrapolation). Legacy field `policy_metrics` is accepted as an alias for `scenario_params`.
 
 ---
 
 ## Frontend structure (for contributors)
 
-- **State:** Redux Toolkit + RTK Query in `src/app/appSlices/apiSlice.ts` for data APIs; `AuthContext` + `authStorage` for JWT.
-- **Auth forms:** `react-hook-form` + Zod schemas in `src/components/utils/Validations.ts`.
-- **Modals:** `src/components/modals/` (onboarding, country summary, sign-in required, logout confirm, feedback).
+- **State:** Redux Toolkit + RTK Query in `src/app/appSlices/apiSlice.ts`; `AuthContext` + `authStorage` for JWT.
+- **Scenario UI:** `src/pages/in/Simulation.tsx`, charts in `src/components/scenario/ScenarioExplorerCharts.tsx`.
+- **Auth forms:** `react-hook-form` + Zod in `src/components/utils/Validations.ts`.
 - **Styling:** Tailwind theme in `src/index.css` (`blue-1`, `yellow-1`, etc.).
-- **Paths:** Imports use `pages/` and `components/` (lowercase). On Windows, the folder may display as `Pages`; align casing with git to avoid TypeScript `TS1261` warnings.
+- **Paths:** Imports use `pages/` and `components/` (lowercase). On Windows, align folder casing with git to avoid TypeScript `TS1261` warnings.
 
 ### Useful commands
 
@@ -223,9 +284,24 @@ npm run lint     # ESLint
 
 ## Production deployment
 
-**Railway (monolith, repsa.org):** see [DEPLOY.md](DEPLOY.md) for Dockerfile, `railway.toml`, env vars, and first-deploy steps.
+Production uses a **single Docker monolith**: Node builds the SPA; Python serves `/api/*` and static files from `api/static/dist/`.
 
-REPSA is **two deployable parts** plus external services in development; production uses a **single Railway service** that serves the built React app and Flask API together.
+### Railway (repsa.org)
+
+1. Connect the GitHub repo to [Railway](https://railway.app).
+2. Railway reads `railway.toml` and builds from the root `Dockerfile`.
+3. Set environment variables in the Railway dashboard (same as `api/.env` above).
+4. Health check: `GET /health` (timeout 300 s in `railway.toml`).
+5. Gunicorn listens on `PORT` (default **8080** in the Dockerfile).
+
+### Local Docker smoke test
+
+```bash
+docker build -t repsa .
+docker run --rm -p 8080:8080 -e DATABASE_URL=... -e SECRET_KEY=... repsa
+```
+
+Build with `VITE_API_URL=` (empty) so the browser calls `/api/*` on the same host.
 
 ---
 
@@ -242,13 +318,14 @@ REPSA is **two deployable parts** plus external services in development; product
 | `RESEND_FROM_EMAIL` | Recommended | From address for Resend |
 | `JWT_ACCESS_EXPIRES_MINUTES` | No | Default `10080` (7 days) |
 | `YEAR_FILTER_LIMIT` | No | Max filter year (default `2023`) |
-| `REALTIME_CACHE_TIMEOUT` | No | Realtime cache seconds |
+| `REALTIME_CACHE_TIMEOUT` | No | Realtime cache seconds (default `60`) |
+| `CORS_ORIGINS` | No | Comma-separated origins if needed |
 
 ### Frontend
 
 | Variable | Required | Description |
 |----------|----------|-------------|
-| `VITE_API_URL` | No | API base URL; defaults to `http://127.0.0.1:5000` |
+| `VITE_API_URL` | No | API base URL; defaults to `http://127.0.0.1:5000`. Empty in production Docker build. |
 
 Never commit `.env` files. Rotate any keys that were exposed in chat or logs.
 
@@ -264,9 +341,16 @@ Never commit `.env` files. Rotate any keys that were exposed in chat or logs.
 | Scenario simulation fails | Missing `api/ml_models/scenario_builder.joblib` on server |
 | CORS errors in browser | API not running or `VITE_API_URL` mismatch |
 | `TS1261` file name casing | Align `src/pages` vs `Pages` with git on Windows |
+| Unicode errors running preprocess on Windows | Set `PYTHONIOENCODING=utf-8` |
 
 ---
 
-## License and attribution
+## Citation and attribution
 
-Add your license and citation text here if applicable. REPSA is intended as a research and planning tool for African energy systems; acknowledge data sources and model limitations in public deployments.
+When using REPSA in research or policy work, cite the platform and note which layer you used (yearly panel, hourly reconstruction, statistical nowcast, or scenario simulation). Methodology and data provenance are documented at `/in/methodology` and `/in/data-sources`.
+
+Acknowledge underlying data providers (World Bank, Our World in Data, Eskom, Nigeria suppressed-demand dataset, Morocco electricity-demand dataset, and others listed in the app). Hourly profiles for non-anchor countries are reconstructed model outputs, not measured system data.
+
+## License
+
+Add a `LICENSE` file and citation text before public release if not already present.

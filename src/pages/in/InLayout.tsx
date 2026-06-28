@@ -91,10 +91,10 @@ const InLayout = () => {
               expand={expand}
             />
             <MenuIcon
-              link="/in/simulation"
+              link="/in/scenario-simulation"
               img="simulationMenu"
-              label="Simulation"
-              active={location.pathname === "/in/simulation"}
+              label="Scenario Simulation"
+              active={location.pathname === "/in/scenario-simulation"}
               expand={expand}
             />
             <MenuIcon

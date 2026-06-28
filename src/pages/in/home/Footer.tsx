@@ -24,7 +24,7 @@ export const Footer = () => {
                             <div className="flex flex-col gap-y-[12px]">
                                 <Link to="/in/home" className="text-black-4 text-[0.875rem] font-inter hover:text-white-1 transition-colors">Home</Link>
                                 <Link to="/in/map" className="text-black-4 text-[0.875rem] font-inter hover:text-white-1 transition-colors">Explore Map</Link>
-                                <Link to="/in/simulation" className="text-black-4 text-[0.875rem] font-inter hover:text-white-1 transition-colors">Run Simulation</Link>
+                                <Link to="/in/scenario-simulation" className="text-black-4 text-[0.875rem] font-inter hover:text-white-1 transition-colors">Scenario Simulation</Link>
                                 <Link to="/in/visualization" className="text-black-4 text-[0.875rem] font-inter hover:text-white-1 transition-colors">Visualization</Link>
                                 <Link to="/in/compare" className="text-black-4 text-[0.875rem] font-inter hover:text-white-1 transition-colors">Compare Region</Link>
                             </div>

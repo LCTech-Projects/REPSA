@@ -43,6 +43,7 @@ const contentRedirects = [
   "documentation",
   "api-access",
   "download-data",
+  "scenario-simulation",
 ] as const;
 
 export const routes = createBrowserRouter([
@@ -86,8 +87,12 @@ export const routes = createBrowserRouter([
         element: <DownloadData />,
       },
       {
-        path: "simulation",
+        path: "scenario-simulation",
         element: <Simulation />,
+      },
+      {
+        path: "simulation",
+        element: <Navigate to="/in/scenario-simulation" replace />,
       },
       {
         path: "about",

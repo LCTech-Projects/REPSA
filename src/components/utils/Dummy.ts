@@ -36,11 +36,11 @@ export const explore=[
     },
     {
         icon: "/images/simulationExplore.png",
-        text: "Run Simulation",
-        subtext: "Model energy scenario and forecast future needs with advanced simulation tools",
+        text: "Scenario Simulation",
+        subtext: "Model energy scenarios and forecast future needs",
         features: ["Scenario", "Simulations"],
         actionLabel: "Launch",
-        actionLink: "/in/simulation"
+        actionLink: "/in/scenario-simulation"
     },
     {
         icon: "/images/visualizationExplore.png",
