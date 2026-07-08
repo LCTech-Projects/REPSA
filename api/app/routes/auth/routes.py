@@ -33,7 +33,7 @@ def register():
             {
                 "success": True,
                 "data": {"user": user.to_public_dict()},
-                "message": "Account created. Check your email for a verification code.",
+                "message": "Account created. You can sign in now.",
             }
         ), 201
     except AuthError as exc:

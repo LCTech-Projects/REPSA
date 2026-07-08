@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { AuthHeading } from "../../components/cards/AuthHeading";
 import { AuthField } from "../../components/inputs/AuthField";
 import { AuthButton } from "../../components/buttons/AuthButton";
@@ -12,12 +12,16 @@ import {
   type SignUpFormValues,
 } from "../../components/utils/Validations";
 import { register } from "../../app/authApi";
-import { useAppDispatch } from "../../app/hooks";
-import { setPendingEmail } from "../../app/appSlices/generalSlice";
+import { useAuth } from "../../app/AuthContext";
+import type {
+  ReturnLocationState,
+  SignInLocationState,
+} from "../../app/authNavigation";
 
 const SignUp = () => {
   const navigate = useNavigate();
-  const dispatch = useAppDispatch();
+  const location = useLocation();
+  const { signIn } = useAuth();
   const [apiError, setApiError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
@@ -36,8 +40,17 @@ const SignUp = () => {
     setLoading(true);
     try {
       await register(trimmedEmail, data.password);
-      dispatch(setPendingEmail(trimmedEmail));
-      navigate("/verify-email");
+      await signIn(trimmedEmail, data.password);
+      const authState = location.state as SignInLocationState | null;
+      const from = authState?.from ?? "/in/map";
+      const returnState: ReturnLocationState | undefined =
+        authState?.pendingDownloadFormat
+          ? {
+              downloadFormat: authState.pendingDownloadFormat,
+              hourlyDownloadScope: authState.pendingHourlyDownloadScope,
+            }
+          : undefined;
+      navigate(from, { replace: true, state: returnState });
     } catch (err) {
       setApiError(err instanceof Error ? err.message : "Registration failed");
     } finally {

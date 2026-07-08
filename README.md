@@ -74,9 +74,9 @@ Legacy redirect: `/in/simulation` → `/in/scenario-simulation`.
 
 ### Auth (`/sign-in`, `/sign-up`, etc.)
 
-Email/password registration with verification codes, sign-in (JWT), forgot/reset password. Google sign-in UI is present but not wired to a provider.
+Email/password registration with sign-in (JWT), forgot/reset password. Google sign-in UI is present but not wired to a provider. Email verification is currently disabled; new accounts are active immediately after sign-up.
 
-Most map, chart, comparison, scenario, and download features work **without sign-in**. Accounts are optional (see `/in/faq`).
+**Download gating:** Exporting CSV/JSON on **Visualization** requires sign-in. Guests see a modal and can sign in or sign up; after authentication they return to the same view and the download continues automatically. **Download Data** bulk hourly CSVs remain open without an account.
 
 ---
 

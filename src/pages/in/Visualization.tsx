@@ -1,7 +1,12 @@
 import { useState, useEffect, useRef } from "react";
-import { useLocation } from "react-router-dom";
-import type { HourlyDownloadScope } from "../../app/authNavigation";
+import { useLocation, useNavigate } from "react-router-dom";
+import type {
+  DownloadFormat,
+  HourlyDownloadScope,
+} from "../../app/authNavigation";
+import { useAuth } from "../../app/AuthContext";
 import { getApiBaseUrl } from "../../app/apiBaseUrl";
+import { SignInRequiredModal } from "../../components/modals/SignInRequiredModal";
 import {
   useGetAvailableYearsQuery,
   useGetCountryDetailsQuery,
@@ -27,9 +32,13 @@ const TICKING_LIVE_COUNTER_KEYS = [
 
 export const Visualization = () => {
   const location = useLocation();
+  const navigate = useNavigate();
+  const { isAuthenticated } = useAuth();
   const navigationState = location.state as {
     country?: string;
     year?: number | null;
+    downloadFormat?: DownloadFormat;
+    hourlyDownloadScope?: HourlyDownloadScope;
   } | null;
 
   const [dataMode, setDataMode] = useState<DataMode>("historical");
@@ -42,6 +51,10 @@ export const Visualization = () => {
     navigationState?.country || "Algeria",
   );
   const [showDownloadPopup, setShowDownloadPopup] = useState(false);
+  const [showSignInRequired, setShowSignInRequired] = useState(false);
+  const [pendingDownloadFormat, setPendingDownloadFormat] =
+    useState<DownloadFormat | null>(null);
+  const downloadAfterAuthRef = useRef(false);
   const [hourlyDownloadScope, setHourlyDownloadScope] =
     useState<HourlyDownloadScope>("day");
   const [liveRealtimeCounterValues, setLiveRealtimeCounterValues] = useState<
@@ -718,7 +731,13 @@ export const Visualization = () => {
     setShowDownloadPopup(true);
   };
 
-  const handleFormatSelect = (format: "json" | "csv") => {
+  const handleFormatSelect = (format: DownloadFormat) => {
+    if (!isAuthenticated) {
+      setPendingDownloadFormat(format);
+      setShowDownloadPopup(false);
+      setShowSignInRequired(true);
+      return;
+    }
     void handleDownloadData(format);
   };
 
@@ -774,6 +793,55 @@ export const Visualization = () => {
     triggerFileDownload(content, `${fileBase}.${extension}`, mimeType);
     setShowDownloadPopup(false);
   };
+
+  useEffect(() => {
+    const downloadFormat = navigationState?.downloadFormat;
+    if (!downloadFormat || !isAuthenticated) return;
+
+    const preservedState =
+      navigationState?.country != null
+        ? {
+            country: navigationState.country,
+            year: navigationState.year ?? null,
+          }
+        : {};
+
+    navigate(`${location.pathname}${location.search}`, {
+      replace: true,
+      state: preservedState,
+    });
+
+    if (navigationState.hourlyDownloadScope) {
+      setHourlyDownloadScope(navigationState.hourlyDownloadScope);
+    }
+    downloadAfterAuthRef.current = true;
+    setPendingDownloadFormat(downloadFormat);
+  }, [
+    isAuthenticated,
+    navigate,
+    location.pathname,
+    location.search,
+    navigationState?.country,
+    navigationState?.year,
+    navigationState?.downloadFormat,
+    navigationState?.hourlyDownloadScope,
+  ]);
+
+  useEffect(() => {
+    if (
+      !downloadAfterAuthRef.current ||
+      !isAuthenticated ||
+      !hasDownloadData ||
+      !pendingDownloadFormat
+    ) {
+      return;
+    }
+
+    downloadAfterAuthRef.current = false;
+    const format = pendingDownloadFormat;
+    setPendingDownloadFormat(null);
+    void handleDownloadData(format);
+  }, [isAuthenticated, hasDownloadData, pendingDownloadFormat]);
 
   return (
     <div className="p-4 md:p-6 bg-white-1 min-h-screen min-w-0 overflow-x-hidden">
@@ -965,6 +1033,17 @@ export const Visualization = () => {
           </div>
         </div>
       )}
+
+      <SignInRequiredModal
+        isOpen={showSignInRequired}
+        onClose={() => setShowSignInRequired(false)}
+        pendingDownloadFormat={pendingDownloadFormat}
+        pendingHourlyDownloadScope={
+          dataMode === "historical" && viewMode === "hourly"
+            ? hourlyDownloadScope
+            : null
+        }
+      />
 
       {dataMode === "realtime" ? (
         <div className="flex items-center justify-center">

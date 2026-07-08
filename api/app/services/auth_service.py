@@ -54,20 +54,12 @@ def register_user(email: str, password: str) -> User:
     user = User(
         email=normalized,
         password_hash=hash_password(password),
-        email_verified=False,
+        email_verified=True,
     )
     db.session.add(user)
     db.session.commit()
 
-    try:
-        _issue_verification_code(user)
-    except EmailSendError as exc:
-        raise AuthError(
-            "Account created but we could not send a verification email. "
-            "Try again later.",
-            503,
-        ) from exc
-
+    # Email verification is disabled for now; accounts are active immediately.
     return user
 
 
@@ -76,9 +68,6 @@ def sign_in_user(email: str, password: str) -> tuple[User, str]:
     user = User.query.filter_by(email=normalized).first()
     if not user or not verify_password(password, user.password_hash):
         raise AuthError("Invalid email or password", 401)
-
-    if not user.email_verified:
-        raise AuthError("Please verify your email before signing in", 403)
 
     return user, create_access_token(user.id, user.email)
 

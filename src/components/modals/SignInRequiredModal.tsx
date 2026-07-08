@@ -58,7 +58,7 @@ export const SignInRequiredModal = ({
           Sign in required
         </h2>
         <p className="font-inter text-sm text-black-3 mb-6">
-          Please sign in to access data.
+          Please sign in or create a free account to download data.
         </p>
         <div className="flex justify-end gap-3">
           <button
@@ -67,6 +67,24 @@ export const SignInRequiredModal = ({
             className="px-4 py-2 rounded-lg border border-grey-2 font-inter text-sm font-medium text-black-1 hover:bg-grey-1 transition-colors"
           >
             Cancel
+          </button>
+          <button
+            type="button"
+            onClick={() => {
+              const from = returnPath ?? `${location.pathname}${location.search}`;
+              onClose();
+              navigate("/sign-up", {
+                state: {
+                  from,
+                  pendingDownloadFormat: pendingDownloadFormat ?? undefined,
+                  pendingHourlyDownloadScope:
+                    pendingHourlyDownloadScope ?? undefined,
+                },
+              });
+            }}
+            className="px-4 py-2 rounded-lg border border-blue-1 font-inter text-sm font-medium text-blue-1 hover:bg-blue-1/5 transition-colors"
+          >
+            Sign up
           </button>
           <button
             type="button"

@@ -7,7 +7,7 @@ const faqs = [
   {
     id: "1",
     q: "Do I need an account to use REPSA?",
-    a: "You can explore the map, charts, comparison table, simulation, and download CSV or JSON exports without signing in. Creating a free account is optional and mainly useful if you want to save preferences or receive product updates.",
+    a: "You can explore the map, charts, comparison table, and scenario simulation without signing in. Bulk hourly CSV downloads on Download Data are also open. Exporting CSV or JSON from Visualization requires a free account.",
   },
   {
     id: "2",
@@ -32,7 +32,7 @@ const faqs = [
   {
     id: "6",
     q: "Where can I download bulk hourly data?",
-    a: "Open Download Data from the sidebar for hourly CSV files by country. You can also export the current view from Visualization using the download button on any chart.",
+    a: "Open Download Data from the sidebar for hourly CSV files by country (no account required). Exports from Visualization require sign-in.",
   },
   {
     id: "8",

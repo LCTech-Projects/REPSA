@@ -66,15 +66,18 @@ const Help = () => (
 
     <h2 className={sectionHeading}>Accounts and downloads</h2>
     <p className={prose}>
-      Downloads from Visualization and the{" "}
+      Exports from Visualization require a free account. Choose CSV or JSON and
+      sign in or sign up when prompted; you will return to the same view and
+      the download will continue automatically. Bulk hourly CSV files on the{" "}
       <Link to="/in/download-data" className="text-blue-1 hover:underline">
         Download Data
       </Link>{" "}
-      page do not require an account. You may still register with email from{" "}
+      page do not require an account. Map, compare, and scenario views remain
+      available without signing in. Register from{" "}
       <Link to="/sign-up" className="text-blue-1 hover:underline">
         Sign up
       </Link>
-      . Verify your address with the code we send. Password reset flows are under{" "}
+      . Password reset flows are under{" "}
       <Link to="/forgot-password" className="text-blue-1 hover:underline">
         Forgot password
       </Link>
