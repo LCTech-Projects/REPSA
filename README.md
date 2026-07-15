@@ -353,4 +353,4 @@ Acknowledge underlying data providers (World Bank, Our World in Data, Eskom, Nig
 
 ## License
 
-Add a `LICENSE` file and citation text before public release if not already present.
+This project is licensed under the [MIT License](LICENSE).
