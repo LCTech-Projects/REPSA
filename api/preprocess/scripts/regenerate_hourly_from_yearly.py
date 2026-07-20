@@ -154,12 +154,14 @@ def main() -> int:
             access_frac = df["access_pct"] / 100.0
             demand = df["electricity_demand (MWh)"]
 
-            df["electricity_demand_per_capita (MWh/person)"] = np.where(
-                pop > 0, demand / pop, np.nan
+            df["electricity_demand_per_capita (kWh/person)"] = np.where(
+                pop > 0,
+                demand / pop * 1000.0,
+                np.nan,
             )
-            df["electricity_demand_per_capita_with_access (MWh/person)"] = np.where(
+            df["electricity_demand_per_capita_with_access (kWh/person)"] = np.where(
                 (pop > 0) & (access_frac > 0),
-                demand / (pop * access_frac),
+                demand / (pop * access_frac) * 1000.0,
                 np.nan,
             )
 
@@ -168,8 +170,8 @@ def main() -> int:
                     "datetime",
                     "country",
                     "electricity_demand (MWh)",
-                    "electricity_demand_per_capita (MWh/person)",
-                    "electricity_demand_per_capita_with_access (MWh/person)",
+                    "electricity_demand_per_capita (kWh/person)",
+                    "electricity_demand_per_capita_with_access (kWh/person)",
                 ]
             ].copy()
             out["datetime"] = out["datetime"].dt.strftime("%Y-%m-%d %H:%M:%S")
