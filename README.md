@@ -179,11 +179,11 @@ Open the URL Vite prints (usually `http://localhost:5173`).
 
 Historical CSVs and `scenario_builder.joblib` are included in git. After clone, the API can serve map, visualization, compare, scenario simulation, and downloads without running preprocess.
 
-**Maintainers** — regenerate hourly profiles, retrain the scenario model, and refresh validation artefacts:
+**Maintainers** — generate hourly profiles, retrain the scenario model, and refresh validation artefacts:
 
 ```bash
 # Hourly reconstruction (see api/preprocess/README.md)
-python api/preprocess/scripts/regenerate_hourly_from_anchors.py
+python api/preprocess/scripts/generate_hourly_from_anchors.py
 
 # Scenario model + walk-forward validation charts
 python api/preprocess/train/scenario_builder.py

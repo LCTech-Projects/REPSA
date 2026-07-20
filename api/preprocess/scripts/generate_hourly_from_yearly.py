@@ -1,7 +1,7 @@
-"""Regenerate hourly per-capita columns from the yearly panel (no weather model).
+"""Generate hourly per-capita columns from the yearly panel (no weather model).
 
 Run from repo root:
-  python api/preprocess/scripts/regenerate_hourly_from_yearly.py
+  python api/preprocess/scripts/generate_hourly_from_yearly.py
 """
 
 from __future__ import annotations
@@ -13,7 +13,7 @@ from pathlib import Path
 
 
 def _parse_args() -> argparse.Namespace:
-    p = argparse.ArgumentParser(description="Regenerate hourly per-capita columns from yearly panel.")
+    p = argparse.ArgumentParser(description="Generate hourly per-capita columns from yearly panel.")
     p.add_argument(
         "--hourly-dir",
         type=Path,

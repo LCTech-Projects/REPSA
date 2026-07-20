@@ -27,8 +27,8 @@ Artifacts go to `api/ml_models/`.
 ```bash
   python api/preprocess/scripts/build_yearly_historical_from_raw.py --refresh-owid --in-place
   python api/preprocess/scripts/trim_yearly_historical.py --min-year 2016 --in-place
-  python api/preprocess/scripts/regenerate_hourly_from_anchors.py
-  python api/preprocess/scripts/regenerate_hourly_from_yearly.py
+  python api/preprocess/scripts/generate_hourly_from_anchors.py
+  python api/preprocess/scripts/generate_hourly_from_yearly.py
 ```
 
 Anchor reference years: South Africa **2024**, Nigeria **2016**, Morocco **2023**.

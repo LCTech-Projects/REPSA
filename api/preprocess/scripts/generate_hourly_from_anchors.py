@@ -1,4 +1,4 @@
-"""Regenerate hourly electricity demand CSVs via haversine nearest-anchor transfer.
+"""Generate hourly electricity demand CSVs via haversine nearest-anchor transfer.
 
 Anchor reference years (one full calendar year each):
   - South Africa: 2024 (Eskom)
@@ -6,8 +6,8 @@ Anchor reference years (one full calendar year each):
   - Morocco: 2023 (aggregated smart-meter zones)
 
 Run from repo root:
-  python api/preprocess/scripts/regenerate_hourly_from_anchors.py
-  python api/preprocess/scripts/regenerate_hourly_from_anchors.py --dry-run
+  python api/preprocess/scripts/generate_hourly_from_anchors.py
+  python api/preprocess/scripts/generate_hourly_from_anchors.py --dry-run
 """
 
 from __future__ import annotations
@@ -145,7 +145,7 @@ def _build_year_hourly(
 
 
 def _parse_args() -> argparse.Namespace:
-    parser = argparse.ArgumentParser(description="Regenerate hourly CSVs from anchor shape transfer.")
+    parser = argparse.ArgumentParser(description="Generate hourly CSVs from anchor shape transfer.")
     parser.add_argument("--yearly", type=Path, default=YEARLY_CSV)
     parser.add_argument("--output-dir", type=Path, default=HOURLY_DIR)
     parser.add_argument("--min-year", type=int, default=2016)
