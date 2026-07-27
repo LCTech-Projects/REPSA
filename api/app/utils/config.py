@@ -1,4 +1,6 @@
 import os
+from datetime import datetime
+
 
 def _database_url() -> str | None:
     url = os.environ.get("DATABASE_URL")
@@ -6,6 +8,11 @@ def _database_url() -> str | None:
         # Neon/Heroku often use postgres://; SQLAlchemy requires postgresql://
         url = url.replace("postgres://", "postgresql://", 1)
     return url
+
+
+def _default_year_filter_limit() -> int:
+    """Prior calendar year (e.g. 2026 when the current year is 2027)."""
+    return datetime.now().year - 1
 
 
 class Config:
@@ -27,8 +34,9 @@ class Config:
     CACHE_TYPE = 'SimpleCache'
     CACHE_DEFAULT_TIMEOUT = 300
 
-    # Year Filter Limit - Maximum year that can be selected in filters (to avoid incomplete data)
-    YEAR_FILTER_LIMIT = int(os.environ.get('YEAR_FILTER_LIMIT', '2023'))  # Default: 2023
+    # Max selectable historical year: prior calendar year
+    # (e.g. 2026 when the current year is 2027).
+    YEAR_FILTER_LIMIT = _default_year_filter_limit()
 
     # Realtime endpoint cache (seconds). Keep short so timestamp-driven counters stay fresh.
     REALTIME_CACHE_TIMEOUT = int(os.environ.get('REALTIME_CACHE_TIMEOUT', '60'))

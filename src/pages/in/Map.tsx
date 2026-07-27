@@ -105,8 +105,7 @@ export const Map = () => {
           const years = result.data.data.years;
           const latestYear = result.data.data.latest_year;
           setAvailableYears(years);
-          const defaultYear = years.includes(2023) ? 2023 : latestYear;
-          setSelectedYear(defaultYear);
+          setSelectedYear(latestYear ?? (years.length ? years[years.length - 1] : null));
         }
       })
       .catch(() => {

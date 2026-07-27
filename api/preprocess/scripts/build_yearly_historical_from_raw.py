@@ -76,11 +76,41 @@ def _country_list(countries_from: Path) -> list[str]:
     return sorted(path.stem.replace("_", " ") for path in countries_from.glob("*.csv"))
 
 
-def _refresh_owid(path: Path) -> None:
-    response = requests.get(OWID_URL, timeout=180, headers={"User-Agent": "REPSA preprocess/1.0"})
-    response.raise_for_status()
+def _refresh_owid(path: Path, *, retries: int = 3, timeout: tuple[float, float] = (30.0, 300.0)) -> None:
+    """Download latest OWID energy CSV with retries.
+
+    timeout is (connect, read) seconds. Raises the last network error if all
+    attempts fail so callers can choose to abort or continue with a local file.
+    """
     path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_bytes(response.content)
+    tmp_path = path.with_suffix(path.suffix + ".download")
+    last_error: Exception | None = None
+
+    for attempt in range(1, retries + 1):
+        try:
+            print(f"  OWID download attempt {attempt}/{retries}...")
+            with requests.get(
+                OWID_URL,
+                timeout=timeout,
+                headers={"User-Agent": "REPSA preprocess/1.0"},
+                stream=True,
+            ) as response:
+                response.raise_for_status()
+                with tmp_path.open("wb") as handle:
+                    for chunk in response.iter_content(chunk_size=1024 * 1024):
+                        if chunk:
+                            handle.write(chunk)
+            tmp_path.replace(path)
+            print(f"  Wrote {path} ({path.stat().st_size:,} bytes)")
+            return
+        except (requests.RequestException, TimeoutError, OSError) as exc:
+            last_error = exc
+            print(f"  OWID download failed: {exc}")
+            if tmp_path.exists():
+                tmp_path.unlink(missing_ok=True)
+
+    assert last_error is not None
+    raise last_error
 
 
 def _parse_wb_year_column(column: str) -> int | None:
@@ -187,7 +217,16 @@ def build_panel(args: argparse.Namespace) -> pd.DataFrame:
     countries = _country_list(args.countries_from)
     if args.refresh_owid:
         print(f"Downloading latest OWID data to {args.owid}")
-        _refresh_owid(args.owid)
+        try:
+            _refresh_owid(args.owid)
+        except Exception as exc:
+            if args.owid.is_file():
+                print(
+                    f"[WARN] OWID refresh failed ({exc}). "
+                    f"Continuing with existing local file: {args.owid}"
+                )
+            else:
+                raise
 
     owid = _load_owid_panel(args.owid, countries, args.min_year, args.max_year)
     wb = _load_wb_long(args.wb, countries)

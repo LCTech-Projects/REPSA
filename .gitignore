@@ -32,4 +32,8 @@ dist-ssr
 *.sln
 *.sw?
 
+# Preprocess backups
+*.bak
+*.csv.bak
+
 ```

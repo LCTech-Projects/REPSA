@@ -155,7 +155,6 @@ EMAIL_SENDER_API_KEY=re_xxxxxxxx
 RESEND_FROM_EMAIL=REPSA <onboarding@yourdomain.com>
 
 # Optional
-YEAR_FILTER_LIMIT=2023
 REALTIME_CACHE_TIMEOUT=60
 ```
 
@@ -179,17 +178,24 @@ Open the URL Vite prints (usually `http://localhost:5173`).
 
 Historical CSVs and `scenario_builder.joblib` are included in git. After clone, the API can serve map, visualization, compare, scenario simulation, and downloads without running preprocess.
 
-**Maintainers** — generate hourly profiles, retrain the scenario model, and refresh validation artefacts:
+**Maintainers** — extend the yearly panel, regenerate hourly profiles, retrain the scenario model, and refresh validation artefacts:
 
 ```bash
-# Hourly reconstruction (see api/preprocess/README.md)
+# Extend panel to prior calendar year (always refreshes OWID + World Bank first)
+python api/preprocess/scripts/extend_yearly_panel_to_prior_year.py --dry-run
+python api/preprocess/scripts/extend_yearly_panel_to_prior_year.py --in-place --regenerate-hourly
+
+# Offline: skip cloud refresh and use local raw CSVs
+python api/preprocess/scripts/extend_yearly_panel_to_prior_year.py --skip-refresh --in-place
+
+# Or regenerate hourly alone (see api/preprocess/README.md)
 python api/preprocess/scripts/generate_hourly_from_anchors.py
 
 # Scenario model + walk-forward validation charts
 python api/preprocess/train/scenario_builder.py
 ```
 
-Outputs include updated files under `api/data/historical/`, `api/ml_models/scenario_builder.joblib`, and metrics under `api/preprocess/charts/yearly_global_growth_paper/`. Commit updated runtime artefacts after validation.
+Outputs include updated files under `api/data/historical/` (panel, provenance CSV, `panel_metadata.json`), `api/ml_models/scenario_builder.joblib`, and metrics under `api/preprocess/charts/yearly_global_growth_paper/`. Commit updated runtime artefacts after validation. The API caps historical years at **current calendar year − 1**.
 
 ---
 
@@ -317,7 +323,6 @@ Build with `VITE_API_URL=` (empty) so the browser calls `/api/*` on the same hos
 | `EMAIL_SENDER_API_KEY` | Yes (auth emails) | Resend API key |
 | `RESEND_FROM_EMAIL` | Recommended | From address for Resend |
 | `JWT_ACCESS_EXPIRES_MINUTES` | No | Default `10080` (7 days) |
-| `YEAR_FILTER_LIMIT` | No | Max filter year (default `2023`) |
 | `REALTIME_CACHE_TIMEOUT` | No | Realtime cache seconds (default `60`) |
 | `CORS_ORIGINS` | No | Comma-separated origins if needed |
 

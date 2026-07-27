@@ -83,6 +83,3 @@ export const pillars: {
         body: "Documented sources, transparent processing, and downloadable outputs you can cite in research and policy work.",
     },
 ]
-
-
-export const yearFilterLimit=2023

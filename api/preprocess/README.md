@@ -26,10 +26,35 @@ Artifacts go to `api/ml_models/`.
 
 ```bash
   python api/preprocess/scripts/build_yearly_historical_from_raw.py --refresh-owid --in-place
+  python api/preprocess/scripts/extend_yearly_panel_to_prior_year.py --in-place
+  python api/preprocess/scripts/extend_yearly_panel_to_prior_year.py --in-place --regenerate-hourly
+  python api/preprocess/scripts/extend_yearly_panel_to_prior_year.py --skip-refresh --in-place
   python api/preprocess/scripts/trim_yearly_historical.py --min-year 2016 --in-place
   python api/preprocess/scripts/generate_hourly_from_anchors.py
   python api/preprocess/scripts/generate_hourly_from_yearly.py
 ```
+
+### Extend panel to prior calendar year
+
+`extend_yearly_panel_to_prior_year.py` **always refreshes OWID and World Bank first**,
+rebuilds measured values through `current_year - 1`, then fills remaining gaps with
+the same statistical methods used by realtime nowcasting (log-linear / logistic /
+linear + dampening). Use `--skip-refresh` only when offline. It writes:
+
+| Output | Purpose |
+|--------|---------|
+| `api/data/historical/yearly_historical_data.csv` | Extended panel |
+| `api/data/historical/yearly_historical_data_provenance.csv` | measured / estimated / derived flags |
+| `api/data/historical/panel_metadata.json` | Extension run metadata (`extended_to`, etc.) |
+
+Example (2026 run targets 2025):
+
+```bash
+python api/preprocess/scripts/extend_yearly_panel_to_prior_year.py --dry-run
+python api/preprocess/scripts/extend_yearly_panel_to_prior_year.py --in-place --regenerate-hourly
+```
+
+Estimated cells are exploratory completions, not official statistics.
 
 Anchor reference years: South Africa **2024**, Nigeria **2016**, Morocco **2023**.
 Haversine nearest-anchor assignments are written to

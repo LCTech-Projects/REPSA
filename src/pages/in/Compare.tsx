@@ -127,11 +127,10 @@ export const Compare = () => {
     );
   }, [selectedCountries, selectedYear, dispatch]);
 
-  // Set default year to 2023 (or latest year if 2023 not available)
+  // Default year filter to the latest available year
   useEffect(() => {
     if (!selectedYear && availableYears.length > 0) {
-      // Default to 2023 if available, otherwise use latest year
-      const defaultYear = availableYears.includes(2023) ? 2023 : latestYear;
+      const defaultYear = latestYear ?? availableYears[availableYears.length - 1];
       if (defaultYear) {
         setSelectedYear(defaultYear);
       }

@@ -116,7 +116,7 @@ export const Visualization = () => {
       {
         country: selectedCountry,
         start_year: getStartYear(),
-        end_year: selectedYear || 2023,
+        end_year: selectedYear ?? latestYear ?? new Date().getFullYear() - 1,
         selected_year: selectedYear || undefined,
       },
       {
@@ -140,7 +140,7 @@ export const Visualization = () => {
     {
       country: selectedCountry,
       start_year: getStartYear(),
-      end_year: selectedYear || 2023,
+      end_year: selectedYear ?? latestYear ?? new Date().getFullYear() - 1,
       selected_year: selectedYear || undefined,
     },
     {

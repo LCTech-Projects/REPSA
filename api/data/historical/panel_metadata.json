@@ -1,0 +1,18 @@
+{
+  "generated_at": "2026-07-27T11:07:05.967700+00:00",
+  "min_year": 2016,
+  "extended_to": 2025,
+  "prior_calendar_year": 2025,
+  "rows": 540,
+  "countries": 54,
+  "measured_primary_cells": 9131,
+  "estimated_primary_cells": 1027,
+  "method": "measured_first_statistical_completion",
+  "projection_methods": [
+    "dampened_exponential_log_linear",
+    "logistic_logit_linear",
+    "linear_projection",
+    "limit_year_population_growth_rate_exponential"
+  ],
+  "notes": "Years beyond last measured source values are statistically completed using the same method family as /api/realtime. Treat estimated cells as exploratory completions, not official statistics. API historical year cap is current calendar year - 1."
+}

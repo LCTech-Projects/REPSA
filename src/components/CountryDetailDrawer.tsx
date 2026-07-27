@@ -87,7 +87,7 @@ export const CountryDetailDrawer = ({
   useEffect(() => {
     setLoading(true);
     const startYear = getStartYear();
-    const endYear = selectedYear || 2023;
+    const endYear = selectedYear ?? new Date().getFullYear() - 1;
 
     dispatch(
       apiSlice.endpoints.getCountryDetails.initiate({
