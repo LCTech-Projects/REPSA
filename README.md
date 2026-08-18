@@ -203,11 +203,16 @@ Outputs include updated files under `api/data/historical/` (panel, provenance CS
 
 Base URL: `{VITE_API_URL}` (default `http://127.0.0.1:5000`). In production, the SPA and API share the same origin (`VITE_API_URL` empty at build time).
 
+Machine-readable OpenAPI 3 specification: [`api/openapi.yaml`](api/openapi.yaml), also served at `GET /api/openapi.yaml` and `GET /api/openapi.json`. Interactive Swagger UI: `GET /api/docs`.
+
 ### Health
 
 | Method | Path | Description |
 |--------|------|-------------|
 | GET | `/health` | Liveness check (`{"status": "ok"}`) |
+| GET | `/api/docs` | Interactive Swagger UI |
+| GET | `/api/openapi.yaml` | OpenAPI 3 specification (YAML) |
+| GET | `/api/openapi.json` | OpenAPI 3 specification (JSON) |
 
 ### Auth — `/api/auth`
 

@@ -1,6 +1,6 @@
 {
   "rows_clean": 528,
-  "rows_panel": 475,
+  "rows_panel": 419,
   "years_source": [
     2016,
     2017,
@@ -14,16 +14,13 @@
     2025
   ],
   "forecast_years_eval": [
-    2017,
-    2018,
-    2019,
     2020,
     2021,
     2022,
-    2023,
-    2024,
-    2025
+    2023
   ],
+  "max_walkforward_forecast_year": 2023,
+  "excluded_estimated_country_years": 59,
   "features": [
     "country",
     "year",
@@ -58,189 +55,189 @@
       "model": "growth_model",
       "split": "walkforward_pooled",
       "target": "electricity_demand (TWh)",
-      "r2": 0.9977943197026733,
-      "rmse": 2.101051592082535,
-      "mae": 0.7150669084567483
+      "r2": 0.9980101746383353,
+      "rmse": 1.9434922395473677,
+      "mae": 0.6673182256595501
     },
     {
       "model": "growth_model",
       "split": "walkforward_pooled",
       "target": "electricity_demand_per_capita (MWh)",
-      "r2": 0.9963930905260933,
-      "rmse": 0.057107617829528834,
-      "mae": 0.029723127577308148
+      "r2": 0.995596813360214,
+      "rmse": 0.0628113890182597,
+      "mae": 0.032817754570998114
     },
     {
       "model": "growth_model",
       "split": "walkforward_pooled",
       "target": "electricity_demand_per_capita_with_access (MWh)",
-      "r2": 0.9919064195558265,
-      "rmse": 0.08820901293335734,
-      "mae": 0.05329575803745886
+      "r2": 0.9909334501300385,
+      "rmse": 0.09354142265375823,
+      "mae": 0.05616489431869173
     },
     {
       "model": "growth_model",
       "split": "walkforward_pooled",
       "target": "energy_poverty_electricity (% of total population)",
-      "r2": 0.9716211343896037,
-      "rmse": 4.434737462070005,
-      "mae": 1.8865635329186154
+      "r2": 0.9641272550346608,
+      "rmse": 5.059775877415286,
+      "mae": 1.9873168639982126
     },
     {
       "model": "growth_model",
       "split": "walkforward_pooled",
       "target": "energy_poverty_multidimensional (% of total population)",
-      "r2": 0.9981151971776118,
-      "rmse": 1.2385948531851505,
-      "mae": 0.7258215630252638
+      "r2": 0.9977336995603638,
+      "rmse": 1.3647911878178245,
+      "mae": 0.7671087862172478
     },
     {
       "model": "growth_model",
       "split": "walkforward_pooled",
       "target": "carbon_intensity_elec",
-      "r2": 0.9838072243725902,
-      "rmse": 29.695393614835467,
-      "mae": 17.763289370990236
+      "r2": 0.9773331064902638,
+      "rmse": 35.26638126811421,
+      "mae": 22.064033453265182
     },
     {
       "model": "persistence",
       "split": "walkforward_pooled",
       "target": "electricity_demand (TWh)",
-      "r2": 0.9979115532863697,
-      "rmse": 2.044453015553619,
-      "mae": 0.7564905137149018
+      "r2": 0.998610628217024,
+      "rmse": 1.6239945485865594,
+      "mae": 0.6788625592417062
     },
     {
       "model": "persistence",
       "split": "walkforward_pooled",
       "target": "electricity_demand_per_capita (MWh)",
-      "r2": 0.9969346974985099,
-      "rmse": 0.05264572284024483,
-      "mae": 0.028473069366637273
+      "r2": 0.9964164962522732,
+      "rmse": 0.05666420262860396,
+      "mae": 0.03103763706471196
     },
     {
       "model": "persistence",
       "split": "walkforward_pooled",
       "target": "electricity_demand_per_capita_with_access (MWh)",
-      "r2": 0.9915567273991109,
-      "rmse": 0.0900944470349704,
-      "mae": 0.05357663806020676
+      "r2": 0.9908968038172706,
+      "rmse": 0.09373027571175284,
+      "mae": 0.05563217998134102
     },
     {
       "model": "persistence",
       "split": "walkforward_pooled",
       "target": "energy_poverty_electricity (% of total population)",
-      "r2": 0.9892657658508223,
-      "rmse": 2.7274445569361876,
-      "mae": 1.7942367119695002
+      "r2": 0.9909112851844172,
+      "rmse": 2.5468315042225456,
+      "mae": 1.6578199052132705
     },
     {
       "model": "persistence",
       "split": "walkforward_pooled",
       "target": "energy_poverty_multidimensional (% of total population)",
-      "r2": 0.9973615479378949,
-      "rmse": 1.4654496896274387,
-      "mae": 1.0549408529234507
+      "r2": 0.9971840970590458,
+      "rmse": 1.521305056794785,
+      "mae": 1.0657582938388628
     },
     {
       "model": "persistence",
       "split": "walkforward_pooled",
       "target": "carbon_intensity_elec",
-      "r2": 0.9849389750945109,
-      "rmse": 28.63885829071646,
-      "mae": 15.182454290126426
+      "r2": 0.9787202290528041,
+      "rmse": 34.170266876169194,
+      "mae": 18.959905213270144
     },
     {
       "model": "country_growth",
       "split": "walkforward_pooled",
       "target": "electricity_demand (TWh)",
-      "r2": 0.9983412982230554,
-      "rmse": 1.8220051066308938,
-      "mae": 0.6624882310998309
+      "r2": 0.9988276978056198,
+      "rmse": 1.4917468134242393,
+      "mae": 0.6168070722424811
     },
     {
       "model": "country_growth",
       "split": "walkforward_pooled",
       "target": "electricity_demand_per_capita (MWh)",
-      "r2": 0.9963018746016742,
-      "rmse": 0.05782521283491927,
-      "mae": 0.03028590910434725
+      "r2": 0.9954603294470784,
+      "rmse": 0.06377743059042595,
+      "mae": 0.034640350960849234
     },
     {
       "model": "country_growth",
       "split": "walkforward_pooled",
       "target": "electricity_demand_per_capita_with_access (MWh)",
-      "r2": 0.9910072726520021,
-      "rmse": 0.09297974088798205,
-      "mae": 0.056153949551973587
+      "r2": 0.989591511772512,
+      "rmse": 0.10022516295626467,
+      "mae": 0.06089211916751572
     },
     {
       "model": "country_growth",
       "split": "walkforward_pooled",
       "target": "energy_poverty_electricity (% of total population)",
-      "r2": 0.9921432521624742,
-      "rmse": 2.333414037484425,
-      "mae": 1.2972016583435224
+      "r2": 0.9935228321525864,
+      "rmse": 2.150015302251328,
+      "mae": 1.1482791943552426
     },
     {
       "model": "country_growth",
       "split": "walkforward_pooled",
       "target": "energy_poverty_multidimensional (% of total population)",
-      "r2": 0.9988224841357197,
-      "rmse": 0.978993239528283,
-      "mae": 0.5102579125386169
+      "r2": 0.9985421919503893,
+      "rmse": 1.094605535675,
+      "mae": 0.5783885755640138
     },
     {
       "model": "country_growth",
       "split": "walkforward_pooled",
       "target": "carbon_intensity_elec",
-      "r2": 0.980167443237878,
-      "rmse": 32.86380084801562,
-      "mae": 17.73290940554225
+      "r2": 0.97166919918198,
+      "rmse": 39.42705345076303,
+      "mae": 23.499704247390948
     }
   ],
   "coverage": [
     {
       "target": "electricity_demand (TWh)",
       "pi_nominal": 0.8,
-      "resid_q_low": -0.6368027562488372,
-      "resid_q_high": 0.6409338556901698,
-      "coverage_empirical": 0.7974683544303798
+      "resid_q_low": -0.6996419129545757,
+      "resid_q_high": 0.5415173423806419,
+      "coverage_empirical": 0.8009478672985783
     },
     {
       "target": "electricity_demand_per_capita (MWh)",
       "pi_nominal": 0.8,
-      "resid_q_low": -0.04304553238789005,
-      "resid_q_high": 0.043514021868361674,
-      "coverage_empirical": 0.7974683544303798
+      "resid_q_low": -0.05763598007172721,
+      "resid_q_high": 0.04641223749126866,
+      "coverage_empirical": 0.8009478672985783
     },
     {
       "target": "electricity_demand_per_capita_with_access (MWh)",
       "pi_nominal": 0.8,
-      "resid_q_low": -0.08787417410576585,
-      "resid_q_high": 0.0732677344241626,
-      "coverage_empirical": 0.7974683544303798
+      "resid_q_low": -0.09639120912667759,
+      "resid_q_high": 0.083015601776109,
+      "coverage_empirical": 0.8009478672985783
     },
     {
       "target": "energy_poverty_electricity (% of total population)",
       "pi_nominal": 0.8,
-      "resid_q_low": -1.4358501730511897,
-      "resid_q_high": 2.948095930242623,
-      "coverage_empirical": 0.7974683544303798
+      "resid_q_low": -1.3151056795852156,
+      "resid_q_high": 2.384954282847289,
+      "coverage_empirical": 0.8009478672985783
     },
     {
       "target": "energy_poverty_multidimensional (% of total population)",
       "pi_nominal": 0.8,
-      "resid_q_low": -0.7535478830933933,
-      "resid_q_high": 1.293897584623906,
-      "coverage_empirical": 0.7974683544303798
+      "resid_q_low": -0.6324635602729103,
+      "resid_q_high": 1.3962418128279381,
+      "coverage_empirical": 0.8009478672985783
     },
     {
       "target": "carbon_intensity_elec",
       "pi_nominal": 0.8,
-      "resid_q_low": -26.303478219815844,
-      "resid_q_high": 23.072701761841444,
-      "coverage_empirical": 0.7974683544303798
+      "resid_q_low": -39.48820134470668,
+      "resid_q_high": 28.590407742732168,
+      "coverage_empirical": 0.8009478672985783
     }
   ],
   "artifacts": {

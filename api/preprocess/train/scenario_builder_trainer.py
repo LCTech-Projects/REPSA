@@ -10,6 +10,10 @@ What this script adds for defensibility:
 4) Reports uncertainty via empirical residual intervals (80% PI).
 5) Saves figures and machine-readable metrics.
 
+Walk-forward evaluation uses measured outcomes only (forecast years 2017-2023).
+Statistically completed 2024-2025 values are excluded from training labels and
+from the reported metrics.
+
 Outputs
 -------
 Model bundle:
@@ -24,7 +28,7 @@ from __future__ import annotations
 import json
 import shutil
 from pathlib import Path
-from typing import Dict, List, Tuple
+from typing import Dict, List, Optional, Set, Tuple
 
 import joblib
 import numpy as np
@@ -58,9 +62,18 @@ EXOGENOUS_COLUMNS = [
 
 EPS = 1e-6
 INTENSITY_TARGET = "carbon_intensity_elec"
+MAX_WALKFORWARD_FORECAST_YEAR = 2023
+PROVENANCE_OUTCOME_COLUMNS = [
+    "electricity_demand (TWh)",
+    "energy_poverty_electricity (% of total population)",
+    "energy_poverty_multidimensional (% of total population)",
+    "carbon_intensity_elec",
+    "population",
+    "Access to electricity (% of total population)",
+]
 
 DISPLAY_TARGET_LABELS = {
-    "carbon_intensity_elec": "carbon_intensity_elec (MtCO₂e/TWh)",
+    "carbon_intensity_elec": "carbon_intensity_elec (gCO₂/kWh)",
     "electricity_demand_per_capita (MWh)": "electricity_demand_per_capita (MWh/person)",
     "electricity_demand_per_capita_with_access (MWh)": "electricity_demand_per_capita_with_access (MWh/person)",
 }
@@ -81,6 +94,7 @@ def _paths() -> Dict[str, Path]:
 
     return {
         "data_path": data_path,
+        "provenance_path": api_root / "data" / "historical" / "yearly_historical_data_provenance.csv",
         "charts_dir": charts_dir,
         "model_dir": model_dir,
         "model_path": model_dir / "scenario_builder.joblib",
@@ -127,7 +141,32 @@ def _clean_data(df: pd.DataFrame) -> pd.DataFrame:
     return out
 
 
-def _build_panel_learning_frame(df: pd.DataFrame) -> pd.DataFrame:
+def _estimated_country_years(provenance_path: Path) -> Set[Tuple[str, int]]:
+    """Country-years where any walk-forward outcome was statistically completed."""
+    if not provenance_path.is_file():
+        return set()
+
+    prov = pd.read_csv(provenance_path)
+    required = {"country", "year", "column", "source"}
+    missing = required - set(prov.columns)
+    if missing:
+        raise KeyError(f"Provenance file missing columns: {sorted(missing)}")
+
+    relevant = prov[prov["column"].isin(PROVENANCE_OUTCOME_COLUMNS)].copy()
+    relevant["country"] = relevant["country"].astype(str).str.strip()
+    relevant["year"] = pd.to_numeric(relevant["year"], errors="coerce")
+    relevant = relevant.dropna(subset=["country", "year"])
+    estimated = relevant[relevant["source"].astype(str).str.strip().str.lower() == "estimated"]
+    return {
+        (str(row["country"]), int(row["year"]))
+        for _, row in estimated[["country", "year"]].drop_duplicates().iterrows()
+    }
+
+
+def _build_panel_learning_frame(
+    df: pd.DataFrame,
+    estimated_country_years: Optional[Set[Tuple[str, int]]] = None,
+) -> pd.DataFrame:
     panel = df.copy()
 
     # next-year levels for each target
@@ -150,6 +189,18 @@ def _build_panel_learning_frame(df: pd.DataFrame) -> pd.DataFrame:
         panel[f"y_growth::{t}"] = _safe_growth(
             panel[t].to_numpy(dtype=float), panel[f"next::{t}"].to_numpy(dtype=float)
         )
+
+    if estimated_country_years:
+        panel = panel.reset_index(drop=True)
+        current_keys = list(
+            zip(panel["country"].astype(str).str.strip(), panel["year"].astype(int))
+        )
+        next_keys = list(
+            zip(panel["country"].astype(str).str.strip(), panel["forecast_year"].astype(int))
+        )
+        current_ok = np.array([key not in estimated_country_years for key in current_keys])
+        next_ok = np.array([key not in estimated_country_years for key in next_keys])
+        panel = panel.loc[current_ok & next_ok].copy()
 
     return panel.reset_index(drop=True)
 
@@ -274,6 +325,7 @@ def _country_growth_baseline(train_df: pd.DataFrame, test_df: pd.DataFrame) -> n
 
 def _build_walkforward_splits(panel: pd.DataFrame, min_train_years: int = 3) -> List[int]:
     forecast_years = sorted(panel["forecast_year"].astype(int).unique().tolist())
+    forecast_years = [y for y in forecast_years if y <= MAX_WALKFORWARD_FORECAST_YEAR]
     if len(forecast_years) <= min_train_years:
         return []
 
@@ -600,7 +652,8 @@ def run_pipeline() -> Dict[str, str]:
 
     raw = pd.read_csv(paths["data_path"])
     data = _clean_data(raw)
-    panel = _build_panel_learning_frame(data)
+    estimated_country_years = _estimated_country_years(paths["provenance_path"])
+    panel = _build_panel_learning_frame(data, estimated_country_years=estimated_country_years)
 
     if len(panel) < 300:
         raise ValueError(f"Insufficient panel rows after preprocessing: {len(panel)}")
@@ -643,7 +696,9 @@ def run_pipeline() -> Dict[str, str]:
         "rows_clean": int(len(data)),
         "rows_panel": int(len(panel)),
         "years_source": sorted(data["year"].astype(int).unique().tolist()),
-        "forecast_years_eval": sorted(panel["forecast_year"].astype(int).unique().tolist()),
+        "forecast_years_eval": sorted(pred_df["year_t_plus_1"].astype(int).unique().tolist()),
+        "max_walkforward_forecast_year": MAX_WALKFORWARD_FORECAST_YEAR,
+        "excluded_estimated_country_years": len(estimated_country_years),
         "features": final_model["feature_columns"],
         "targets": TARGET_COLUMNS,
         "metrics": metrics_df.to_dict(orient="records"),

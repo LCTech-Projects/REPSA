@@ -9,6 +9,7 @@ load_dotenv()
 
 from .extensions import db, migrate
 from .routes.auth import auth_bp
+from .routes.docs import docs_bp
 from .routes.historical.yearly.electricity_demand import electricity_demand_bp
 from .routes.historical.yearly.energy_poverty import energy_poverty_bp
 from .routes.historical.yearly.production_aggregate import production_aggregate_bp
@@ -55,6 +56,7 @@ def create_app():
     def health():
         return jsonify({"status": "ok"}), 200
 
+    app.register_blueprint(docs_bp, url_prefix="/api")
     app.register_blueprint(electricity_demand_bp, url_prefix="/api/historical")
     app.register_blueprint(energy_poverty_bp, url_prefix="/api/historical")
     app.register_blueprint(production_aggregate_bp, url_prefix="/api/historical")

@@ -1,19 +1,19 @@
 model,split,target,r2,rmse,mae
-growth_model,walkforward_pooled,electricity_demand (TWh),0.9977943197026733,2.101051592082535,0.7150669084567483
-growth_model,walkforward_pooled,electricity_demand_per_capita (MWh),0.9963930905260933,0.057107617829528834,0.029723127577308148
-growth_model,walkforward_pooled,electricity_demand_per_capita_with_access (MWh),0.9919064195558265,0.08820901293335734,0.05329575803745886
-growth_model,walkforward_pooled,energy_poverty_electricity (% of total population),0.9716211343896037,4.434737462070005,1.8865635329186154
-growth_model,walkforward_pooled,energy_poverty_multidimensional (% of total population),0.9981151971776118,1.2385948531851505,0.7258215630252638
-growth_model,walkforward_pooled,carbon_intensity_elec,0.9838072243725902,29.695393614835467,17.763289370990236
-persistence,walkforward_pooled,electricity_demand (TWh),0.9979115532863697,2.044453015553619,0.7564905137149018
-persistence,walkforward_pooled,electricity_demand_per_capita (MWh),0.9969346974985099,0.05264572284024483,0.028473069366637273
-persistence,walkforward_pooled,electricity_demand_per_capita_with_access (MWh),0.9915567273991109,0.0900944470349704,0.05357663806020676
-persistence,walkforward_pooled,energy_poverty_electricity (% of total population),0.9892657658508223,2.7274445569361876,1.7942367119695002
-persistence,walkforward_pooled,energy_poverty_multidimensional (% of total population),0.9973615479378949,1.4654496896274387,1.0549408529234507
-persistence,walkforward_pooled,carbon_intensity_elec,0.9849389750945109,28.63885829071646,15.182454290126426
-country_growth,walkforward_pooled,electricity_demand (TWh),0.9983412982230554,1.8220051066308938,0.6624882310998309
-country_growth,walkforward_pooled,electricity_demand_per_capita (MWh),0.9963018746016742,0.05782521283491927,0.03028590910434725
-country_growth,walkforward_pooled,electricity_demand_per_capita_with_access (MWh),0.9910072726520021,0.09297974088798205,0.056153949551973587
-country_growth,walkforward_pooled,energy_poverty_electricity (% of total population),0.9921432521624742,2.333414037484425,1.2972016583435224
-country_growth,walkforward_pooled,energy_poverty_multidimensional (% of total population),0.9988224841357197,0.978993239528283,0.5102579125386169
-country_growth,walkforward_pooled,carbon_intensity_elec,0.980167443237878,32.86380084801562,17.73290940554225
+growth_model,walkforward_pooled,electricity_demand (TWh),0.9980101746383353,1.9434922395473677,0.6673182256595501
+growth_model,walkforward_pooled,electricity_demand_per_capita (MWh),0.995596813360214,0.0628113890182597,0.032817754570998114
+growth_model,walkforward_pooled,electricity_demand_per_capita_with_access (MWh),0.9909334501300385,0.09354142265375823,0.05616489431869173
+growth_model,walkforward_pooled,energy_poverty_electricity (% of total population),0.9641272550346608,5.059775877415286,1.9873168639982126
+growth_model,walkforward_pooled,energy_poverty_multidimensional (% of total population),0.9977336995603638,1.3647911878178245,0.7671087862172478
+growth_model,walkforward_pooled,carbon_intensity_elec,0.9773331064902638,35.26638126811421,22.064033453265182
+persistence,walkforward_pooled,electricity_demand (TWh),0.998610628217024,1.6239945485865594,0.6788625592417062
+persistence,walkforward_pooled,electricity_demand_per_capita (MWh),0.9964164962522732,0.05666420262860396,0.03103763706471196
+persistence,walkforward_pooled,electricity_demand_per_capita_with_access (MWh),0.9908968038172706,0.09373027571175284,0.05563217998134102
+persistence,walkforward_pooled,energy_poverty_electricity (% of total population),0.9909112851844172,2.5468315042225456,1.6578199052132705
+persistence,walkforward_pooled,energy_poverty_multidimensional (% of total population),0.9971840970590458,1.521305056794785,1.0657582938388628
+persistence,walkforward_pooled,carbon_intensity_elec,0.9787202290528041,34.170266876169194,18.959905213270144
+country_growth,walkforward_pooled,electricity_demand (TWh),0.9988276978056198,1.4917468134242393,0.6168070722424811
+country_growth,walkforward_pooled,electricity_demand_per_capita (MWh),0.9954603294470784,0.06377743059042595,0.034640350960849234
+country_growth,walkforward_pooled,electricity_demand_per_capita_with_access (MWh),0.989591511772512,0.10022516295626467,0.06089211916751572
+country_growth,walkforward_pooled,energy_poverty_electricity (% of total population),0.9935228321525864,2.150015302251328,1.1482791943552426
+country_growth,walkforward_pooled,energy_poverty_multidimensional (% of total population),0.9985421919503893,1.094605535675,0.5783885755640138
+country_growth,walkforward_pooled,carbon_intensity_elec,0.97166919918198,39.42705345076303,23.499704247390948

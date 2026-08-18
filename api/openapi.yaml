@@ -1,0 +1,675 @@
+openapi: 3.0.3
+info:
+  title: REPSA API
+  version: 1.0.0
+  description: |
+    REST API for Renewable Energy Planning for Africa (REPSA).
+
+    The API serves a harmonised country-year panel and reconstructed hourly
+    electricity demand for 54 African countries (2016–2025), energy-poverty
+    indicators, statistical nowcasts, and exploratory scenario simulation.
+
+    Interactive documentation is at `/api/docs`. This OpenAPI file is the
+    machine-readable specification.
+  contact:
+    email: boomfem@cdut.edu.cn
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+servers:
+  - url: https://repsa.org
+    description: Production
+  - url: http://127.0.0.1:5000
+    description: Local development
+tags:
+  - name: Health
+  - name: Historical
+  - name: Realtime
+  - name: Scenario
+  - name: Auth
+paths:
+  /health:
+    get:
+      tags: [Health]
+      summary: Liveness check
+      operationId: getHealth
+      responses:
+        "200":
+          description: Service is running
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: ok
+  /api/openapi.yaml:
+    get:
+      tags: [Health]
+      summary: OpenAPI specification (YAML)
+      operationId: getOpenApiYaml
+      responses:
+        "200":
+          description: OpenAPI 3 document
+          content:
+            application/yaml:
+              schema:
+                type: string
+  /api/openapi.json:
+    get:
+      tags: [Health]
+      summary: OpenAPI specification (JSON)
+      operationId: getOpenApiJson
+      responses:
+        "200":
+          description: OpenAPI 3 document
+          content:
+            application/json:
+              schema:
+                type: object
+  /api/historical/electricity-demand:
+    get:
+      tags: [Historical]
+      summary: Annual electricity demand
+      operationId: getElectricityDemand
+      parameters:
+        - $ref: "#/components/parameters/CountryQuery"
+        - $ref: "#/components/parameters/YearQuery"
+        - $ref: "#/components/parameters/StartYearQuery"
+        - $ref: "#/components/parameters/EndYearQuery"
+        - $ref: "#/components/parameters/FormatQuery"
+      responses:
+        "200":
+          description: Demand series as JSON, or CSV download when format=csv
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SuccessList"
+            text/csv:
+              schema:
+                type: string
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "500":
+          $ref: "#/components/responses/ServerError"
+  /api/historical/energy-poverty:
+    get:
+      tags: [Historical]
+      summary: Energy poverty indicators
+      operationId: getEnergyPoverty
+      parameters:
+        - $ref: "#/components/parameters/CountryQuery"
+        - $ref: "#/components/parameters/YearQuery"
+        - $ref: "#/components/parameters/StartYearQuery"
+        - $ref: "#/components/parameters/EndYearQuery"
+        - $ref: "#/components/parameters/FormatQuery"
+      responses:
+        "200":
+          description: Poverty series as JSON, or CSV download when format=csv
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SuccessList"
+            text/csv:
+              schema:
+                type: string
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "500":
+          $ref: "#/components/responses/ServerError"
+  /api/historical/production-aggregate:
+    get:
+      tags: [Historical]
+      summary: Electricity production aggregates
+      operationId: getProductionAggregate
+      parameters:
+        - $ref: "#/components/parameters/CountryQuery"
+        - $ref: "#/components/parameters/YearQuery"
+        - $ref: "#/components/parameters/StartYearQuery"
+        - $ref: "#/components/parameters/EndYearQuery"
+        - $ref: "#/components/parameters/FormatQuery"
+      responses:
+        "200":
+          description: Production series as JSON, or CSV download when format=csv
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SuccessList"
+            text/csv:
+              schema:
+                type: string
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "500":
+          $ref: "#/components/responses/ServerError"
+  /api/historical/country-summary:
+    get:
+      tags: [Historical]
+      summary: Country summary for a single year
+      operationId: getCountrySummary
+      parameters:
+        - $ref: "#/components/parameters/CountryRequired"
+        - $ref: "#/components/parameters/YearQuery"
+      responses:
+        "200":
+          description: Access, renewable share, and energy poverty for map hover
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SuccessObject"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "500":
+          $ref: "#/components/responses/ServerError"
+  /api/historical/country-details:
+    get:
+      tags: [Historical]
+      summary: Country time series and key figures
+      operationId: getCountryDetails
+      parameters:
+        - $ref: "#/components/parameters/CountryRequired"
+        - $ref: "#/components/parameters/StartYearQuery"
+        - $ref: "#/components/parameters/EndYearQuery"
+        - name: selected_year
+          in: query
+          schema:
+            type: integer
+            example: 2023
+          description: Year used for headline statistics
+      responses:
+        "200":
+          description: Detailed country metrics and time series
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SuccessObject"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "500":
+          $ref: "#/components/responses/ServerError"
+  /api/historical/all-countries-energy-poverty:
+    get:
+      tags: [Historical]
+      summary: Energy poverty for all countries in one year
+      operationId: getAllCountriesEnergyPoverty
+      parameters:
+        - $ref: "#/components/parameters/YearQuery"
+      responses:
+        "200":
+          description: Map overlay values keyed by country name
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SuccessObject"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "500":
+          $ref: "#/components/responses/ServerError"
+  /api/historical/available-countries:
+    get:
+      tags: [Historical]
+      summary: Countries with historical coverage
+      operationId: getAvailableCountries
+      responses:
+        "200":
+          description: Country name list
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    type: array
+                    items:
+                      type: string
+                  metadata:
+                    type: object
+                    properties:
+                      total_countries:
+                        type: integer
+        "500":
+          $ref: "#/components/responses/ServerError"
+  /api/historical/available-years:
+    get:
+      tags: [Historical]
+      summary: Years available in the yearly panel
+      operationId: getAvailableYears
+      responses:
+        "200":
+          description: Year list and latest year
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    type: object
+                    properties:
+                      years:
+                        type: array
+                        items:
+                          type: integer
+                      latest_year:
+                        type: integer
+        "500":
+          $ref: "#/components/responses/ServerError"
+  /api/historical/available-years/{country}:
+    get:
+      tags: [Historical]
+      summary: Hourly years available for one country
+      operationId: getHourlyAvailableYears
+      parameters:
+        - name: country
+          in: path
+          required: true
+          schema:
+            type: string
+            example: Kenya
+      responses:
+        "200":
+          description: Years with reconstructed hourly demand
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SuccessObject"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "500":
+          $ref: "#/components/responses/ServerError"
+  /api/historical/hourly-electricity-demand:
+    get:
+      tags: [Historical]
+      summary: Reconstructed hourly electricity demand
+      description: |
+        Provide exactly one of `date` (YYYY-MM-DD), `month` (YYYY-MM), or `year`.
+        Hourly values are scaled so that they sum to the annual demand total.
+      operationId: getHourlyElectricityDemand
+      parameters:
+        - $ref: "#/components/parameters/CountryRequired"
+        - name: date
+          in: query
+          schema:
+            type: string
+            format: date
+            example: "2023-01-15"
+        - name: month
+          in: query
+          schema:
+            type: string
+            example: "2023-01"
+            description: Year-month as YYYY-MM
+        - name: year
+          in: query
+          schema:
+            type: integer
+            example: 2023
+        - $ref: "#/components/parameters/FormatQuery"
+      responses:
+        "200":
+          description: Hourly series as JSON, or CSV download when format=csv
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SuccessList"
+            text/csv:
+              schema:
+                type: string
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "500":
+          $ref: "#/components/responses/ServerError"
+  /api/realtime/realtime-data:
+    get:
+      tags: [Realtime]
+      summary: Statistical nowcast for the current year
+      description: |
+        Trend-based estimates where official statistics are delayed.
+        These are not live grid telemetry.
+      operationId: getRealtimeData
+      parameters:
+        - $ref: "#/components/parameters/CountryRequired"
+      responses:
+        "200":
+          description: Projected indicators, method labels, and uncertainty
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SuccessObject"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "500":
+          $ref: "#/components/responses/ServerError"
+  /api/scenario-simulation/simulate-scenario:
+    post:
+      tags: [Scenario]
+      summary: Run an exploratory or business-as-usual scenario
+      operationId: simulateScenario
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ScenarioRequest"
+            example:
+              country: Kenya
+              start_year: 2025
+              target_year: 2050
+              scenario_mode: explore
+              scenario_params:
+                renewable_target: 80
+                energy_access_target: 100
+                clean_cooking_target: 70
+                population_growth_rate: 0.025
+      responses:
+        "200":
+          description: Simulated trajectories, baselines, and uncertainty bands
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SuccessObject"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "500":
+          $ref: "#/components/responses/ServerError"
+  /api/auth/register:
+    post:
+      tags: [Auth]
+      summary: Create an account
+      operationId: register
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/EmailPassword"
+      responses:
+        "201":
+          description: Account created
+        "400":
+          $ref: "#/components/responses/BadRequest"
+  /api/auth/sign-in:
+    post:
+      tags: [Auth]
+      summary: Sign in and receive a JWT
+      operationId: signIn
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/EmailPassword"
+      responses:
+        "200":
+          description: Access token and user
+        "400":
+          $ref: "#/components/responses/BadRequest"
+  /api/auth/verify-email:
+    post:
+      tags: [Auth]
+      summary: Confirm email with a verification code
+      operationId: verifyEmail
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [email, code]
+              properties:
+                email:
+                  type: string
+                  format: email
+                code:
+                  type: string
+      responses:
+        "200":
+          description: Email verified
+        "400":
+          $ref: "#/components/responses/BadRequest"
+  /api/auth/resend-verification:
+    post:
+      tags: [Auth]
+      summary: Resend verification code
+      operationId: resendVerification
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/EmailOnly"
+      responses:
+        "200":
+          description: If the account exists, a code is sent
+        "400":
+          $ref: "#/components/responses/BadRequest"
+  /api/auth/forgot-password:
+    post:
+      tags: [Auth]
+      summary: Request a password reset code
+      operationId: forgotPassword
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/EmailOnly"
+      responses:
+        "200":
+          description: If the account exists, a reset code is sent
+        "400":
+          $ref: "#/components/responses/BadRequest"
+  /api/auth/reset-password:
+    post:
+      tags: [Auth]
+      summary: Set a new password
+      operationId: resetPassword
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [email, code, password]
+              properties:
+                email:
+                  type: string
+                  format: email
+                code:
+                  type: string
+                password:
+                  type: string
+                  format: password
+      responses:
+        "200":
+          description: Password updated
+        "400":
+          $ref: "#/components/responses/BadRequest"
+  /api/auth/me:
+    get:
+      tags: [Auth]
+      summary: Current user
+      operationId: getMe
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Authenticated user
+        "401":
+          description: Missing or invalid token
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  parameters:
+    CountryQuery:
+      name: country
+      in: query
+      schema:
+        type: string
+        example: Kenya
+      description: Country name. Omit to return all countries.
+    CountryRequired:
+      name: country
+      in: query
+      required: true
+      schema:
+        type: string
+        example: Kenya
+    YearQuery:
+      name: year
+      in: query
+      schema:
+        type: integer
+        example: 2023
+      description: Single year. Do not combine with start_year/end_year.
+    StartYearQuery:
+      name: start_year
+      in: query
+      schema:
+        type: integer
+        example: 2016
+    EndYearQuery:
+      name: end_year
+      in: query
+      schema:
+        type: integer
+        example: 2025
+    FormatQuery:
+      name: format
+      in: query
+      schema:
+        type: string
+        enum: [json, csv]
+        default: json
+  schemas:
+    Error:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: false
+        error:
+          type: string
+        message:
+          type: string
+    SuccessList:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: true
+        data:
+          type: array
+          items:
+            type: object
+            additionalProperties: true
+        metadata:
+          type: object
+          additionalProperties: true
+    SuccessObject:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: true
+        data:
+          type: object
+          additionalProperties: true
+        metadata:
+          type: object
+          additionalProperties: true
+    EmailPassword:
+      type: object
+      required: [email, password]
+      properties:
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+          format: password
+    EmailOnly:
+      type: object
+      required: [email]
+      properties:
+        email:
+          type: string
+          format: email
+    ScenarioRequest:
+      type: object
+      properties:
+        country:
+          type: string
+          example: Kenya
+        start_year:
+          type: integer
+          minimum: 2025
+          maximum: 2099
+          default: 2025
+        target_year:
+          type: integer
+          minimum: 2025
+          maximum: 2100
+          default: 2100
+        scenario_mode:
+          type: string
+          enum: [explore, bau]
+          default: explore
+        scenario_params:
+          type: object
+          properties:
+            renewable_target:
+              type: number
+              description: Renewable electricity share target (percent)
+            energy_access_target:
+              type: number
+              description: Electricity access target (percent)
+            clean_cooking_target:
+              type: number
+              description: Clean cooking access target (percent)
+            population_growth_rate:
+              type: number
+              description: Annual population growth rate (fraction)
+        policy_metrics:
+          type: object
+          description: Legacy alias for scenario_params
+          additionalProperties: true
+  responses:
+    BadRequest:
+      description: Invalid parameters
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
+    NotFound:
+      description: Country or resource not found
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
+    ServerError:
+      description: Unexpected server error
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
