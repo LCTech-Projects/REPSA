@@ -51,7 +51,7 @@ PANELS = (
         "year": ANCHOR_REFERENCE_YEARS["South Africa"],
     },
     {
-        "filename": "nigeria_suppressed_demand_pattern.png",
+        "filename": "nigeria_demand_pattern.png",
         "truth_path": NIGERIA_HOURLY_TRUTH,
         "loader": load_nigeria_timeseries,
         "country": "Nigeria",

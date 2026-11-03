@@ -1,7 +1,7 @@
-"""Build summary tables for Section 4 validation write-ups.
+"""Build compact validation summary tables for the data paper.
 
 Run from repo root:
-  python api/preprocess/figures/generate_section4_tables.py
+  python api/preprocess/figures/generate_validation_summary_tables.py
 """
 
 from __future__ import annotations
@@ -10,15 +10,11 @@ from pathlib import Path
 
 import pandas as pd
 
-API_ROOT = Path(__file__).resolve().parents[2]
 PREPROCESS_ROOT = Path(__file__).resolve().parents[1]
 
 
 def _display_target(target: str) -> str:
-    return (
-        target.replace(" (MWh)", " (kWh)")
-        .replace("electricity_demand_per_capita (kWh)", "electricity_demand_per_capita (kWh)")
-    )
+    return target.replace(" (MWh)", " (kWh)")
 
 
 def main() -> int:
@@ -56,7 +52,7 @@ def main() -> int:
     best_df = pd.DataFrame(best_rows)
 
     consistency = pd.read_csv(consistency_path).iloc[0]
-    section4 = pd.DataFrame(
+    summary = pd.DataFrame(
         [
             {
                 "check": "Hourly annual consistency (sum_h d_hat = D)",
@@ -70,12 +66,12 @@ def main() -> int:
     )
 
     best_path = validation_dir / "scenario_walkforward_best_by_target.csv"
-    section4_path = validation_dir / "section4_validation_summary.csv"
+    summary_path = validation_dir / "validation_summary.csv"
     best_df.to_csv(best_path, index=False)
-    section4.to_csv(section4_path, index=False)
+    summary.to_csv(summary_path, index=False)
 
     print(f"[OK] {best_path}")
-    print(f"[OK] {section4_path}")
+    print(f"[OK] {summary_path}")
     return 0
 
 

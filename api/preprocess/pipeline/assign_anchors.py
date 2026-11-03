@@ -36,7 +36,7 @@ from preprocess.pipeline.country_centroids import (  # noqa: E402
     COUNTRY_CENTROIDS,
 )
 
-FEATURES_CSV = PREPROCESS_ROOT / "data" / "normalized" / "matching_features_latest.csv"
+FEATURES_CSV = PREPROCESS_ROOT / "data" / "normalized" / "matching_features.csv"
 ASSIGNMENTS_OUT = PREPROCESS_ROOT / "charts" / "validation" / "anchor_country_assignments.csv"
 SENSITIVITY_OUT = PREPROCESS_ROOT / "charts" / "validation" / "anchor_assignment_sensitivity.csv"
 
