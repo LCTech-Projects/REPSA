@@ -8,6 +8,7 @@ from app.utils.statistical_projection import (
     confidence_interval,
     dampening_factor,
     project_absolute,
+    project_metric,
     project_percent_logistic,
 )
 
@@ -54,4 +55,37 @@ def test_logistic_projection_stays_in_bounds():
     values = [40.0, 45.0, 50.0, 55.0]
     projected, r2 = project_percent_logistic(years, values, 2025)
     assert 0.0 <= projected <= 100.0
+    assert r2 is not None
+
+
+def test_interior_gap_uses_linear_interpolation_not_latest_carry():
+    """Chad-style hole: do not copy a later bad/latest point into an earlier gap."""
+    years = [2018, 2020, 2024]
+    values = [97.7, 98.4, 0.0]  # 2024 left as published WB anomaly
+    projected, method, _r2, base_year = project_metric(
+        years,
+        values,
+        2019,
+        kind="percent_linear",
+        bounds=(0.0, 100.0),
+    )
+    assert method == "linear_interpolation"
+    assert base_year == 2018
+    assert projected is not None
+    assert abs(projected - 98.05) < 1e-9
+
+
+def test_forward_projection_unchanged_path_still_works():
+    years = [2018, 2019, 2020]
+    values = [10.0, 12.0, 14.0]
+    projected, method, r2, base_year = project_metric(
+        years,
+        values,
+        2022,
+        kind="percent_linear",
+        bounds=(0.0, 100.0),
+    )
+    assert method == "linear_projection"
+    assert base_year == 2020
+    assert projected is not None and projected > 14.0
     assert r2 is not None

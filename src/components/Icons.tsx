@@ -29,7 +29,7 @@ export const MenuIcon = ({
         <span className="font-inter font-medium text-[1rem]">{label}</span>
       )}
       {!expand && (
-        <div className="absolute left-full ml-2 px-3 py-2 bg-black-1 text-white-1 text-[0.875rem] font-inter rounded-[8px] opacity-0 invisible group-hover:opacity-100 group-hover:visible group-focus-within:opacity-100 group-focus-within:visible transition-all duration-200 whitespace-nowrap z-[200] pointer-events-none shadow-md">
+        <div className="absolute left-full ml-2 px-3 py-2 bg-black-1 text-white-1 text-[0.875rem] font-inter rounded-[8px] opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 whitespace-nowrap z-[200] pointer-events-none shadow-md">
           {label}
           <div className="absolute right-full top-1/2 -translate-y-1/2 border-4 border-transparent border-r-black-1"></div>
         </div>
@@ -42,14 +42,27 @@ export const MenuIcon = ({
 
   if (onClick) {
     return (
-      <button type="button" onClick={onClick} className={className}>
+      <button
+        type="button"
+        onClick={(event) => {
+          onClick();
+          (event.currentTarget as HTMLButtonElement).blur();
+        }}
+        className={className}
+      >
         {inner}
       </button>
     );
   }
 
   return (
-    <Link to={link!} className={className}>
+    <Link
+      to={link!}
+      className={className}
+      onClick={(event) => {
+        (event.currentTarget as HTMLAnchorElement).blur();
+      }}
+    >
       {inner}
     </Link>
   );

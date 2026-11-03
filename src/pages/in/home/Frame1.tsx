@@ -7,8 +7,8 @@ export const Frame1 = () => {
     const navigate = useNavigate();
 
     return (
-        <section className="w-full py-[60px] px-[22px] flex flex-col md:flex-row md:items-center gap-[20px] bg-[url('/images/bg1.png')] bg-cover bg-center bg-no-repeat">
-            <div ref={textRef} className={`w-full md:w-1/2 ${textVisible ? 'reveal-up' : 'opacity-0'}`}>
+        <section className="w-full py-[60px] px-[22px] flex flex-col min-[1032px]:flex-row min-[1032px]:items-start gap-[20px] bg-[url('/images/bg1.png')] bg-cover bg-center bg-no-repeat">
+            <div ref={textRef} className={`w-full min-[1032px]:w-1/2 ${textVisible ? 'reveal-up' : 'opacity-0'}`}>
                 <h2 className="text-blue-1 text-[2.25rem] lg:text-[3rem] font-semibold leading-11 lg:leading-15 tracking-tight">What is Energy Poverty?</h2>
                 <p className="text-grey-2 text-[1rem] text-justify font-inter leading-6 tracking-[0.5%] mt-[12px]">
                     Energy poverty is the condition in which people cannot obtain enough modern energy services to meet basic needs and support dignified living. It includes living without grid electricity, cooking with harmful solid fuels, paying a large share of income for poor quality supply, and using so little power that lighting, appliances, and livelihoods remain out of reach. It is therefore not a single problem, but a set of linked deficits in access, affordability, reliability, and consumption.
@@ -26,7 +26,7 @@ export const Frame1 = () => {
                 ref={imageRef}
                 src="/images/block1Hero.png"
                 alt=""
-                className={`w-full md:w-1/2 h-auto max-w-full object-contain self-center ${imageVisible ? 'reveal-up' : 'opacity-0'}`}
+                className={`w-full min-[1032px]:w-1/2 h-auto max-w-full object-contain self-start ${imageVisible ? 'reveal-up' : 'opacity-0'}`}
             />
         </section>
     );

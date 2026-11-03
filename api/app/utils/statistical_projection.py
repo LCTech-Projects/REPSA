@@ -212,6 +212,24 @@ def project_percent_logistic(
     return clamp(projected, (0.0, L)), r2
 
 
+def _linear_interpolate(
+    y0: int,
+    v0: float,
+    y1: int,
+    v1: float,
+    target_year: int,
+    kind: str,
+    bounds: Optional[Tuple[float, float]],
+) -> float:
+    if y1 == y0:
+        return float(v0)
+    weight = (float(target_year) - float(y0)) / (float(y1) - float(y0))
+    projected = float(v0) + weight * (float(v1) - float(v0))
+    if kind.startswith("percent"):
+        return clamp(projected, bounds or (0.0, 100.0))
+    return float(max(0.0, projected))
+
+
 def project_metric(
     years: Sequence[int],
     values: Sequence[float],
@@ -223,15 +241,45 @@ def project_metric(
     """
     Project a single metric to target_year.
 
+    Interior gaps (target between measured years) use linear interpolation
+    between the nearest bracketing observations — never carry the latest
+    measured value backward into earlier holes.
+
     Returns (projected_value, method, r_squared, base_year).
     """
     cleaned_years, cleaned_values = clean_timeseries(years, values, kind)
     if not cleaned_values:
         return None, "no_history", None, None
 
+    earliest_value = float(cleaned_values[0])
+    earliest_year = int(cleaned_years[0])
     latest_value = float(cleaned_values[-1])
     latest_year = int(cleaned_years[-1])
-    if target_year <= latest_year:
+
+    for year, value in zip(cleaned_years, cleaned_values):
+        if int(year) == int(target_year):
+            return float(value), "observed_or_carry", None, int(year)
+
+    # Before first observation: hold earliest measured value.
+    if target_year < earliest_year:
+        return earliest_value, "observed_or_carry", None, earliest_year
+
+    # Interior gap: interpolate between bracketing measured points.
+    if target_year < latest_year:
+        for idx in range(len(cleaned_years) - 1):
+            y0 = int(cleaned_years[idx])
+            y1 = int(cleaned_years[idx + 1])
+            if y0 < target_year < y1:
+                projected = _linear_interpolate(
+                    y0,
+                    float(cleaned_values[idx]),
+                    y1,
+                    float(cleaned_values[idx + 1]),
+                    target_year,
+                    kind,
+                    bounds,
+                )
+                return projected, "linear_interpolation", None, y0
         return latest_value, "observed_or_carry", None, latest_year
 
     if len(cleaned_values) < 2:

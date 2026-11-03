@@ -2507,7 +2507,7 @@ const YearlyCharts = ({ data }: { data: any }) => {
         x,
         timeSeries,
         (d: any) =>
-          `Year: ${d.year}<br/>Rural: ${(d.energy_poverty_rural || 0).toFixed(1)}%<br/>Urban: ${(d.energy_poverty_urban || 0).toFixed(1)}%`,
+          `Year: ${d.year}<br/>Per capita: ${(d.electricity_demand_per_capita || 0).toFixed(3)} MWh<br/>Per capita (with Access): ${(d.electricity_demand_per_capita_with_access || 0).toFixed(3)} MWh`,
       );
 
       // Add hover circles for per capita line

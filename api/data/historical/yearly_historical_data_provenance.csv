@@ -190,7 +190,7 @@ Algeria,2025,energy_poverty_electricity_rural (% of rural population),0.0,estima
 Algeria,2025,energy_poverty_electricity_urban (% of urban population),0.0,estimated,linear_projection,2024.0,0.5041666666666615
 Algeria,2025,energy_poverty_multidimensional (% of total population),0.033928571428575,measured,source_ingest,2025.0,
 Algeria,2025,fossil_share_elec,98.86688888888888,estimated,linear_projection,2024.0,0.29603995465085997
-Algeria,2025,gdp,600342197431.3761,estimated,dampened_exponential_log_linear,2022.0,0.13533820158740828
+Algeria,2025,gdp,601640527331.176,estimated,dampened_exponential_log_linear,2022.0,0.13533820158740828
 Algeria,2025,greenhouse_gas_emissions,63.36504346011448,estimated,dampened_exponential_log_linear,2024.0,0.9502891689640457
 Algeria,2025,hydro_electricity,0.014528067798689386,estimated,dampened_exponential_log_linear,2024.0,0.6625342559423704
 Algeria,2025,low_carbon_share_elec,1.1331111111111198,estimated,linear_projection,2024.0,0.29603995465090505
@@ -206,7 +206,7 @@ Angola,2016,carbon_intensity_elec,286.89,measured,source_ingest,2016.0,
 Angola,2016,electricity_demand (TWh),10.98,measured,source_ingest,2016.0,
 Angola,2016,electricity_generation (TWh),10.98,measured,source_ingest,2016.0,
 Angola,2016,energy_poverty_electricity (% of total population),58.2,derived,one_minus_access,2016.0,
-Angola,2016,energy_poverty_electricity_rural (% of rural population),98.7,estimated,observed_or_carry,2024.0,
+Angola,2016,energy_poverty_electricity_rural (% of rural population),92.7,estimated,observed_or_carry,2018.0,
 Angola,2016,energy_poverty_electricity_urban (% of urban population),32.099999999999994,measured,source_ingest,2016.0,
 Angola,2016,energy_poverty_multidimensional (% of total population),55.1,measured,source_ingest,2016.0,
 Angola,2016,fossil_share_elec,41.439,measured,source_ingest,2016.0,
@@ -226,7 +226,7 @@ Angola,2017,carbon_intensity_elec,205.37,measured,source_ingest,2017.0,
 Angola,2017,electricity_demand (TWh),10.81,measured,source_ingest,2017.0,
 Angola,2017,electricity_generation (TWh),10.81,measured,source_ingest,2017.0,
 Angola,2017,energy_poverty_electricity (% of total population),57.1,derived,one_minus_access,2017.0,
-Angola,2017,energy_poverty_electricity_rural (% of rural population),98.7,estimated,observed_or_carry,2024.0,
+Angola,2017,energy_poverty_electricity_rural (% of rural population),92.7,estimated,observed_or_carry,2018.0,
 Angola,2017,energy_poverty_electricity_urban (% of urban population),30.599999999999994,measured,source_ingest,2017.0,
 Angola,2017,energy_poverty_multidimensional (% of total population),54.45,measured,source_ingest,2017.0,
 Angola,2017,fossil_share_elec,28.585,measured,source_ingest,2017.0,
@@ -266,7 +266,7 @@ Angola,2019,carbon_intensity_elec,186.47,measured,source_ingest,2019.0,
 Angola,2019,electricity_demand (TWh),15.82,measured,source_ingest,2019.0,
 Angola,2019,electricity_generation (TWh),15.82,measured,source_ingest,2019.0,
 Angola,2019,energy_poverty_electricity (% of total population),54.4,derived,one_minus_access,2019.0,
-Angola,2019,energy_poverty_electricity_rural (% of rural population),98.7,estimated,observed_or_carry,2024.0,
+Angola,2019,energy_poverty_electricity_rural (% of rural population),93.7,estimated,linear_interpolation,2018.0,
 Angola,2019,energy_poverty_electricity_urban (% of urban population),27.799999999999997,measured,source_ingest,2019.0,
 Angola,2019,energy_poverty_multidimensional (% of total population),52.6,measured,source_ingest,2019.0,
 Angola,2019,fossil_share_elec,26.802,measured,source_ingest,2019.0,
@@ -286,7 +286,7 @@ Angola,2020,carbon_intensity_elec,171.33,measured,source_ingest,2020.0,
 Angola,2020,electricity_demand (TWh),16.81,measured,source_ingest,2020.0,
 Angola,2020,electricity_generation (TWh),16.81,measured,source_ingest,2020.0,
 Angola,2020,energy_poverty_electricity (% of total population),53.0,derived,one_minus_access,2020.0,
-Angola,2020,energy_poverty_electricity_rural (% of rural population),98.7,estimated,observed_or_carry,2024.0,
+Angola,2020,energy_poverty_electricity_rural (% of rural population),94.7,estimated,linear_interpolation,2018.0,
 Angola,2020,energy_poverty_electricity_urban (% of urban population),26.400000000000006,measured,source_ingest,2020.0,
 Angola,2020,energy_poverty_multidimensional (% of total population),51.8,measured,source_ingest,2020.0,
 Angola,2020,fossil_share_elec,24.39,measured,source_ingest,2020.0,
@@ -306,7 +306,7 @@ Angola,2021,carbon_intensity_elec,172.7,measured,source_ingest,2021.0,
 Angola,2021,electricity_demand (TWh),16.85,measured,source_ingest,2021.0,
 Angola,2021,electricity_generation (TWh),16.85,measured,source_ingest,2021.0,
 Angola,2021,energy_poverty_electricity (% of total population),51.8,derived,one_minus_access,2021.0,
-Angola,2021,energy_poverty_electricity_rural (% of rural population),98.7,estimated,observed_or_carry,2024.0,
+Angola,2021,energy_poverty_electricity_rural (% of rural population),95.7,estimated,linear_interpolation,2018.0,
 Angola,2021,energy_poverty_electricity_urban (% of urban population),25.0,measured,source_ingest,2021.0,
 Angola,2021,energy_poverty_multidimensional (% of total population),51.0,measured,source_ingest,2021.0,
 Angola,2021,fossil_share_elec,24.57,measured,source_ingest,2021.0,
@@ -326,7 +326,7 @@ Angola,2022,carbon_intensity_elec,172.16,measured,source_ingest,2022.0,
 Angola,2022,electricity_demand (TWh),17.31,measured,source_ingest,2022.0,
 Angola,2022,electricity_generation (TWh),17.31,measured,source_ingest,2022.0,
 Angola,2022,energy_poverty_electricity (% of total population),51.5,derived,one_minus_access,2022.0,
-Angola,2022,energy_poverty_electricity_rural (% of rural population),98.7,estimated,observed_or_carry,2024.0,
+Angola,2022,energy_poverty_electricity_rural (% of rural population),96.7,estimated,linear_interpolation,2018.0,
 Angola,2022,energy_poverty_electricity_urban (% of urban population),23.799999999999997,measured,source_ingest,2022.0,
 Angola,2022,energy_poverty_multidimensional (% of total population),50.75,measured,source_ingest,2022.0,
 Angola,2022,fossil_share_elec,24.437,measured,source_ingest,2022.0,
@@ -346,7 +346,7 @@ Angola,2023,carbon_intensity_elec,183.49,measured,source_ingest,2023.0,
 Angola,2023,electricity_demand (TWh),15.75,measured,source_ingest,2023.0,
 Angola,2023,electricity_generation (TWh),15.75,measured,source_ingest,2023.0,
 Angola,2023,energy_poverty_electricity (% of total population),48.9,derived,one_minus_access,2023.0,
-Angola,2023,energy_poverty_electricity_rural (% of rural population),98.7,estimated,observed_or_carry,2024.0,
+Angola,2023,energy_poverty_electricity_rural (% of rural population),97.7,estimated,linear_interpolation,2018.0,
 Angola,2023,energy_poverty_electricity_urban (% of urban population),22.099999999999994,measured,source_ingest,2023.0,
 Angola,2023,energy_poverty_multidimensional (% of total population),49.35,measured,source_ingest,2023.0,
 Angola,2023,fossil_share_elec,25.968,measured,source_ingest,2023.0,
@@ -390,7 +390,7 @@ Angola,2025,energy_poverty_electricity_rural (% of rural population),99.70000000
 Angola,2025,energy_poverty_electricity_urban (% of urban population),19.625,estimated,linear_projection,2024.0,0.8412681293397396
 Angola,2025,energy_poverty_multidimensional (% of total population),47.96785714285716,measured,source_ingest,2025.0,
 Angola,2025,fossil_share_elec,21.765472222222343,estimated,linear_projection,2024.0,0.24082337561350953
-Angola,2025,gdp,154558086416.43942,estimated,dampened_exponential_log_linear,2022.0,0.6115130947198701
+Angola,2025,gdp,153492498825.3024,estimated,dampened_exponential_log_linear,2022.0,0.6115130947198701
 Angola,2025,greenhouse_gas_emissions,2.948420547918729,estimated,dampened_exponential_log_linear,2024.0,0.1350250694756142
 Angola,2025,hydro_electricity,11.725060724998208,estimated,dampened_exponential_log_linear,2024.0,0.5207612600287642
 Angola,2025,low_carbon_share_elec,78.23452777777766,estimated,linear_projection,2024.0,0.24082337561350942
@@ -570,7 +570,7 @@ Benin,2024,energy_poverty_electricity_rural (% of rural population),55.0,measure
 Benin,2024,energy_poverty_electricity_urban (% of urban population),28.400000000000006,measured,source_ingest,2024.0,
 Benin,2024,energy_poverty_multidimensional (% of total population),68.28749999999991,measured,source_ingest,2024.0,
 Benin,2024,fossil_share_elec,96.04,measured,source_ingest,2024.0,
-Benin,2024,gdp,37540914940.81246,estimated,dampened_exponential_log_linear,2022.0,0.9968644782610412
+Benin,2024,gdp,37540914940.812454,estimated,dampened_exponential_log_linear,2022.0,0.9968644782610412
 Benin,2024,greenhouse_gas_emissions,0.59,measured,source_ingest,2024.0,
 Benin,2024,hydro_electricity,0.0,measured,source_ingest,2024.0,
 Benin,2024,low_carbon_share_elec,3.96,measured,source_ingest,2024.0,
@@ -590,7 +590,7 @@ Benin,2025,energy_poverty_electricity_rural (% of rural population),52.350000000
 Benin,2025,energy_poverty_electricity_urban (% of urban population),25.84722222222217,estimated,linear_projection,2024.0,0.7211684068095812
 Benin,2025,energy_poverty_multidimensional (% of total population),66.6833333333334,measured,source_ingest,2025.0,
 Benin,2025,fossil_share_elec,96.08772222222217,estimated,linear_projection,2024.0,0.8771741139138803
-Benin,2025,gdp,37767146221.40051,estimated,dampened_exponential_log_linear,2022.0,0.9968644782610412
+Benin,2025,gdp,39153453090.62701,estimated,dampened_exponential_log_linear,2022.0,0.9968644782610412
 Benin,2025,greenhouse_gas_emissions,0.7190977639784194,estimated,dampened_exponential_log_linear,2024.0,0.6945152833247936
 Benin,2025,hydro_electricity,,missing,no_history,,
 Benin,2025,low_carbon_share_elec,3.912277777777831,estimated,linear_projection,2024.0,0.8771741139138872
@@ -790,7 +790,7 @@ Botswana,2025,energy_poverty_electricity_rural (% of rural population),67.402777
 Botswana,2025,energy_poverty_electricity_urban (% of urban population),0.0,estimated,linear_projection,2024.0,0.9723259289082292
 Botswana,2025,energy_poverty_multidimensional (% of total population),26.12380952380954,measured,source_ingest,2025.0,
 Botswana,2025,fossil_share_elec,99.52733333333333,estimated,linear_projection,2024.0,0.3597557652983514
-Botswana,2025,gdp,41424845432.94406,estimated,dampened_exponential_log_linear,2022.0,0.6271981104666693
+Botswana,2025,gdp,42054624364.89983,estimated,dampened_exponential_log_linear,2022.0,0.6271981104666693
 Botswana,2025,greenhouse_gas_emissions,2.954598389226369,estimated,dampened_exponential_log_linear,2024.0,0.045828044659292244
 Botswana,2025,hydro_electricity,,missing,no_history,,
 Botswana,2025,low_carbon_share_elec,0.4726666666666688,estimated,linear_projection,2024.0,0.35975576529835385
@@ -806,7 +806,7 @@ Burkina Faso,2016,carbon_intensity_elec,555.56,measured,source_ingest,2016.0,
 Burkina Faso,2016,electricity_demand (TWh),1.62,measured,source_ingest,2016.0,
 Burkina Faso,2016,electricity_generation (TWh),0.99,measured,source_ingest,2016.0,
 Burkina Faso,2016,energy_poverty_electricity (% of total population),83.4,derived,one_minus_access,2016.0,
-Burkina Faso,2016,energy_poverty_electricity_rural (% of rural population),87.3,estimated,observed_or_carry,2024.0,
+Burkina Faso,2016,energy_poverty_electricity_rural (% of rural population),96.6,estimated,observed_or_carry,2022.0,
 Burkina Faso,2016,energy_poverty_electricity_urban (% of urban population),40.3,measured,source_ingest,2016.0,
 Burkina Faso,2016,energy_poverty_multidimensional (% of total population),86.8,measured,source_ingest,2016.0,
 Burkina Faso,2016,fossil_share_elec,83.838,measured,source_ingest,2016.0,
@@ -826,7 +826,7 @@ Burkina Faso,2017,carbon_intensity_elec,562.5,measured,source_ingest,2017.0,
 Burkina Faso,2017,electricity_demand (TWh),1.77,measured,source_ingest,2017.0,
 Burkina Faso,2017,electricity_generation (TWh),1.12,measured,source_ingest,2017.0,
 Burkina Faso,2017,energy_poverty_electricity (% of total population),83.0,derived,one_minus_access,2017.0,
-Burkina Faso,2017,energy_poverty_electricity_rural (% of rural population),87.3,estimated,observed_or_carry,2024.0,
+Burkina Faso,2017,energy_poverty_electricity_rural (% of rural population),96.6,estimated,observed_or_carry,2022.0,
 Burkina Faso,2017,energy_poverty_electricity_urban (% of urban population),38.6,measured,source_ingest,2017.0,
 Burkina Faso,2017,energy_poverty_multidimensional (% of total population),86.2,measured,source_ingest,2017.0,
 Burkina Faso,2017,fossil_share_elec,85.714,measured,source_ingest,2017.0,
@@ -846,7 +846,7 @@ Burkina Faso,2018,carbon_intensity_elec,566.85,measured,source_ingest,2018.0,
 Burkina Faso,2018,electricity_demand (TWh),2.71,measured,source_ingest,2018.0,
 Burkina Faso,2018,electricity_generation (TWh),1.87,measured,source_ingest,2018.0,
 Burkina Faso,2018,energy_poverty_electricity (% of total population),85.6,derived,one_minus_access,2018.0,
-Burkina Faso,2018,energy_poverty_electricity_rural (% of rural population),87.3,estimated,observed_or_carry,2024.0,
+Burkina Faso,2018,energy_poverty_electricity_rural (% of rural population),96.6,estimated,observed_or_carry,2022.0,
 Burkina Faso,2018,energy_poverty_electricity_urban (% of urban population),37.7,measured,source_ingest,2018.0,
 Burkina Faso,2018,energy_poverty_multidimensional (% of total population),86.95,measured,source_ingest,2018.0,
 Burkina Faso,2018,fossil_share_elec,85.562,measured,source_ingest,2018.0,
@@ -866,7 +866,7 @@ Burkina Faso,2019,carbon_intensity_elec,556.25,measured,source_ingest,2019.0,
 Burkina Faso,2019,electricity_demand (TWh),2.68,measured,source_ingest,2019.0,
 Burkina Faso,2019,electricity_generation (TWh),1.6,measured,source_ingest,2019.0,
 Burkina Faso,2019,energy_poverty_electricity (% of total population),82.4,derived,one_minus_access,2019.0,
-Burkina Faso,2019,energy_poverty_electricity_rural (% of rural population),87.3,estimated,observed_or_carry,2024.0,
+Burkina Faso,2019,energy_poverty_electricity_rural (% of rural population),96.6,estimated,observed_or_carry,2022.0,
 Burkina Faso,2019,energy_poverty_electricity_urban (% of urban population),35.400000000000006,measured,source_ingest,2019.0,
 Burkina Faso,2019,energy_poverty_multidimensional (% of total population),84.95,measured,source_ingest,2019.0,
 Burkina Faso,2019,fossil_share_elec,83.75,measured,source_ingest,2019.0,
@@ -886,7 +886,7 @@ Burkina Faso,2020,carbon_intensity_elec,547.17,measured,source_ingest,2020.0,
 Burkina Faso,2020,electricity_demand (TWh),3.02,measured,source_ingest,2020.0,
 Burkina Faso,2020,electricity_generation (TWh),1.59,measured,source_ingest,2020.0,
 Burkina Faso,2020,energy_poverty_electricity (% of total population),81.5,derived,one_minus_access,2020.0,
-Burkina Faso,2020,energy_poverty_electricity_rural (% of rural population),87.3,estimated,observed_or_carry,2024.0,
+Burkina Faso,2020,energy_poverty_electricity_rural (% of rural population),96.6,estimated,observed_or_carry,2022.0,
 Burkina Faso,2020,energy_poverty_electricity_urban (% of urban population),33.900000000000006,measured,source_ingest,2020.0,
 Burkina Faso,2020,energy_poverty_multidimensional (% of total population),84.0,measured,source_ingest,2020.0,
 Burkina Faso,2020,fossil_share_elec,81.132,measured,source_ingest,2020.0,
@@ -906,7 +906,7 @@ Burkina Faso,2021,carbon_intensity_elec,549.71,measured,source_ingest,2021.0,
 Burkina Faso,2021,electricity_demand (TWh),3.23,measured,source_ingest,2021.0,
 Burkina Faso,2021,electricity_generation (TWh),1.71,measured,source_ingest,2021.0,
 Burkina Faso,2021,energy_poverty_electricity (% of total population),81.0,derived,one_minus_access,2021.0,
-Burkina Faso,2021,energy_poverty_electricity_rural (% of rural population),87.3,estimated,observed_or_carry,2024.0,
+Burkina Faso,2021,energy_poverty_electricity_rural (% of rural population),96.6,estimated,observed_or_carry,2022.0,
 Burkina Faso,2021,energy_poverty_electricity_urban (% of urban population),32.400000000000006,measured,source_ingest,2021.0,
 Burkina Faso,2021,energy_poverty_multidimensional (% of total population),83.2,measured,source_ingest,2021.0,
 Burkina Faso,2021,fossil_share_elec,81.871,measured,source_ingest,2021.0,
@@ -970,7 +970,7 @@ Burkina Faso,2024,energy_poverty_electricity_rural (% of rural population),87.3,
 Burkina Faso,2024,energy_poverty_electricity_urban (% of urban population),12.200000000000003,measured,source_ingest,2024.0,
 Burkina Faso,2024,energy_poverty_multidimensional (% of total population),80.37678571428569,measured,source_ingest,2024.0,
 Burkina Faso,2024,fossil_share_elec,82.84,measured,source_ingest,2024.0,
-Burkina Faso,2024,gdp,41110557799.77029,estimated,dampened_exponential_log_linear,2022.0,0.9824503574999539
+Burkina Faso,2024,gdp,41110557799.770294,estimated,dampened_exponential_log_linear,2022.0,0.9824503574999539
 Burkina Faso,2024,greenhouse_gas_emissions,0.95,measured,source_ingest,2024.0,
 Burkina Faso,2024,hydro_electricity,0.09,measured,source_ingest,2024.0,
 Burkina Faso,2024,low_carbon_share_elec,17.16,measured,source_ingest,2024.0,
@@ -990,7 +990,7 @@ Burkina Faso,2025,energy_poverty_electricity_rural (% of rural population),84.66
 Burkina Faso,2025,energy_poverty_electricity_urban (% of urban population),24.538888888888778,estimated,linear_projection,2024.0,0.37246490848611613
 Burkina Faso,2025,energy_poverty_multidimensional (% of total population),79.48690476190473,measured,source_ingest,2025.0,
 Burkina Faso,2025,fossil_share_elec,82.63552777777772,estimated,linear_projection,2024.0,0.1432531374913446
-Burkina Faso,2025,gdp,41309857680.279144,estimated,dampened_exponential_log_linear,2022.0,0.9824503574999539
+Burkina Faso,2025,gdp,42526111603.91378,estimated,dampened_exponential_log_linear,2022.0,0.9824503574999539
 Burkina Faso,2025,greenhouse_gas_emissions,1.0032934158340827,estimated,dampened_exponential_log_linear,2024.0,0.4700205841995523
 Burkina Faso,2025,hydro_electricity,0.08465367785246707,estimated,dampened_exponential_log_linear,2024.0,0.6950166651785158
 Burkina Faso,2025,low_carbon_share_elec,17.364416666666727,estimated,linear_projection,2024.0,0.143236244237128
@@ -1190,7 +1190,7 @@ Burundi,2025,energy_poverty_electricity_rural (% of rural population),97.3111111
 Burundi,2025,energy_poverty_electricity_urban (% of urban population),31.72222222222217,estimated,linear_projection,2024.0,0.7799407496457765
 Burundi,2025,energy_poverty_multidimensional (% of total population),94.1425595238095,measured,source_ingest,2025.0,
 Burundi,2025,fossil_share_elec,30.109666666666726,estimated,linear_projection,2024.0,0.16495896857789893
-Burundi,2025,gdp,9819678181.579618,estimated,dampened_exponential_log_linear,2022.0,0.9763740821346667
+Burundi,2025,gdp,10011409233.853935,estimated,dampened_exponential_log_linear,2022.0,0.9763740821346667
 Burundi,2025,greenhouse_gas_emissions,0.10772769959551234,estimated,dampened_exponential_log_linear,2024.0,0.46794837207448436
 Burundi,2025,hydro_electricity,0.3974464371218526,estimated,dampened_exponential_log_linear,2024.0,0.8274970586763172
 Burundi,2025,low_carbon_share_elec,69.89033333333327,estimated,linear_projection,2024.0,0.16495896857789227
@@ -1390,7 +1390,7 @@ Cameroon,2025,energy_poverty_electricity_rural (% of rural population),65.938888
 Cameroon,2025,energy_poverty_electricity_urban (% of urban population),3.2000000000000455,estimated,linear_projection,2024.0,0.844788784357136
 Cameroon,2025,energy_poverty_multidimensional (% of total population),46.51577380952358,measured,source_ingest,2025.0,
 Cameroon,2025,fossil_share_elec,28.148305555555908,estimated,linear_projection,2024.0,0.5947429131970041
-Cameroon,2025,gdp,87940318185.35031,estimated,dampened_exponential_log_linear,2022.0,0.9821265447101251
+Cameroon,2025,gdp,89489052559.91939,estimated,dampened_exponential_log_linear,2022.0,0.9821265447101251
 Cameroon,2025,greenhouse_gas_emissions,1.5727652066362945,estimated,dampened_exponential_log_linear,2024.0,0.31659571958787014
 Cameroon,2025,hydro_electricity,5.318549893451907,estimated,dampened_exponential_log_linear,2024.0,0.562484433638699
 Cameroon,2025,low_carbon_share_elec,71.85169444444409,estimated,linear_projection,2024.0,0.5947429131970041
@@ -1590,7 +1590,7 @@ Cape Verde,2025,energy_poverty_electricity_rural (% of rural population),0.0,est
 Cape Verde,2025,energy_poverty_electricity_urban (% of urban population),1.8611111111110858,estimated,linear_projection,2024.0,0.9220412234042519
 Cape Verde,2025,energy_poverty_multidimensional (% of total population),5.977976190476056,measured,source_ingest,2025.0,
 Cape Verde,2025,fossil_share_elec,70.65266666666639,estimated,linear_projection,2024.0,0.5586038386995118
-Cape Verde,2025,gdp,4349228003.16926,estimated,dampened_exponential_log_linear,2022.0,0.077021777427566
+Cape Verde,2025,gdp,4377662296.615879,estimated,dampened_exponential_log_linear,2022.0,0.077021777427566
 Cape Verde,2025,greenhouse_gas_emissions,0.24103880964302316,estimated,dampened_exponential_log_linear,2024.0,0.1419706509070887
 Cape Verde,2025,hydro_electricity,,missing,no_history,,
 Cape Verde,2025,low_carbon_share_elec,29.347333333333154,estimated,linear_projection,2024.0,0.5586038386995119
@@ -1790,7 +1790,7 @@ Central African Republic,2025,energy_poverty_electricity_rural (% of rural popul
 Central African Republic,2025,energy_poverty_electricity_urban (% of urban population),61.13333333333321,estimated,linear_projection,2024.0,0.9378906250000061
 Central African Republic,2025,energy_poverty_multidimensional (% of total population),90.5315476190476,measured,source_ingest,2025.0,
 Central African Republic,2025,fossil_share_elec,0.0,estimated,linear_projection,2023.0,0.0
-Central African Republic,2025,gdp,3933792355.0784283,estimated,dampened_exponential_log_linear,2022.0,0.8811619975975763
+Central African Republic,2025,gdp,3987315387.203311,estimated,dampened_exponential_log_linear,2022.0,0.8811619975975763
 Central African Republic,2025,greenhouse_gas_emissions,,missing,no_history,,
 Central African Republic,2025,hydro_electricity,0.13443349957049017,estimated,dampened_exponential_log_linear,2023.0,0.6868417611919497
 Central African Republic,2025,low_carbon_share_elec,100.0,estimated,linear_projection,2023.0,0.0
@@ -1866,7 +1866,7 @@ Chad,2019,carbon_intensity_elec,628.57,measured,source_ingest,2019.0,
 Chad,2019,electricity_demand (TWh),0.35,measured,source_ingest,2019.0,
 Chad,2019,electricity_generation (TWh),0.35,measured,source_ingest,2019.0,
 Chad,2019,energy_poverty_electricity (% of total population),91.6,derived,one_minus_access,2019.0,
-Chad,2019,energy_poverty_electricity_rural (% of rural population),0.0,estimated,observed_or_carry,2024.0,
+Chad,2019,energy_poverty_electricity_rural (% of rural population),98.05000000000001,estimated,linear_interpolation,2018.0,
 Chad,2019,energy_poverty_electricity_urban (% of urban population),63.3,measured,source_ingest,2019.0,
 Chad,2019,energy_poverty_multidimensional (% of total population),92.5,measured,source_ingest,2019.0,
 Chad,2019,fossil_share_elec,94.286,measured,source_ingest,2019.0,
@@ -1970,7 +1970,7 @@ Chad,2024,energy_poverty_electricity_rural (% of rural population),0.0,measured,
 Chad,2024,energy_poverty_electricity_urban (% of urban population),49.0,measured,source_ingest,2024.0,
 Chad,2024,energy_poverty_multidimensional (% of total population),88.79464285714289,measured,source_ingest,2024.0,
 Chad,2024,fossil_share_elec,94.595,measured,source_ingest,2024.0,
-Chad,2024,gdp,24350685660.94879,estimated,dampened_exponential_log_linear,2022.0,0.3047213616887018
+Chad,2024,gdp,24350685660.948795,estimated,dampened_exponential_log_linear,2022.0,0.3047213616887018
 Chad,2024,greenhouse_gas_emissions,0.23,measured,source_ingest,2024.0,
 Chad,2024,hydro_electricity,0.0,measured,source_ingest,2024.0,
 Chad,2024,low_carbon_share_elec,5.405,measured,source_ingest,2024.0,
@@ -1990,7 +1990,7 @@ Chad,2025,energy_poverty_electricity_rural (% of rural population),55.7496815286
 Chad,2025,energy_poverty_electricity_urban (% of urban population),46.7277777777781,estimated,linear_projection,2024.0,0.9918186827358161
 Chad,2025,energy_poverty_multidimensional (% of total population),88.26011904761913,measured,source_ingest,2025.0,
 Chad,2025,fossil_share_elec,95.09763888888892,estimated,linear_projection,2024.0,0.5420103816242071
-Chad,2025,gdp,24362377993.030117,estimated,dampened_exponential_log_linear,2022.0,0.3047213616887018
+Chad,2025,gdp,24432649978.98605,estimated,dampened_exponential_log_linear,2022.0,0.3047213616887018
 Chad,2025,greenhouse_gas_emissions,0.23590899596220216,estimated,dampened_exponential_log_linear,2024.0,0.459765827326692
 Chad,2025,hydro_electricity,,missing,no_history,,
 Chad,2025,low_carbon_share_elec,4.902361111111077,estimated,linear_projection,2024.0,0.5420103816241904
@@ -2170,7 +2170,7 @@ Comoros,2024,energy_poverty_electricity_rural (% of rural population),11.7999999
 Comoros,2024,energy_poverty_electricity_urban (% of urban population),1.5,measured,source_ingest,2024.0,
 Comoros,2024,energy_poverty_multidimensional (% of total population),47.874999999999545,measured,source_ingest,2024.0,
 Comoros,2024,fossil_share_elec,100.0,estimated,linear_projection,2023.0,0.0
-Comoros,2024,gdp,1806600058.3277016,estimated,dampened_exponential_log_linear,2022.0,0.9905511241143444
+Comoros,2024,gdp,1806600058.3277018,estimated,dampened_exponential_log_linear,2022.0,0.9905511241143444
 Comoros,2024,greenhouse_gas_emissions,0.09983205957316472,estimated,dampened_exponential_log_linear,2023.0,0.7798262333361634
 Comoros,2024,hydro_electricity,,missing,no_history,,
 Comoros,2024,low_carbon_share_elec,0.0,estimated,linear_projection,2023.0,0.0
@@ -2182,16 +2182,16 @@ Comoros,2024,wind_electricity,,missing,no_history,,
 Comoros,2025,Access to Clean Fuels and Technologies for cooking (% of total population),11.544047619047433,estimated,linear_projection,2023.0,0.996901302894039
 Comoros,2025,Access to electricity (% of total population),92.86129128303706,estimated,logistic_logit_linear,2024.0,0.9884200488587546
 Comoros,2025,Population growth (annual %),1.85420936957363,measured,source_ingest,2025.0,
-Comoros,2025,carbon_intensity_elec,636.9896676364692,estimated,dampened_exponential_log_linear,2023.0,0.08804723858151653
-Comoros,2025,electricity_demand (TWh),0.17384700879864276,estimated,dampened_exponential_log_linear,2023.0,0.8373069150494887
-Comoros,2025,electricity_generation (TWh),0.17384700879864276,estimated,dampened_exponential_log_linear,2023.0,0.8373069150494887
+Comoros,2025,carbon_intensity_elec,636.9896676364693,estimated,dampened_exponential_log_linear,2023.0,0.08804723858151653
+Comoros,2025,electricity_demand (TWh),0.1738470087986428,estimated,dampened_exponential_log_linear,2023.0,0.8373069150494887
+Comoros,2025,electricity_generation (TWh),0.1738470087986428,estimated,dampened_exponential_log_linear,2023.0,0.8373069150494887
 Comoros,2025,energy_poverty_electricity (% of total population),7.138708716962938,estimated,one_minus_access,2024.0,
 Comoros,2025,energy_poverty_electricity_rural (% of rural population),8.561111111111131,estimated,linear_projection,2024.0,0.9885753627218901
 Comoros,2025,energy_poverty_electricity_urban (% of urban population),0.0,estimated,linear_projection,2024.0,0.6884566467595796
 Comoros,2025,energy_poverty_multidimensional (% of total population),46.53333333333285,measured,source_ingest,2025.0,
 Comoros,2025,fossil_share_elec,100.0,estimated,linear_projection,2023.0,0.0
-Comoros,2025,gdp,1813062719.3494697,estimated,dampened_exponential_log_linear,2022.0,0.9905511241143444
-Comoros,2025,greenhouse_gas_emissions,0.11073822354022121,estimated,dampened_exponential_log_linear,2023.0,0.7798262333361634
+Comoros,2025,gdp,1852327080.096619,estimated,dampened_exponential_log_linear,2022.0,0.9905511241143444
+Comoros,2025,greenhouse_gas_emissions,0.11073822354022123,estimated,dampened_exponential_log_linear,2023.0,0.7798262333361634
 Comoros,2025,hydro_electricity,,missing,no_history,,
 Comoros,2025,low_carbon_share_elec,0.0,estimated,linear_projection,2023.0,0.0
 Comoros,2025,population,882518.0617567641,estimated,limit_year_population_growth_rate_exponential,2023.0,
@@ -2370,7 +2370,7 @@ Congo,2024,energy_poverty_electricity_rural (% of rural population),80.6,measure
 Congo,2024,energy_poverty_electricity_urban (% of urban population),28.0,measured,source_ingest,2024.0,
 Congo,2024,energy_poverty_multidimensional (% of total population),52.70267857142835,measured,source_ingest,2024.0,
 Congo,2024,fossil_share_elec,79.121,measured,source_ingest,2024.0,
-Congo,2024,gdp,22772528024.400345,estimated,dampened_exponential_log_linear,2022.0,0.6853572168053048
+Congo,2024,gdp,22772528024.40035,estimated,dampened_exponential_log_linear,2022.0,0.6853572168053048
 Congo,2024,greenhouse_gas_emissions,3.91,measured,source_ingest,2024.0,
 Congo,2024,hydro_electricity,1.1,measured,source_ingest,2024.0,
 Congo,2024,low_carbon_share_elec,20.879,measured,source_ingest,2024.0,
@@ -2390,7 +2390,7 @@ Congo,2025,energy_poverty_electricity_rural (% of rural population),84.700000000
 Congo,2025,energy_poverty_electricity_urban (% of urban population),28.341666666666697,estimated,linear_projection,2024.0,0.9473955282171342
 Congo,2025,energy_poverty_multidimensional (% of total population),51.38035714285661,measured,source_ingest,2025.0,
 Congo,2025,fossil_share_elec,83.53691666666691,estimated,linear_projection,2024.0,0.8817581229334386
-Congo,2025,gdp,22728126016.732533,estimated,dampened_exponential_log_linear,2022.0,0.6853572168053048
+Congo,2025,gdp,22463526155.20858,estimated,dampened_exponential_log_linear,2022.0,0.6853572168053048
 Congo,2025,greenhouse_gas_emissions,4.414769706428688,estimated,dampened_exponential_log_linear,2024.0,0.949932147133854
 Congo,2025,hydro_electricity,1.1000480093166476,estimated,dampened_exponential_log_linear,2024.0,4.0913308786416636e-06
 Congo,2025,low_carbon_share_elec,16.46308333333309,estimated,linear_projection,2024.0,0.8817581229334386
@@ -2570,7 +2570,7 @@ Cote d'Ivoire,2024,energy_poverty_electricity_rural (% of rural population),52.3
 Cote d'Ivoire,2024,energy_poverty_electricity_urban (% of urban population),5.700000000000003,measured,source_ingest,2024.0,
 Cote d'Ivoire,2024,energy_poverty_multidimensional (% of total population),39.692857142857065,measured,source_ingest,2024.0,
 Cote d'Ivoire,2024,fossil_share_elec,71.084,measured,source_ingest,2024.0,
-Cote d'Ivoire,2024,gdp,134977316507.53662,estimated,dampened_exponential_log_linear,2022.0,0.9890268297269762
+Cote d'Ivoire,2024,gdp,134977316507.53667,estimated,dampened_exponential_log_linear,2022.0,0.9890268297269762
 Cote d'Ivoire,2024,greenhouse_gas_emissions,4.37,measured,source_ingest,2024.0,
 Cote d'Ivoire,2024,hydro_electricity,3.0,measured,source_ingest,2024.0,
 Cote d'Ivoire,2024,low_carbon_share_elec,28.916,measured,source_ingest,2024.0,
@@ -2590,7 +2590,7 @@ Cote d'Ivoire,2025,energy_poverty_electricity_rural (% of rural population),49.8
 Cote d'Ivoire,2025,energy_poverty_electricity_urban (% of urban population),4.722222222222285,estimated,linear_projection,2024.0,0.65901894627563
 Cote d'Ivoire,2025,energy_poverty_multidimensional (% of total population),37.93363095238101,measured,source_ingest,2025.0,
 Cote d'Ivoire,2025,fossil_share_elec,67.96555555555551,estimated,linear_projection,2024.0,0.2865130014781544
-Cote d'Ivoire,2025,gdp,135690680591.45204,estimated,dampened_exponential_log_linear,2022.0,0.9890268297269762
+Cote d'Ivoire,2025,gdp,140050739897.59653,estimated,dampened_exponential_log_linear,2022.0,0.9890268297269762
 Cote d'Ivoire,2025,greenhouse_gas_emissions,4.383657439566109,estimated,dampened_exponential_log_linear,2024.0,0.009887546920097523
 Cote d'Ivoire,2025,hydro_electricity,3.2121797160283565,estimated,dampened_exponential_log_linear,2024.0,0.4533660546812339
 Cote d'Ivoire,2025,low_carbon_share_elec,32.03444444444449,estimated,linear_projection,2024.0,0.2865130014781545
@@ -2790,7 +2790,7 @@ Democratic Republic of the Congo,2025,energy_poverty_electricity_rural (% of rur
 Democratic Republic of the Congo,2025,energy_poverty_electricity_urban (% of urban population),44.83611111111077,estimated,linear_projection,2024.0,0.8142250948188618
 Democratic Republic of the Congo,2025,energy_poverty_multidimensional (% of total population),85.63630952380947,measured,source_ingest,2025.0,
 Democratic Republic of the Congo,2025,fossil_share_elec,0.0,estimated,linear_projection,2024.0,0.8563186813186712
-Democratic Republic of the Congo,2025,gdp,99919736835.0914,estimated,dampened_exponential_log_linear,2022.0,0.9837117503561805
+Democratic Republic of the Congo,2025,gdp,102523952891.9715,estimated,dampened_exponential_log_linear,2022.0,0.9837117503561805
 Democratic Republic of the Congo,2025,greenhouse_gas_emissions,0.4839006152140739,estimated,dampened_exponential_log_linear,2024.0,0.981211411774071
 Democratic Republic of the Congo,2025,hydro_electricity,14.14319246224809,estimated,dampened_exponential_log_linear,2024.0,0.8804834553564599
 Democratic Republic of the Congo,2025,low_carbon_share_elec,100.0,estimated,linear_projection,2024.0,0.8563186813187056
@@ -2826,7 +2826,7 @@ Djibouti,2017,carbon_intensity_elec,666.67,measured,source_ingest,2017.0,
 Djibouti,2017,electricity_demand (TWh),0.57,measured,source_ingest,2017.0,
 Djibouti,2017,electricity_generation (TWh),0.06,measured,source_ingest,2017.0,
 Djibouti,2017,energy_poverty_electricity (% of total population),39.8,derived,one_minus_access,2017.0,
-Djibouti,2017,energy_poverty_electricity_rural (% of rural population),46.1,estimated,observed_or_carry,2024.0,
+Djibouti,2017,energy_poverty_electricity_rural (% of rural population),68.45,estimated,linear_interpolation,2016.0,
 Djibouti,2017,energy_poverty_electricity_urban (% of urban population),30.0,measured,source_ingest,2017.0,
 Djibouti,2017,energy_poverty_multidimensional (% of total population),65.4,measured,source_ingest,2017.0,
 Djibouti,2017,fossil_share_elec,100.0,measured,source_ingest,2017.0,
@@ -2970,7 +2970,7 @@ Djibouti,2024,energy_poverty_electricity_rural (% of rural population),46.1,meas
 Djibouti,2024,energy_poverty_electricity_urban (% of urban population),25.099999999999994,measured,source_ingest,2024.0,
 Djibouti,2024,energy_poverty_multidimensional (% of total population),61.27678571428555,measured,source_ingest,2024.0,
 Djibouti,2024,fossil_share_elec,65.0,measured,source_ingest,2024.0,
-Djibouti,2024,gdp,3696624171.2848783,estimated,dampened_exponential_log_linear,2022.0,0.9791633853462873
+Djibouti,2024,gdp,3696624171.2848787,estimated,dampened_exponential_log_linear,2022.0,0.9791633853462873
 Djibouti,2024,greenhouse_gas_emissions,0.09,measured,source_ingest,2024.0,
 Djibouti,2024,hydro_electricity,0.0,measured,source_ingest,2024.0,
 Djibouti,2024,low_carbon_share_elec,35.0,measured,source_ingest,2024.0,
@@ -2990,7 +2990,7 @@ Djibouti,2025,energy_poverty_electricity_rural (% of rural population),52.884461
 Djibouti,2025,energy_poverty_electricity_urban (% of urban population),24.09166666666647,estimated,linear_projection,2024.0,0.9516277128547654
 Djibouti,2025,energy_poverty_multidimensional (% of total population),60.768154761904725,measured,source_ingest,2025.0,
 Djibouti,2025,fossil_share_elec,55.277777777777374,estimated,linear_projection,2024.0,0.7500000000000078
-Djibouti,2025,gdp,3712352571.178092,estimated,dampened_exponential_log_linear,2022.0,0.9791633853462873
+Djibouti,2025,gdp,3808138324.2373023,estimated,dampened_exponential_log_linear,2022.0,0.9791633853462873
 Djibouti,2025,greenhouse_gas_emissions,0.10056108459476089,estimated,dampened_exponential_log_linear,2024.0,0.5387697634202759
 Djibouti,2025,hydro_electricity,,missing,no_history,,
 Djibouti,2025,low_carbon_share_elec,44.722222222222626,estimated,linear_projection,2024.0,0.7500000000000078
@@ -3170,7 +3170,7 @@ Egypt,2024,energy_poverty_electricity_rural (% of rural population),0.0,measured
 Egypt,2024,energy_poverty_electricity_urban (% of urban population),0.0,measured,source_ingest,2024.0,
 Egypt,2024,energy_poverty_multidimensional (% of total population),0.0374999999999978,measured,source_ingest,2024.0,
 Egypt,2024,fossil_share_elec,88.803,measured,source_ingest,2024.0,
-Egypt,2024,gdp,1595882760549.2761,estimated,dampened_exponential_log_linear,2022.0,0.9891978632002572
+Egypt,2024,gdp,1595882760549.276,estimated,dampened_exponential_log_linear,2022.0,0.9891978632002572
 Egypt,2024,greenhouse_gas_emissions,136.38,measured,source_ingest,2024.0,
 Egypt,2024,hydro_electricity,14.37,measured,source_ingest,2024.0,
 Egypt,2024,low_carbon_share_elec,11.197,measured,source_ingest,2024.0,
@@ -3190,7 +3190,7 @@ Egypt,2025,energy_poverty_electricity_rural (% of rural population),0.0,estimate
 Egypt,2025,energy_poverty_electricity_urban (% of urban population),0.0,estimated,linear_projection,2024.0,0.0
 Egypt,2025,energy_poverty_multidimensional (% of total population),0.0333333333333314,measured,source_ingest,2025.0,
 Egypt,2025,fossil_share_elec,86.985,measured,source_ingest,2025.0,
-Egypt,2025,gdp,1602976053552.0325,estimated,dampened_exponential_log_linear,2022.0,0.9891978632002572
+Egypt,2025,gdp,1646202823648.3997,estimated,dampened_exponential_log_linear,2022.0,0.9891978632002572
 Egypt,2025,greenhouse_gas_emissions,138.39,measured,source_ingest,2025.0,
 Egypt,2025,hydro_electricity,15.07,measured,source_ingest,2025.0,
 Egypt,2025,low_carbon_share_elec,13.015,measured,source_ingest,2025.0,
@@ -3370,7 +3370,7 @@ Equatorial Guinea,2024,energy_poverty_electricity_rural (% of rural population),
 Equatorial Guinea,2024,energy_poverty_electricity_urban (% of urban population),10.700000000000003,measured,source_ingest,2024.0,
 Equatorial Guinea,2024,energy_poverty_multidimensional (% of total population),55.451785714285705,measured,source_ingest,2024.0,
 Equatorial Guinea,2024,fossil_share_elec,73.154,measured,source_ingest,2024.0,
-Equatorial Guinea,2024,gdp,18621273486.36385,estimated,dampened_exponential_log_linear,2022.0,0.8288084526511179
+Equatorial Guinea,2024,gdp,18621273486.363853,estimated,dampened_exponential_log_linear,2022.0,0.8288084526511179
 Equatorial Guinea,2024,greenhouse_gas_emissions,0.96,measured,source_ingest,2024.0,
 Equatorial Guinea,2024,hydro_electricity,0.4,measured,source_ingest,2024.0,
 Equatorial Guinea,2024,low_carbon_share_elec,26.846,measured,source_ingest,2024.0,
@@ -3390,7 +3390,7 @@ Equatorial Guinea,2025,energy_poverty_electricity_rural (% of rural population),
 Equatorial Guinea,2025,energy_poverty_electricity_urban (% of urban population),11.125,estimated,linear_projection,2024.0,0.9368713450292347
 Equatorial Guinea,2025,energy_poverty_multidimensional (% of total population),55.5327380952381,measured,source_ingest,2025.0,
 Equatorial Guinea,2025,fossil_share_elec,73.0863888888889,estimated,linear_projection,2024.0,0.5123719290458368
-Equatorial Guinea,2025,gdp,18546055227.43742,estimated,dampened_exponential_log_linear,2022.0,0.8288084526511179
+Equatorial Guinea,2025,gdp,18101083417.243412,estimated,dampened_exponential_log_linear,2022.0,0.8288084526511179
 Equatorial Guinea,2025,greenhouse_gas_emissions,0.9829183588150873,estimated,dampened_exponential_log_linear,2024.0,0.7922170516066804
 Equatorial Guinea,2025,hydro_electricity,0.392641267531486,estimated,dampened_exponential_log_linear,2024.0,0.23050408054060334
 Equatorial Guinea,2025,low_carbon_share_elec,26.913611111111095,estimated,linear_projection,2024.0,0.5123719290458304
@@ -3770,7 +3770,7 @@ Eswatini,2024,energy_poverty_electricity_rural (% of rural population),11.700000
 Eswatini,2024,energy_poverty_electricity_urban (% of urban population),7.900000000000006,measured,source_ingest,2024.0,
 Eswatini,2024,energy_poverty_multidimensional (% of total population),29.546428571428805,measured,source_ingest,2024.0,
 Eswatini,2024,fossil_share_elec,3.279,measured,source_ingest,2024.0,
-Eswatini,2024,gdp,10000774918.265291,estimated,dampened_exponential_log_linear,2022.0,0.8769276905392844
+Eswatini,2024,gdp,10000774918.265293,estimated,dampened_exponential_log_linear,2022.0,0.8769276905392844
 Eswatini,2024,greenhouse_gas_emissions,0.08,measured,source_ingest,2024.0,
 Eswatini,2024,hydro_electricity,0.35,measured,source_ingest,2024.0,
 Eswatini,2024,low_carbon_share_elec,96.721,measured,source_ingest,2024.0,
@@ -3790,7 +3790,7 @@ Eswatini,2025,energy_poverty_electricity_rural (% of rural population),8.0472222
 Eswatini,2025,energy_poverty_electricity_urban (% of urban population),5.858333333333121,estimated,linear_projection,2024.0,0.45614393100904416
 Eswatini,2025,energy_poverty_multidimensional (% of total population),27.924107142857338,measured,source_ingest,2025.0,
 Eswatini,2025,fossil_share_elec,2.279888888888877,estimated,linear_projection,2024.0,0.469280541307585
-Eswatini,2025,gdp,10021512865.824627,estimated,dampened_exponential_log_linear,2022.0,0.8769276905392844
+Eswatini,2025,gdp,10146846739.896358,estimated,dampened_exponential_log_linear,2022.0,0.8769276905392844
 Eswatini,2025,greenhouse_gas_emissions,0.08067801875035732,estimated,dampened_exponential_log_linear,2024.0,0.026378648695889906
 Eswatini,2025,hydro_electricity,0.390359908278404,estimated,dampened_exponential_log_linear,2024.0,0.7461772240378428
 Eswatini,2025,low_carbon_share_elec,97.72011111111112,estimated,linear_projection,2024.0,0.4692805413075962
@@ -3970,7 +3970,7 @@ Ethiopia,2024,energy_poverty_electricity_rural (% of rural population),55.2,meas
 Ethiopia,2024,energy_poverty_electricity_urban (% of urban population),4.900000000000006,measured,source_ingest,2024.0,
 Ethiopia,2024,energy_poverty_multidimensional (% of total population),66.81071428571431,measured,source_ingest,2024.0,
 Ethiopia,2024,fossil_share_elec,0.0,measured,source_ingest,2024.0,
-Ethiopia,2024,gdp,311910364753.3337,estimated,dampened_exponential_log_linear,2022.0,0.9949819898765303
+Ethiopia,2024,gdp,311910364753.3336,estimated,dampened_exponential_log_linear,2022.0,0.9949819898765303
 Ethiopia,2024,greenhouse_gas_emissions,0.59,measured,source_ingest,2024.0,
 Ethiopia,2024,hydro_electricity,24.42,measured,source_ingest,2024.0,
 Ethiopia,2024,low_carbon_share_elec,100.0,measured,source_ingest,2024.0,
@@ -3990,7 +3990,7 @@ Ethiopia,2025,energy_poverty_electricity_rural (% of rural population),52.011111
 Ethiopia,2025,energy_poverty_electricity_urban (% of urban population),3.619444444444298,estimated,linear_projection,2024.0,0.3093922018348626
 Ethiopia,2025,energy_poverty_multidimensional (% of total population),65.6047619047622,measured,source_ingest,2025.0,
 Ethiopia,2025,fossil_share_elec,0.0,measured,source_ingest,2025.0,
-Ethiopia,2025,gdp,314170165219.9726,estimated,dampened_exponential_log_linear,2022.0,0.9949819898765303
+Ethiopia,2025,gdp,328076968704.53876,estimated,dampened_exponential_log_linear,2022.0,0.9949819898765303
 Ethiopia,2025,greenhouse_gas_emissions,0.77,measured,source_ingest,2025.0,
 Ethiopia,2025,hydro_electricity,32.19,measured,source_ingest,2025.0,
 Ethiopia,2025,low_carbon_share_elec,100.0,measured,source_ingest,2025.0,
@@ -4026,7 +4026,7 @@ Gabon,2017,carbon_intensity_elec,495.54,measured,source_ingest,2017.0,
 Gabon,2017,electricity_demand (TWh),2.7,measured,source_ingest,2017.0,
 Gabon,2017,electricity_generation (TWh),2.24,measured,source_ingest,2017.0,
 Gabon,2017,energy_poverty_electricity (% of total population),13.700000000000003,derived,one_minus_access,2017.0,
-Gabon,2017,energy_poverty_electricity_rural (% of rural population),48.7,estimated,observed_or_carry,2024.0,
+Gabon,2017,energy_poverty_electricity_rural (% of rural population),79.9,estimated,linear_interpolation,2016.0,
 Gabon,2017,energy_poverty_electricity_urban (% of urban population),2.200000000000003,measured,source_ingest,2017.0,
 Gabon,2017,energy_poverty_multidimensional (% of total population),13.0,measured,source_ingest,2017.0,
 Gabon,2017,fossil_share_elec,58.036,measured,source_ingest,2017.0,
@@ -4190,7 +4190,7 @@ Gabon,2025,energy_poverty_electricity_rural (% of rural population),57.922807017
 Gabon,2025,energy_poverty_electricity_urban (% of urban population),0.5361111111111541,estimated,linear_projection,2024.0,0.9026187750429315
 Gabon,2025,energy_poverty_multidimensional (% of total population),5.448214285714357,measured,source_ingest,2025.0,
 Gabon,2025,fossil_share_elec,59.21272222222228,estimated,linear_projection,2024.0,0.05244731348733145
-Gabon,2025,gdp,36942599762.95313,estimated,dampened_exponential_log_linear,2022.0,0.8465262210615347
+Gabon,2025,gdp,37206001595.51342,estimated,dampened_exponential_log_linear,2022.0,0.8465262210615347
 Gabon,2025,greenhouse_gas_emissions,1.3954384350072266,estimated,dampened_exponential_log_linear,2024.0,0.875384962897898
 Gabon,2025,hydro_electricity,0.9208141397092966,estimated,dampened_exponential_log_linear,2024.0,0.01849098365114199
 Gabon,2025,low_carbon_share_elec,40.78727777777772,estimated,linear_projection,2024.0,0.05244731348733522
@@ -4246,7 +4246,7 @@ Gambia,2018,carbon_intensity_elec,666.67,measured,source_ingest,2018.0,
 Gambia,2018,electricity_demand (TWh),0.39,measured,source_ingest,2018.0,
 Gambia,2018,electricity_generation (TWh),0.39,measured,source_ingest,2018.0,
 Gambia,2018,energy_poverty_electricity (% of total population),39.7,derived,one_minus_access,2018.0,
-Gambia,2018,energy_poverty_electricity_rural (% of rural population),60.8,estimated,observed_or_carry,2024.0,
+Gambia,2018,energy_poverty_electricity_rural (% of rural population),76.0,estimated,linear_interpolation,2017.0,
 Gambia,2018,energy_poverty_electricity_urban (% of urban population),23.599999999999994,measured,source_ingest,2018.0,
 Gambia,2018,energy_poverty_multidimensional (% of total population),68.9,measured,source_ingest,2018.0,
 Gambia,2018,fossil_share_elec,100.0,measured,source_ingest,2018.0,
@@ -4266,7 +4266,7 @@ Gambia,2019,carbon_intensity_elec,652.17,measured,source_ingest,2019.0,
 Gambia,2019,electricity_demand (TWh),0.46,measured,source_ingest,2019.0,
 Gambia,2019,electricity_generation (TWh),0.46,measured,source_ingest,2019.0,
 Gambia,2019,energy_poverty_electricity (% of total population),37.9,derived,one_minus_access,2019.0,
-Gambia,2019,energy_poverty_electricity_rural (% of rural population),60.8,estimated,observed_or_carry,2024.0,
+Gambia,2019,energy_poverty_electricity_rural (% of rural population),72.5,estimated,linear_interpolation,2017.0,
 Gambia,2019,energy_poverty_electricity_urban (% of urban population),21.400000000000006,measured,source_ingest,2019.0,
 Gambia,2019,energy_poverty_multidimensional (% of total population),68.05,measured,source_ingest,2019.0,
 Gambia,2019,fossil_share_elec,100.0,measured,source_ingest,2019.0,
@@ -4370,7 +4370,7 @@ Gambia,2024,energy_poverty_electricity_rural (% of rural population),60.8,measur
 Gambia,2024,energy_poverty_electricity_urban (% of urban population),14.400000000000006,measured,source_ingest,2024.0,
 Gambia,2024,energy_poverty_multidimensional (% of total population),64.92499999999995,measured,source_ingest,2024.0,
 Gambia,2024,fossil_share_elec,100.0,measured,source_ingest,2024.0,
-Gambia,2024,gdp,5086273629.295384,estimated,dampened_exponential_log_linear,2022.0,0.9807265599380653
+Gambia,2024,gdp,5086273629.295383,estimated,dampened_exponential_log_linear,2022.0,0.9807265599380653
 Gambia,2024,greenhouse_gas_emissions,0.34,measured,source_ingest,2024.0,
 Gambia,2024,hydro_electricity,0.0,measured,source_ingest,2024.0,
 Gambia,2024,low_carbon_share_elec,0.0,measured,source_ingest,2024.0,
@@ -4390,7 +4390,7 @@ Gambia,2025,energy_poverty_electricity_rural (% of rural population),61.80638297
 Gambia,2025,energy_poverty_electricity_urban (% of urban population),12.636111111111404,estimated,linear_projection,2024.0,0.8893210435727893
 Gambia,2025,energy_poverty_multidimensional (% of total population),64.17916666666656,measured,source_ingest,2025.0,
 Gambia,2025,fossil_share_elec,100.0,estimated,linear_projection,2024.0,0.0
-Gambia,2025,gdp,5108758304.998942,estimated,dampened_exponential_log_linear,2022.0,0.9807265599380653
+Gambia,2025,gdp,5245769144.645155,estimated,dampened_exponential_log_linear,2022.0,0.9807265599380653
 Gambia,2025,greenhouse_gas_emissions,0.3655426210985143,estimated,dampened_exponential_log_linear,2024.0,0.8071509825808522
 Gambia,2025,hydro_electricity,,missing,no_history,,
 Gambia,2025,low_carbon_share_elec,0.0,estimated,linear_projection,2024.0,0.0
@@ -4590,7 +4590,7 @@ Ghana,2025,energy_poverty_electricity_rural (% of rural population),18.513888888
 Ghana,2025,energy_poverty_electricity_urban (% of urban population),0.4027777777778283,estimated,linear_projection,2024.0,0.9262394887751775
 Ghana,2025,energy_poverty_multidimensional (% of total population),36.353571428571286,measured,source_ingest,2025.0,
 Ghana,2025,fossil_share_elec,65.45566666666673,estimated,linear_projection,2024.0,0.6319878813668975
-Ghana,2025,gdp,160328376535.13193,estimated,dampened_exponential_log_linear,2022.0,0.9590129435531335
+Ghana,2025,gdp,164858225529.4179,estimated,dampened_exponential_log_linear,2022.0,0.9590129435531335
 Ghana,2025,greenhouse_gas_emissions,12.700373840711913,estimated,dampened_exponential_log_linear,2024.0,0.9253866481223031
 Ghana,2025,hydro_electricity,9.1790499046986,estimated,dampened_exponential_log_linear,2024.0,0.9290654433989546
 Ghana,2025,low_carbon_share_elec,34.54433333333327,estimated,linear_projection,2024.0,0.6319878813668975
@@ -4770,7 +4770,7 @@ Guinea,2024,energy_poverty_electricity_rural (% of rural population),70.6,measur
 Guinea,2024,energy_poverty_electricity_urban (% of urban population),6.400000000000006,measured,source_ingest,2024.0,
 Guinea,2024,energy_poverty_multidimensional (% of total population),72.6732142857145,measured,source_ingest,2024.0,
 Guinea,2024,fossil_share_elec,24.814,measured,source_ingest,2024.0,
-Guinea,2024,gdp,26555250268.604733,estimated,dampened_exponential_log_linear,2022.0,0.9796827800380581
+Guinea,2024,gdp,26555250268.604736,estimated,dampened_exponential_log_linear,2022.0,0.9796827800380581
 Guinea,2024,greenhouse_gas_emissions,0.73,measured,source_ingest,2024.0,
 Guinea,2024,hydro_electricity,3.0,measured,source_ingest,2024.0,
 Guinea,2024,low_carbon_share_elec,75.186,measured,source_ingest,2024.0,
@@ -4790,7 +4790,7 @@ Guinea,2025,energy_poverty_electricity_rural (% of rural population),68.85000000
 Guinea,2025,energy_poverty_electricity_urban (% of urban population),4.724999999999909,estimated,linear_projection,2024.0,0.9765515112471145
 Guinea,2025,energy_poverty_multidimensional (% of total population),71.51726190476211,measured,source_ingest,2025.0,
 Guinea,2025,fossil_share_elec,24.536694444444493,estimated,linear_projection,2024.0,0.3815920237828847
-Guinea,2025,gdp,26707942466.891605,estimated,dampened_exponential_log_linear,2022.0,0.9796827800380581
+Guinea,2025,gdp,27642710892.154293,estimated,dampened_exponential_log_linear,2022.0,0.9796827800380581
 Guinea,2025,greenhouse_gas_emissions,0.8025022422946486,estimated,dampened_exponential_log_linear,2024.0,0.8672970284275935
 Guinea,2025,hydro_electricity,3.502506842370633,estimated,dampened_exponential_log_linear,2024.0,0.8816303325986271
 Guinea,2025,low_carbon_share_elec,75.46330555555551,estimated,linear_projection,2024.0,0.3815920237828849
@@ -4970,7 +4970,7 @@ Guinea-Bissau,2024,energy_poverty_electricity_rural (% of rural population),75.1
 Guinea-Bissau,2024,energy_poverty_electricity_urban (% of urban population),34.400000000000006,measured,source_ingest,2024.0,
 Guinea-Bissau,2024,energy_poverty_multidimensional (% of total population),78.15357142857147,measured,source_ingest,2024.0,
 Guinea-Bissau,2024,fossil_share_elec,100.0,measured,source_ingest,2024.0,
-Guinea-Bissau,2024,gdp,3538188374.0594115,estimated,dampened_exponential_log_linear,2022.0,0.9879773904469009
+Guinea-Bissau,2024,gdp,3538188374.059412,estimated,dampened_exponential_log_linear,2022.0,0.9879773904469009
 Guinea-Bissau,2024,greenhouse_gas_emissions,0.05,measured,source_ingest,2024.0,
 Guinea-Bissau,2024,hydro_electricity,0.0,measured,source_ingest,2024.0,
 Guinea-Bissau,2024,low_carbon_share_elec,0.0,measured,source_ingest,2024.0,
@@ -4990,7 +4990,7 @@ Guinea-Bissau,2025,energy_poverty_electricity_rural (% of rural population),76.3
 Guinea-Bissau,2025,energy_poverty_electricity_urban (% of urban population),28.788888888889232,estimated,linear_projection,2024.0,0.9713450541528073
 Guinea-Bissau,2025,energy_poverty_multidimensional (% of total population),76.95505952380927,measured,source_ingest,2025.0,
 Guinea-Bissau,2025,fossil_share_elec,100.0,estimated,linear_projection,2024.0,0.0
-Guinea-Bissau,2025,gdp,3552742151.3386803,estimated,dampened_exponential_log_linear,2022.0,0.9879773904469009
+Guinea-Bissau,2025,gdp,3641330626.880315,estimated,dampened_exponential_log_linear,2022.0,0.9879773904469009
 Guinea-Bissau,2025,greenhouse_gas_emissions,0.05,estimated,dampened_exponential_log_linear,2024.0,0.0
 Guinea-Bissau,2025,hydro_electricity,,missing,no_history,,
 Guinea-Bissau,2025,low_carbon_share_elec,0.0,estimated,linear_projection,2024.0,0.0
@@ -5170,7 +5170,7 @@ Kenya,2024,energy_poverty_electricity_rural (% of rural population),32.900000000
 Kenya,2024,energy_poverty_electricity_urban (% of urban population),1.9000000000000057,measured,source_ingest,2024.0,
 Kenya,2024,energy_poverty_multidimensional (% of total population),41.204464285714494,measured,source_ingest,2024.0,
 Kenya,2024,fossil_share_elec,8.522,measured,source_ingest,2024.0,
-Kenya,2024,gdp,207275290511.86432,estimated,dampened_exponential_log_linear,2022.0,0.9749500500902641
+Kenya,2024,gdp,207275290511.86435,estimated,dampened_exponential_log_linear,2022.0,0.9749500500902641
 Kenya,2024,greenhouse_gas_emissions,1.13,measured,source_ingest,2024.0,
 Kenya,2024,hydro_electricity,3.1,measured,source_ingest,2024.0,
 Kenya,2024,low_carbon_share_elec,91.478,measured,source_ingest,2024.0,
@@ -5190,7 +5190,7 @@ Kenya,2025,energy_poverty_electricity_rural (% of rural population),23.300000000
 Kenya,2025,energy_poverty_electricity_urban (% of urban population),0.0,estimated,linear_projection,2024.0,0.8736760566758868
 Kenya,2025,energy_poverty_multidimensional (% of total population),38.108928571428805,measured,source_ingest,2025.0,
 Kenya,2025,fossil_share_elec,9.972,measured,source_ingest,2025.0,
-Kenya,2025,gdp,208159328738.39392,estimated,dampened_exponential_log_linear,2022.0,0.9749500500902641
+Kenya,2025,gdp,213543303045.6973,estimated,dampened_exponential_log_linear,2022.0,0.9749500500902641
 Kenya,2025,greenhouse_gas_emissions,1.34,measured,source_ingest,2025.0,
 Kenya,2025,hydro_electricity,2.94,measured,source_ingest,2025.0,
 Kenya,2025,low_carbon_share_elec,90.028,measured,source_ingest,2025.0,
@@ -5246,7 +5246,7 @@ Lesotho,2018,carbon_intensity_elec,19.23,measured,source_ingest,2018.0,
 Lesotho,2018,electricity_demand (TWh),0.91,measured,source_ingest,2018.0,
 Lesotho,2018,electricity_generation (TWh),0.52,measured,source_ingest,2018.0,
 Lesotho,2018,energy_poverty_electricity (% of total population),53.0,derived,one_minus_access,2018.0,
-Lesotho,2018,energy_poverty_electricity_rural (% of rural population),58.6,estimated,observed_or_carry,2024.0,
+Lesotho,2018,energy_poverty_electricity_rural (% of rural population),73.6,estimated,linear_interpolation,2017.0,
 Lesotho,2018,energy_poverty_electricity_urban (% of urban population),29.299999999999997,measured,source_ingest,2018.0,
 Lesotho,2018,energy_poverty_multidimensional (% of total population),54.3,measured,source_ingest,2018.0,
 Lesotho,2018,fossil_share_elec,0.0,measured,source_ingest,2018.0,
@@ -5370,7 +5370,7 @@ Lesotho,2024,energy_poverty_electricity_rural (% of rural population),58.6,measu
 Lesotho,2024,energy_poverty_electricity_urban (% of urban population),14.799999999999997,measured,source_ingest,2024.0,
 Lesotho,2024,energy_poverty_multidimensional (% of total population),42.70535714285688,measured,source_ingest,2024.0,
 Lesotho,2024,fossil_share_elec,0.0,estimated,linear_projection,2022.0,0.0
-Lesotho,2024,gdp,4536977566.358367,estimated,dampened_exponential_log_linear,2022.0,0.8255594556641462
+Lesotho,2024,gdp,4536977566.358366,estimated,dampened_exponential_log_linear,2022.0,0.8255594556641462
 Lesotho,2024,greenhouse_gas_emissions,0.0,measured,source_ingest,2024.0,
 Lesotho,2024,hydro_electricity,0.0,measured,source_ingest,2024.0,
 Lesotho,2024,low_carbon_share_elec,100.0,estimated,linear_projection,2022.0,0.0
@@ -5382,20 +5382,20 @@ Lesotho,2024,wind_electricity,0.0,measured,source_ingest,2024.0,
 Lesotho,2025,Access to Clean Fuels and Technologies for cooking (% of total population),57.342857142857156,estimated,linear_projection,2023.0,0.9995936140056065
 Lesotho,2025,Access to electricity (% of total population),62.732657345385,estimated,logistic_logit_linear,2024.0,0.8909831070243872
 Lesotho,2025,Population growth (annual %),1.1020485314959,measured,source_ingest,2025.0,
-Lesotho,2025,carbon_intensity_elec,21.573267886478114,estimated,dampened_exponential_log_linear,2022.0,0.08556565340169964
+Lesotho,2025,carbon_intensity_elec,21.790460708429624,estimated,dampened_exponential_log_linear,2022.0,0.08556565340169964
 Lesotho,2025,electricity_demand (TWh),0.5438721356119012,estimated,dampened_exponential_log_linear,2024.0,0.43963287347981717
-Lesotho,2025,electricity_generation (TWh),0.4634596862920238,estimated,dampened_exponential_log_linear,2022.0,0.08559191673642486
+Lesotho,2025,electricity_generation (TWh),0.45883944119008113,estimated,dampened_exponential_log_linear,2022.0,0.08559191673642486
 Lesotho,2025,energy_poverty_electricity (% of total population),37.267342654615,estimated,one_minus_access,2024.0,
 Lesotho,2025,energy_poverty_electricity_rural (% of rural population),52.097747747748144,estimated,linear_projection,2024.0,0.8917513381309525
 Lesotho,2025,energy_poverty_electricity_urban (% of urban population),10.105555555554929,estimated,linear_projection,2024.0,0.9772259051504297
 Lesotho,2025,energy_poverty_multidimensional (% of total population),40.29404761904698,measured,source_ingest,2025.0,
 Lesotho,2025,fossil_share_elec,0.0,estimated,linear_projection,2022.0,0.0
-Lesotho,2025,gdp,4526022996.197513,estimated,dampened_exponential_log_linear,2022.0,0.8255594556641462
+Lesotho,2025,gdp,4460848793.319527,estimated,dampened_exponential_log_linear,2022.0,0.8255594556641462
 Lesotho,2025,greenhouse_gas_emissions,0.01,estimated,dampened_exponential_log_linear,2022.0,0.0
-Lesotho,2025,hydro_electricity,0.4634596862920238,estimated,dampened_exponential_log_linear,2022.0,0.08559191673642486
+Lesotho,2025,hydro_electricity,0.45883944119008113,estimated,dampened_exponential_log_linear,2022.0,0.08559191673642486
 Lesotho,2025,low_carbon_share_elec,100.0,estimated,linear_projection,2022.0,0.0
 Lesotho,2025,population,2363330.055407173,estimated,limit_year_population_growth_rate_exponential,2024.0,
-Lesotho,2025,renewables_electricity,0.4634596862920238,estimated,dampened_exponential_log_linear,2022.0,0.08559191673642486
+Lesotho,2025,renewables_electricity,0.45883944119008113,estimated,dampened_exponential_log_linear,2022.0,0.08559191673642486
 Lesotho,2025,renewables_share_elec,100.0,estimated,linear_projection,2022.0,0.0
 Lesotho,2025,solar_electricity,,missing,no_history,,
 Lesotho,2025,wind_electricity,,missing,no_history,,
@@ -5590,7 +5590,7 @@ Liberia,2025,energy_poverty_electricity_rural (% of rural population),88.0750000
 Liberia,2025,energy_poverty_electricity_urban (% of urban population),40.31388888888887,estimated,linear_projection,2024.0,0.8921478972256558
 Liberia,2025,energy_poverty_multidimensional (% of total population),80.98869047619019,measured,source_ingest,2025.0,
 Liberia,2025,fossil_share_elec,36.889500000001135,estimated,linear_projection,2024.0,0.8231788986273696
-Liberia,2025,gdp,4312745218.285306,estimated,dampened_exponential_log_linear,2022.0,0.36108146548110354
+Liberia,2025,gdp,4336225454.550925,estimated,dampened_exponential_log_linear,2022.0,0.36108146548110354
 Liberia,2025,greenhouse_gas_emissions,0.1757227101669218,estimated,dampened_exponential_log_linear,2024.0,0.35178634211982907
 Liberia,2025,hydro_electricity,0.35217324993272975,estimated,dampened_exponential_log_linear,2024.0,0.5981171181738159
 Liberia,2025,low_carbon_share_elec,63.110499999998865,estimated,linear_projection,2024.0,0.8231788986273695
@@ -5790,7 +5790,7 @@ Libya,2025,energy_poverty_electricity_rural (% of rural population),,missing,no_
 Libya,2025,energy_poverty_electricity_urban (% of urban population),0.0,estimated,linear_projection,2024.0,0.0
 Libya,2025,energy_poverty_multidimensional (% of total population),,missing,no_history,,
 Libya,2025,fossil_share_elec,99.97116666666668,estimated,linear_projection,2024.0,0.11666666666612524
-Libya,2025,gdp,86482416393.58005,estimated,dampened_exponential_log_linear,2022.0,0.1113476509786242
+Libya,2025,gdp,85114793334.0336,estimated,dampened_exponential_log_linear,2022.0,0.1113476509786242
 Libya,2025,greenhouse_gas_emissions,28.903151364900577,estimated,dampened_exponential_log_linear,2024.0,0.24391303119559804
 Libya,2025,hydro_electricity,,missing,no_history,,
 Libya,2025,low_carbon_share_elec,0.028833333333333377,estimated,linear_projection,2024.0,0.11666666666667336
@@ -5806,7 +5806,7 @@ Madagascar,2016,carbon_intensity_elec,357.9,measured,source_ingest,2016.0,
 Madagascar,2016,electricity_demand (TWh),1.9,measured,source_ingest,2016.0,
 Madagascar,2016,electricity_generation (TWh),1.9,measured,source_ingest,2016.0,
 Madagascar,2016,energy_poverty_electricity (% of total population),77.1,derived,one_minus_access,2016.0,
-Madagascar,2016,energy_poverty_electricity_rural (% of rural population),73.5,estimated,observed_or_carry,2024.0,
+Madagascar,2016,energy_poverty_electricity_rural (% of rural population),84.0,estimated,observed_or_carry,2018.0,
 Madagascar,2016,energy_poverty_electricity_urban (% of urban population),32.7,measured,source_ingest,2016.0,
 Madagascar,2016,energy_poverty_multidimensional (% of total population),88.05,measured,source_ingest,2016.0,
 Madagascar,2016,fossil_share_elec,51.579,measured,source_ingest,2016.0,
@@ -5826,7 +5826,7 @@ Madagascar,2017,carbon_intensity_elec,409.09,measured,source_ingest,2017.0,
 Madagascar,2017,electricity_demand (TWh),1.98,measured,source_ingest,2017.0,
 Madagascar,2017,electricity_generation (TWh),1.98,measured,source_ingest,2017.0,
 Madagascar,2017,energy_poverty_electricity (% of total population),75.9,derived,one_minus_access,2017.0,
-Madagascar,2017,energy_poverty_electricity_rural (% of rural population),73.5,estimated,observed_or_carry,2024.0,
+Madagascar,2017,energy_poverty_electricity_rural (% of rural population),84.0,estimated,observed_or_carry,2018.0,
 Madagascar,2017,energy_poverty_electricity_urban (% of urban population),33.400000000000006,measured,source_ingest,2017.0,
 Madagascar,2017,energy_poverty_multidimensional (% of total population),87.4,measured,source_ingest,2017.0,
 Madagascar,2017,fossil_share_elec,58.081,measured,source_ingest,2017.0,
@@ -5990,7 +5990,7 @@ Madagascar,2025,energy_poverty_electricity_rural (% of rural population),80.3000
 Madagascar,2025,energy_poverty_electricity_urban (% of urban population),23.39166666666688,estimated,linear_projection,2024.0,0.4911103359450517
 Madagascar,2025,energy_poverty_multidimensional (% of total population),77.42083333333312,measured,source_ingest,2025.0,
 Madagascar,2025,fossil_share_elec,62.439972222222195,estimated,linear_projection,2024.0,0.15025810922351668
-Madagascar,2025,gdp,40048306080.21075,estimated,dampened_exponential_log_linear,2022.0,0.6265686706370388
+Madagascar,2025,gdp,40471345655.6347,estimated,dampened_exponential_log_linear,2022.0,0.6265686706370388
 Madagascar,2025,greenhouse_gas_emissions,1.104963367143439,estimated,dampened_exponential_log_linear,2024.0,0.4943484301701747
 Madagascar,2025,hydro_electricity,0.9047310697502812,estimated,dampened_exponential_log_linear,2024.0,0.027933194399827332
 Madagascar,2025,low_carbon_share_elec,37.560027777777805,estimated,linear_projection,2024.0,0.1502581092235168
@@ -6170,7 +6170,7 @@ Malawi,2024,energy_poverty_electricity_rural (% of rural population),93.6,measur
 Malawi,2024,energy_poverty_electricity_urban (% of urban population),40.5,measured,source_ingest,2024.0,
 Malawi,2024,energy_poverty_multidimensional (% of total population),91.78392857142856,measured,source_ingest,2024.0,
 Malawi,2024,fossil_share_elec,4.372,measured,source_ingest,2024.0,
-Malawi,2024,gdp,28328783794.170513,estimated,dampened_exponential_log_linear,2022.0,0.9685093766856285
+Malawi,2024,gdp,28328783794.170517,estimated,dampened_exponential_log_linear,2022.0,0.9685093766856285
 Malawi,2024,greenhouse_gas_emissions,0.1,measured,source_ingest,2024.0,
 Malawi,2024,hydro_electricity,1.69,measured,source_ingest,2024.0,
 Malawi,2024,low_carbon_share_elec,95.628,measured,source_ingest,2024.0,
@@ -6190,7 +6190,7 @@ Malawi,2025,energy_poverty_electricity_rural (% of rural population),94.00277777
 Malawi,2025,energy_poverty_electricity_urban (% of urban population),40.41111111111104,estimated,linear_projection,2024.0,0.4680778948186729
 Malawi,2025,energy_poverty_multidimensional (% of total population),91.66369047619048,measured,source_ingest,2025.0,
 Malawi,2025,fossil_share_elec,3.4012500000001182,estimated,linear_projection,2024.0,0.03233596637287339
-Malawi,2025,gdp,28425325275.676735,estimated,dampened_exponential_log_linear,2022.0,0.9685093766856285
+Malawi,2025,gdp,29011522606.059124,estimated,dampened_exponential_log_linear,2022.0,0.9685093766856285
 Malawi,2025,greenhouse_gas_emissions,0.09760670172803561,estimated,dampened_exponential_log_linear,2024.0,0.019387133395598943
 Malawi,2025,hydro_electricity,1.678375963823417,estimated,dampened_exponential_log_linear,2024.0,0.05200679914210615
 Malawi,2025,low_carbon_share_elec,96.59874999999988,estimated,linear_projection,2024.0,0.032335966372873615
@@ -6226,7 +6226,7 @@ Mali,2017,carbon_intensity_elec,372.09,measured,source_ingest,2017.0,
 Mali,2017,electricity_demand (TWh),3.19,measured,source_ingest,2017.0,
 Mali,2017,electricity_generation (TWh),3.44,measured,source_ingest,2017.0,
 Mali,2017,energy_poverty_electricity (% of total population),65.2,derived,one_minus_access,2017.0,
-Mali,2017,energy_poverty_electricity_rural (% of rural population),68.6,estimated,observed_or_carry,2024.0,
+Mali,2017,energy_poverty_electricity_rural (% of rural population),83.1,estimated,linear_interpolation,2016.0,
 Mali,2017,energy_poverty_electricity_urban (% of urban population),15.0,measured,source_ingest,2017.0,
 Mali,2017,energy_poverty_multidimensional (% of total population),82.1,measured,source_ingest,2017.0,
 Mali,2017,fossil_share_elec,54.36,measured,source_ingest,2017.0,
@@ -6390,7 +6390,7 @@ Mali,2025,energy_poverty_electricity_rural (% of rural population),71.6766917293
 Mali,2025,energy_poverty_electricity_urban (% of urban population),3.091666666666697,estimated,linear_projection,2024.0,0.3824095351294442
 Mali,2025,energy_poverty_multidimensional (% of total population),68.38571428571458,measured,source_ingest,2025.0,
 Mali,2025,fossil_share_elec,79.2132222222217,estimated,linear_projection,2024.0,0.7010200248112366
-Mali,2025,gdp,32563792874.887177,estimated,dampened_exponential_log_linear,2022.0,0.9279656087369841
+Mali,2025,gdp,33162834969.677315,estimated,dampened_exponential_log_linear,2022.0,0.9279656087369841
 Mali,2025,greenhouse_gas_emissions,3.6536895572229056,estimated,dampened_exponential_log_linear,2024.0,0.8335675002739122
 Mali,2025,hydro_electricity,0.8776959310014225,estimated,dampened_exponential_log_linear,2024.0,0.43163365689504674
 Mali,2025,low_carbon_share_elec,20.786777777778298,estimated,linear_projection,2024.0,0.7010200248112366
@@ -6590,7 +6590,7 @@ Mauritania,2025,energy_poverty_electricity_rural (% of rural population),,missin
 Mauritania,2025,energy_poverty_electricity_urban (% of urban population),3.308333333333394,estimated,linear_projection,2024.0,0.9944143113057341
 Mauritania,2025,energy_poverty_multidimensional (% of total population),48.30238095238087,measured,source_ingest,2025.0,
 Mauritania,2025,fossil_share_elec,75.56338888888888,estimated,linear_projection,2024.0,0.1264677555791872
-Mauritania,2025,gdp,16841886678.332968,estimated,dampened_exponential_log_linear,2022.0,0.9360692000444205
+Mauritania,2025,gdp,17191106334.862934,estimated,dampened_exponential_log_linear,2022.0,0.9360692000444205
 Mauritania,2025,greenhouse_gas_emissions,1.1381559243774835,estimated,dampened_exponential_log_linear,2024.0,0.8623305675154451
 Mauritania,2025,hydro_electricity,0.22003658077346266,estimated,dampened_exponential_log_linear,2024.0,0.6266705604484883
 Mauritania,2025,low_carbon_share_elec,24.43661111111112,estimated,linear_projection,2024.0,0.12646775557918033
@@ -6770,7 +6770,7 @@ Mauritius,2024,energy_poverty_electricity_rural (% of rural population),0.0,meas
 Mauritius,2024,energy_poverty_electricity_urban (% of urban population),0.0,measured,source_ingest,2024.0,
 Mauritius,2024,energy_poverty_multidimensional (% of total population),0.4160714285714277,measured,source_ingest,2024.0,
 Mauritius,2024,fossil_share_elec,82.111,measured,source_ingest,2024.0,
-Mauritius,2024,gdp,26887888682.507324,estimated,dampened_exponential_log_linear,2022.0,0.0051453286060451076
+Mauritius,2024,gdp,26887888682.507328,estimated,dampened_exponential_log_linear,2022.0,0.0051453286060451076
 Mauritius,2024,greenhouse_gas_emissions,2.19,measured,source_ingest,2024.0,
 Mauritius,2024,hydro_electricity,0.11,measured,source_ingest,2024.0,
 Mauritius,2024,low_carbon_share_elec,17.889,measured,source_ingest,2024.0,
@@ -6790,7 +6790,7 @@ Mauritius,2025,energy_poverty_electricity_rural (% of rural population),0.0,esti
 Mauritius,2025,energy_poverty_electricity_urban (% of urban population),0.30833333333333,estimated,linear_projection,2024.0,0.02057823129251568
 Mauritius,2025,energy_poverty_multidimensional (% of total population),0.3613095238095241,measured,source_ingest,2025.0,
 Mauritius,2025,fossil_share_elec,81.66794444444452,estimated,linear_projection,2024.0,0.3220314553887128
-Mauritius,2025,gdp,26882864256.53544,estimated,dampened_exponential_log_linear,2022.0,0.0051453286060451076
+Mauritius,2025,gdp,26852737411.32219,estimated,dampened_exponential_log_linear,2022.0,0.0051453286060451076
 Mauritius,2025,greenhouse_gas_emissions,2.207785711029396,estimated,dampened_exponential_log_linear,2024.0,0.1417380919247636
 Mauritius,2025,hydro_electricity,0.11117338070735389,estimated,dampened_exponential_log_linear,2024.0,0.050126550865411734
 Mauritius,2025,low_carbon_share_elec,18.332055555555485,estimated,linear_projection,2024.0,0.3220314553887038
@@ -6990,7 +6990,7 @@ Morocco,2025,energy_poverty_electricity_rural (% of rural population),0.0,estima
 Morocco,2025,energy_poverty_electricity_urban (% of urban population),0.0,estimated,linear_projection,2024.0,0.3857142857142961
 Morocco,2025,energy_poverty_multidimensional (% of total population),0.4851190476190936,measured,source_ingest,2025.0,
 Morocco,2025,fossil_share_elec,76.045,measured,source_ingest,2025.0,
-Morocco,2025,gdp,322061495498.4937,estimated,dampened_exponential_log_linear,2022.0,0.5537087711710292
+Morocco,2025,gdp,325098118862.8698,estimated,dampened_exponential_log_linear,2022.0,0.5537087711710292
 Morocco,2025,greenhouse_gas_emissions,26.54,measured,source_ingest,2025.0,
 Morocco,2025,hydro_electricity,0.91,measured,source_ingest,2025.0,
 Morocco,2025,low_carbon_share_elec,23.955,measured,source_ingest,2025.0,
@@ -7170,7 +7170,7 @@ Mozambique,2024,energy_poverty_electricity_rural (% of rural population),87.7,me
 Mozambique,2024,energy_poverty_electricity_urban (% of urban population),20.200000000000003,measured,source_ingest,2024.0,
 Mozambique,2024,energy_poverty_multidimensional (% of total population),77.87857142857138,measured,source_ingest,2024.0,
 Mozambique,2024,fossil_share_elec,16.574,measured,source_ingest,2024.0,
-Mozambique,2024,gdp,32774992418.316914,estimated,dampened_exponential_log_linear,2022.0,0.9104635581754388
+Mozambique,2024,gdp,32774992418.31691,estimated,dampened_exponential_log_linear,2022.0,0.9104635581754388
 Mozambique,2024,greenhouse_gas_emissions,2.56,measured,source_ingest,2024.0,
 Mozambique,2024,hydro_electricity,16.3,measured,source_ingest,2024.0,
 Mozambique,2024,low_carbon_share_elec,83.426,measured,source_ingest,2024.0,
@@ -7190,7 +7190,7 @@ Mozambique,2025,energy_poverty_electricity_rural (% of rural population),90.6361
 Mozambique,2025,energy_poverty_electricity_urban (% of urban population),15.741666666666788,estimated,linear_projection,2024.0,0.802879260843594
 Mozambique,2025,energy_poverty_multidimensional (% of total population),76.98630952380927,measured,source_ingest,2025.0,
 Mozambique,2025,fossil_share_elec,15.986944444444362,estimated,linear_projection,2024.0,0.333210192225907
-Mozambique,2025,gdp,32843120310.549335,estimated,dampened_exponential_log_linear,2022.0,0.9104635581754388
+Mozambique,2025,gdp,33254871889.88435,estimated,dampened_exponential_log_linear,2022.0,0.9104635581754388
 Mozambique,2025,greenhouse_gas_emissions,2.558796400711451,estimated,dampened_exponential_log_linear,2024.0,0.00048050450805181555
 Mozambique,2025,hydro_electricity,16.57120468028154,estimated,dampened_exponential_log_linear,2024.0,0.5359035923935359
 Mozambique,2025,low_carbon_share_elec,84.01305555555564,estimated,linear_projection,2024.0,0.3332101922259071
@@ -7286,7 +7286,7 @@ Namibia,2020,carbon_intensity_elec,60.0,measured,source_ingest,2020.0,
 Namibia,2020,electricity_demand (TWh),4.19,measured,source_ingest,2020.0,
 Namibia,2020,electricity_generation (TWh),2.0,measured,source_ingest,2020.0,
 Namibia,2020,energy_poverty_electricity (% of total population),47.7,derived,one_minus_access,2020.0,
-Namibia,2020,energy_poverty_electricity_rural (% of rural population),58.9,estimated,observed_or_carry,2024.0,
+Namibia,2020,energy_poverty_electricity_rural (% of rural population),67.8,estimated,linear_interpolation,2019.0,
 Namibia,2020,energy_poverty_electricity_urban (% of urban population),25.299999999999997,measured,source_ingest,2020.0,
 Namibia,2020,energy_poverty_multidimensional (% of total population),50.400000000000006,measured,source_ingest,2020.0,
 Namibia,2020,fossil_share_elec,3.5,measured,source_ingest,2020.0,
@@ -7390,7 +7390,7 @@ Namibia,2025,energy_poverty_electricity_rural (% of rural population),62.2083333
 Namibia,2025,energy_poverty_electricity_urban (% of urban population),22.78611111111104,estimated,linear_projection,2024.0,0.5814238346639151
 Namibia,2025,energy_poverty_multidimensional (% of total population),46.19761904761913,measured,source_ingest,2025.0,
 Namibia,2025,fossil_share_elec,1.7445833333333098,estimated,linear_projection,2024.0,0.3285520356528273
-Namibia,2025,gdp,21392813296.871838,estimated,dampened_exponential_log_linear,2022.0,0.3781231495749413
+Namibia,2025,gdp,21261527518.050735,estimated,dampened_exponential_log_linear,2022.0,0.3781231495749413
 Namibia,2025,greenhouse_gas_emissions,0.0790252622519059,estimated,dampened_exponential_log_linear,2024.0,0.019556392976331827
 Namibia,2025,hydro_electricity,0.9587676536844408,estimated,dampened_exponential_log_linear,2024.0,0.23201271682465208
 Namibia,2025,low_carbon_share_elec,98.25541666666669,estimated,linear_projection,2024.0,0.32855203565281466
@@ -7590,7 +7590,7 @@ Niger,2025,energy_poverty_electricity_rural (% of rural population),90.072222222
 Niger,2025,energy_poverty_electricity_urban (% of urban population),29.133333333333212,estimated,linear_projection,2024.0,0.5114278811307125
 Niger,2025,energy_poverty_multidimensional (% of total population),86.77499999999998,measured,source_ingest,2025.0,
 Niger,2025,fossil_share_elec,96.85661111111119,estimated,linear_projection,2024.0,0.4162493920889384
-Niger,2025,gdp,27597459563.51952,estimated,dampened_exponential_log_linear,2022.0,0.9723420451309237
+Niger,2025,gdp,28460831840.59118,estimated,dampened_exponential_log_linear,2022.0,0.9723420451309237
 Niger,2025,greenhouse_gas_emissions,0.67628830068937,estimated,dampened_exponential_log_linear,2024.0,0.6192243468364633
 Niger,2025,hydro_electricity,,missing,no_history,,
 Niger,2025,low_carbon_share_elec,3.1433888888888646,estimated,linear_projection,2024.0,0.416249392088923
@@ -7790,7 +7790,7 @@ Nigeria,2025,energy_poverty_electricity_rural (% of rural population),74.0361111
 Nigeria,2025,energy_poverty_electricity_urban (% of urban population),13.291666666666686,estimated,linear_projection,2024.0,0.05489390106801273
 Nigeria,2025,energy_poverty_multidimensional (% of total population),53.10565476190504,measured,source_ingest,2025.0,
 Nigeria,2025,fossil_share_elec,68.681,measured,source_ingest,2025.0,
-Nigeria,2025,gdp,1170475647883.368,estimated,dampened_exponential_log_linear,2022.0,0.87400137259714
+Nigeria,2025,gdp,1180977673259.3152,estimated,dampened_exponential_log_linear,2022.0,0.87400137259714
 Nigeria,2025,greenhouse_gas_emissions,18.93,measured,source_ingest,2025.0,
 Nigeria,2025,hydro_electricity,12.82,measured,source_ingest,2025.0,
 Nigeria,2025,low_carbon_share_elec,31.319,measured,source_ingest,2025.0,
@@ -7990,7 +7990,7 @@ Rwanda,2025,energy_poverty_electricity_rural (% of rural population),36.18888888
 Rwanda,2025,energy_poverty_electricity_urban (% of urban population),0.02500000000009095,estimated,linear_projection,2024.0,0.5344695644932967
 Rwanda,2025,energy_poverty_multidimensional (% of total population),60.79345238095266,measured,source_ingest,2025.0,
 Rwanda,2025,fossil_share_elec,44.17758333333313,estimated,linear_projection,2024.0,0.10452963638242263
-Rwanda,2025,gdp,32044547724.93035,estimated,dampened_exponential_log_linear,2022.0,0.9514296173522542
+Rwanda,2025,gdp,33147186445.334557,estimated,dampened_exponential_log_linear,2022.0,0.9514296173522542
 Rwanda,2025,greenhouse_gas_emissions,0.4264829692135493,estimated,dampened_exponential_log_linear,2024.0,0.6019553030019604
 Rwanda,2025,hydro_electricity,0.5693578824793398,estimated,dampened_exponential_log_linear,2024.0,0.7508955414577974
 Rwanda,2025,low_carbon_share_elec,55.82241666666687,estimated,linear_projection,2024.0,0.10452963638242263
@@ -8170,7 +8170,7 @@ Sao Tome and Principe,2024,energy_poverty_electricity_rural (% of rural populati
 Sao Tome and Principe,2024,energy_poverty_electricity_urban (% of urban population),21.099999999999994,measured,source_ingest,2024.0,
 Sao Tome and Principe,2024,energy_poverty_multidimensional (% of total population),56.41607142857151,measured,source_ingest,2024.0,
 Sao Tome and Principe,2024,fossil_share_elec,87.48203571428621,estimated,linear_projection,2023.0,0.3770128514676231
-Sao Tome and Principe,2024,gdp,865685855.2951025,estimated,dampened_exponential_log_linear,2022.0,0.9599567608210485
+Sao Tome and Principe,2024,gdp,865685855.2951027,estimated,dampened_exponential_log_linear,2022.0,0.9599567608210485
 Sao Tome and Principe,2024,greenhouse_gas_emissions,0.04765347442889703,estimated,dampened_exponential_log_linear,2023.0,0.5714285714285718
 Sao Tome and Principe,2024,hydro_electricity,0.01,estimated,dampened_exponential_log_linear,2023.0,0.0
 Sao Tome and Principe,2024,low_carbon_share_elec,12.517964285713788,estimated,linear_projection,2023.0,0.3770128514676284
@@ -8183,18 +8183,18 @@ Sao Tome and Principe,2025,Access to Clean Fuels and Technologies for cooking (%
 Sao Tome and Principe,2025,Access to electricity (% of total population),81.35701336495978,estimated,logistic_logit_linear,2024.0,0.7511940616928965
 Sao Tome and Principe,2025,Population growth (annual %),1.98329290197673,measured,source_ingest,2025.0,
 Sao Tome and Principe,2025,carbon_intensity_elec,524.803907700872,estimated,dampened_exponential_log_linear,2023.0,0.6280341535884468
-Sao Tome and Principe,2025,electricity_demand (TWh),0.08654197063156976,estimated,dampened_exponential_log_linear,2023.0,0.293578554798565
-Sao Tome and Principe,2025,electricity_generation (TWh),0.08654197063156976,estimated,dampened_exponential_log_linear,2023.0,0.293578554798565
+Sao Tome and Principe,2025,electricity_demand (TWh),0.08654197063156978,estimated,dampened_exponential_log_linear,2023.0,0.293578554798565
+Sao Tome and Principe,2025,electricity_generation (TWh),0.08654197063156978,estimated,dampened_exponential_log_linear,2023.0,0.293578554798565
 Sao Tome and Principe,2025,energy_poverty_electricity (% of total population),18.642986635040216,estimated,one_minus_access,2024.0,
 Sao Tome and Principe,2025,energy_poverty_electricity_rural (% of rural population),22.8527777777781,estimated,linear_projection,2024.0,0.31778200083104524
 Sao Tome and Principe,2025,energy_poverty_electricity_urban (% of urban population),17.516666666666424,estimated,linear_projection,2024.0,0.7737364436259466
 Sao Tome and Principe,2025,energy_poverty_multidimensional (% of total population),55.50297619047615,measured,source_ingest,2025.0,
 Sao Tome and Principe,2025,fossil_share_elec,86.32765476190525,estimated,linear_projection,2023.0,0.3770128514676231
-Sao Tome and Principe,2025,gdp,867759478.5256509,estimated,dampened_exponential_log_linear,2022.0,0.9599567608210485
+Sao Tome and Principe,2025,gdp,880305943.5861655,estimated,dampened_exponential_log_linear,2022.0,0.9599567608210485
 Sao Tome and Principe,2025,greenhouse_gas_emissions,0.045417072502910855,estimated,dampened_exponential_log_linear,2023.0,0.5714285714285718
 Sao Tome and Principe,2025,hydro_electricity,0.01,estimated,dampened_exponential_log_linear,2023.0,0.0
 Sao Tome and Principe,2025,low_carbon_share_elec,13.67234523809475,estimated,linear_projection,2023.0,0.3770128514676284
-Sao Tome and Principe,2025,population,240224.1907729196,estimated,limit_year_population_growth_rate_exponential,2023.0,
+Sao Tome and Principe,2025,population,240224.19077291957,estimated,limit_year_population_growth_rate_exponential,2023.0,
 Sao Tome and Principe,2025,renewables_electricity,0.01,estimated,dampened_exponential_log_linear,2023.0,0.0
 Sao Tome and Principe,2025,renewables_share_elec,13.67234523809475,estimated,linear_projection,2023.0,0.3770128514676284
 Sao Tome and Principe,2025,solar_electricity,,missing,no_history,,
@@ -8370,7 +8370,7 @@ Senegal,2024,energy_poverty_electricity_rural (% of rural population),32.9000000
 Senegal,2024,energy_poverty_electricity_urban (% of urban population),4.299999999999997,measured,source_ingest,2024.0,
 Senegal,2024,energy_poverty_multidimensional (% of total population),46.2035714285712,measured,source_ingest,2024.0,
 Senegal,2024,fossil_share_elec,80.21,measured,source_ingest,2024.0,
-Senegal,2024,gdp,56956481468.271965,estimated,dampened_exponential_log_linear,2022.0,0.9779151596025979
+Senegal,2024,gdp,56956481468.27196,estimated,dampened_exponential_log_linear,2022.0,0.9779151596025979
 Senegal,2024,greenhouse_gas_emissions,4.12,measured,source_ingest,2024.0,
 Senegal,2024,hydro_electricity,0.31,measured,source_ingest,2024.0,
 Senegal,2024,low_carbon_share_elec,19.79,measured,source_ingest,2024.0,
@@ -8390,7 +8390,7 @@ Senegal,2025,energy_poverty_electricity_rural (% of rural population),40.7416666
 Senegal,2025,energy_poverty_electricity_urban (% of urban population),2.2250000000001364,estimated,linear_projection,2024.0,0.6608767772511881
 Senegal,2025,energy_poverty_multidimensional (% of total population),45.12797619047615,measured,source_ingest,2025.0,
 Senegal,2025,fossil_share_elec,77.77500000000009,estimated,linear_projection,2024.0,0.7914692027752748
-Senegal,2025,gdp,57221084964.46078,estimated,dampened_exponential_log_linear,2022.0,0.9779151596025979
+Senegal,2025,gdp,58834721465.22125,estimated,dampened_exponential_log_linear,2022.0,0.9779151596025979
 Senegal,2025,greenhouse_gas_emissions,4.3530852751139735,estimated,dampened_exponential_log_linear,2024.0,0.8667242567595159
 Senegal,2025,hydro_electricity,0.30312417419520166,estimated,dampened_exponential_log_linear,2024.0,0.6750000000000002
 Senegal,2025,low_carbon_share_elec,22.22499999999991,estimated,linear_projection,2024.0,0.7914692027752747
@@ -8521,7 +8521,7 @@ Seychelles,2021,solar_electricity,0.07,measured,source_ingest,2021.0,
 Seychelles,2021,wind_electricity,0.01,measured,source_ingest,2021.0,
 Seychelles,2022,Access to Clean Fuels and Technologies for cooking (% of total population),100.0,measured,source_ingest,2022.0,
 Seychelles,2022,Access to electricity (% of total population),100.0,measured,source_ingest,2022.0,
-Seychelles,2022,Population growth (annual %),1.12749264749076,estimated,observed_or_carry,2025.0,
+Seychelles,2022,Population growth (annual %),0.9739092434564907,estimated,linear_interpolation,2021.0,
 Seychelles,2022,carbon_intensity_elec,564.52,measured,source_ingest,2022.0,
 Seychelles,2022,electricity_demand (TWh),0.62,measured,source_ingest,2022.0,
 Seychelles,2022,electricity_generation (TWh),0.62,measured,source_ingest,2022.0,
@@ -8590,7 +8590,7 @@ Seychelles,2025,energy_poverty_electricity_rural (% of rural population),0.0,est
 Seychelles,2025,energy_poverty_electricity_urban (% of urban population),0.0,estimated,linear_projection,2024.0,0.0
 Seychelles,2025,energy_poverty_multidimensional (% of total population),0.0,measured,source_ingest,2025.0,
 Seychelles,2025,fossil_share_elec,80.38916666666682,estimated,linear_projection,2024.0,0.9018462105893126
-Seychelles,2025,gdp,3160568405.444195,estimated,dampened_exponential_log_linear,2022.0,0.4238892679373635
+Seychelles,2025,gdp,3191882650.6181736,estimated,dampened_exponential_log_linear,2022.0,0.4238892679373635
 Seychelles,2025,greenhouse_gas_emissions,0.35330526231787146,estimated,dampened_exponential_log_linear,2024.0,0.6747838602200882
 Seychelles,2025,hydro_electricity,,missing,no_history,,
 Seychelles,2025,low_carbon_share_elec,19.610833333333176,estimated,linear_projection,2024.0,0.9018462105893126
@@ -8770,7 +8770,7 @@ Sierra Leone,2024,energy_poverty_electricity_rural (% of rural population),75.1,
 Sierra Leone,2024,energy_poverty_electricity_urban (% of urban population),43.6,measured,source_ingest,2024.0,
 Sierra Leone,2024,energy_poverty_multidimensional (% of total population),82.48214285714289,measured,source_ingest,2024.0,
 Sierra Leone,2024,fossil_share_elec,4.762,measured,source_ingest,2024.0,
-Sierra Leone,2024,gdp,12350860057.809015,estimated,dampened_exponential_log_linear,2022.0,0.941173494997688
+Sierra Leone,2024,gdp,12350860057.809017,estimated,dampened_exponential_log_linear,2022.0,0.941173494997688
 Sierra Leone,2024,greenhouse_gas_emissions,0.01,measured,source_ingest,2024.0,
 Sierra Leone,2024,hydro_electricity,0.18,measured,source_ingest,2024.0,
 Sierra Leone,2024,low_carbon_share_elec,95.238,measured,source_ingest,2024.0,
@@ -8790,7 +8790,7 @@ Sierra Leone,2025,energy_poverty_electricity_rural (% of rural population),80.62
 Sierra Leone,2025,energy_poverty_electricity_urban (% of urban population),40.761111111111404,estimated,linear_projection,2024.0,0.7919056899546415
 Sierra Leone,2025,energy_poverty_multidimensional (% of total population),81.60595238095243,measured,source_ingest,2025.0,
 Sierra Leone,2025,fossil_share_elec,0.0,estimated,linear_projection,2024.0,0.6955618688649716
-Sierra Leone,2025,gdp,12385329266.539843,estimated,dampened_exponential_log_linear,2022.0,0.941173494997688
+Sierra Leone,2025,gdp,12594174096.859127,estimated,dampened_exponential_log_linear,2022.0,0.941173494997688
 Sierra Leone,2025,greenhouse_gas_emissions,0.007736705438639679,estimated,dampened_exponential_log_linear,2024.0,0.6568641349388269
 Sierra Leone,2025,hydro_electricity,0.1873218158427207,estimated,dampened_exponential_log_linear,2024.0,0.5984994161265755
 Sierra Leone,2025,low_carbon_share_elec,100.0,estimated,linear_projection,2024.0,0.6955618688649716
@@ -8866,7 +8866,7 @@ Somalia,2019,carbon_intensity_elec,621.62,measured,source_ingest,2019.0,
 Somalia,2019,electricity_demand (TWh),0.37,measured,source_ingest,2019.0,
 Somalia,2019,electricity_generation (TWh),0.37,measured,source_ingest,2019.0,
 Somalia,2019,energy_poverty_electricity (% of total population),50.8,derived,one_minus_access,2019.0,
-Somalia,2019,energy_poverty_electricity_rural (% of rural population),75.6,estimated,observed_or_carry,2024.0,
+Somalia,2019,energy_poverty_electricity_rural (% of rural population),66.2,estimated,linear_interpolation,2018.0,
 Somalia,2019,energy_poverty_electricity_urban (% of urban population),30.099999999999994,measured,source_ingest,2019.0,
 Somalia,2019,energy_poverty_multidimensional (% of total population),73.65,measured,source_ingest,2019.0,
 Somalia,2019,fossil_share_elec,94.595,measured,source_ingest,2019.0,
@@ -9190,7 +9190,7 @@ South Africa,2025,energy_poverty_electricity_rural (% of rural population),3.474
 South Africa,2025,energy_poverty_electricity_urban (% of urban population),7.263888888888687,estimated,linear_projection,2024.0,0.45771909656477017
 South Africa,2025,energy_poverty_multidimensional (% of total population),9.280952380952384,measured,source_ingest,2025.0,
 South Africa,2025,fossil_share_elec,82.159,measured,source_ingest,2025.0,
-South Africa,2025,gdp,725492239321.8127,estimated,dampened_exponential_log_linear,2022.0,0.013427845059671317
+South Africa,2025,gdp,726045448662.6414,estimated,dampened_exponential_log_linear,2022.0,0.013427845059671317
 South Africa,2025,greenhouse_gas_emissions,169.76,measured,source_ingest,2025.0,
 South Africa,2025,hydro_electricity,1.83,measured,source_ingest,2025.0,
 South Africa,2025,low_carbon_share_elec,17.841,measured,source_ingest,2025.0,
@@ -9770,7 +9770,7 @@ Tanzania,2024,energy_poverty_electricity_rural (% of rural population),66.3,meas
 Tanzania,2024,energy_poverty_electricity_urban (% of urban population),14.799999999999997,measured,source_ingest,2024.0,
 Tanzania,2024,energy_poverty_multidimensional (% of total population),69.75714285714321,measured,source_ingest,2024.0,
 Tanzania,2024,fossil_share_elec,67.081,measured,source_ingest,2024.0,
-Tanzania,2024,gdp,222209957287.59225,estimated,dampened_exponential_log_linear,2022.0,0.9922290619158755
+Tanzania,2024,gdp,222209957287.5923,estimated,dampened_exponential_log_linear,2022.0,0.9922290619158755
 Tanzania,2024,greenhouse_gas_emissions,3.05,measured,source_ingest,2024.0,
 Tanzania,2024,hydro_electricity,2.8,measured,source_ingest,2024.0,
 Tanzania,2024,low_carbon_share_elec,32.919,measured,source_ingest,2024.0,
@@ -9790,7 +9790,7 @@ Tanzania,2025,energy_poverty_electricity_rural (% of rural population),64.516666
 Tanzania,2025,energy_poverty_electricity_urban (% of urban population),13.747222222221353,estimated,linear_projection,2024.0,0.9244623376481218
 Tanzania,2025,energy_poverty_multidimensional (% of total population),68.13928571428596,measured,source_ingest,2025.0,
 Tanzania,2025,fossil_share_elec,69.3251944444446,estimated,linear_projection,2024.0,0.15967431648150976
-Tanzania,2025,gdp,223482887200.16812,estimated,dampened_exponential_log_linear,2022.0,0.9922290619158755
+Tanzania,2025,gdp,231275068683.43604,estimated,dampened_exponential_log_linear,2022.0,0.9922290619158755
 Tanzania,2025,greenhouse_gas_emissions,3.2266375963139735,estimated,dampened_exponential_log_linear,2024.0,0.6812874783101053
 Tanzania,2025,hydro_electricity,2.883965496890556,estimated,dampened_exponential_log_linear,2024.0,0.4340075033616405
 Tanzania,2025,low_carbon_share_elec,30.674805555555395,estimated,linear_projection,2024.0,0.15967431648150965
@@ -9970,7 +9970,7 @@ Togo,2024,energy_poverty_electricity_rural (% of rural population),66.1,measured
 Togo,2024,energy_poverty_electricity_urban (% of urban population),4.0,measured,source_ingest,2024.0,
 Togo,2024,energy_poverty_multidimensional (% of total population),62.51249999999982,measured,source_ingest,2024.0,
 Togo,2024,fossil_share_elec,70.423,measured,source_ingest,2024.0,
-Togo,2024,gdp,15522168122.609068,estimated,dampened_exponential_log_linear,2022.0,0.9866799815401827
+Togo,2024,gdp,15522168122.609066,estimated,dampened_exponential_log_linear,2022.0,0.9866799815401827
 Togo,2024,greenhouse_gas_emissions,0.3,measured,source_ingest,2024.0,
 Togo,2024,hydro_electricity,0.08,measured,source_ingest,2024.0,
 Togo,2024,low_carbon_share_elec,29.577,measured,source_ingest,2024.0,
@@ -9990,7 +9990,7 @@ Togo,2025,energy_poverty_electricity_rural (% of rural population),67.3944444444
 Togo,2025,energy_poverty_electricity_urban (% of urban population),0.21388888888895963,estimated,linear_projection,2024.0,0.7234875951727333
 Togo,2025,energy_poverty_multidimensional (% of total population),61.19999999999982,measured,source_ingest,2025.0,
 Togo,2025,fossil_share_elec,75.29580555555555,estimated,linear_projection,2024.0,0.002841854580376113
-Togo,2025,gdp,15587820931.700062,estimated,dampened_exponential_log_linear,2022.0,0.9866799815401827
+Togo,2025,gdp,15987610477.730564,estimated,dampened_exponential_log_linear,2022.0,0.9866799815401827
 Togo,2025,greenhouse_gas_emissions,0.29346904107386634,estimated,dampened_exponential_log_linear,2024.0,0.07306192228021646
 Togo,2025,hydro_electricity,0.06922408252698584,estimated,dampened_exponential_log_linear,2024.0,0.8032875804416967
 Togo,2025,low_carbon_share_elec,24.704194444444454,estimated,linear_projection,2024.0,0.0028418545803746698
@@ -10170,7 +10170,7 @@ Tunisia,2024,energy_poverty_electricity_rural (% of rural population),0.0,measur
 Tunisia,2024,energy_poverty_electricity_urban (% of urban population),0.0,measured,source_ingest,2024.0,
 Tunisia,2024,energy_poverty_multidimensional (% of total population),0.0571428571428533,measured,source_ingest,2024.0,
 Tunisia,2024,fossil_share_elec,95.601,measured,source_ingest,2024.0,
-Tunisia,2024,gdp,129706668871.0903,estimated,dampened_exponential_log_linear,2022.0,0.0044323061292472765
+Tunisia,2024,gdp,129706668871.09032,estimated,dampened_exponential_log_linear,2022.0,0.0044323061292472765
 Tunisia,2024,greenhouse_gas_emissions,11.93,measured,source_ingest,2024.0,
 Tunisia,2024,hydro_electricity,0.01,measured,source_ingest,2024.0,
 Tunisia,2024,low_carbon_share_elec,4.399,measured,source_ingest,2024.0,
@@ -10190,7 +10190,7 @@ Tunisia,2025,energy_poverty_electricity_rural (% of rural population),0.06944444
 Tunisia,2025,energy_poverty_electricity_urban (% of urban population),0.0,estimated,linear_projection,2024.0,0.07500000000000262
 Tunisia,2025,energy_poverty_multidimensional (% of total population),0.0517857142857103,measured,source_ingest,2025.0,
 Tunisia,2025,fossil_share_elec,95.966,measured,source_ingest,2025.0,
-Tunisia,2025,gdp,129719116879.05193,estimated,dampened_exponential_log_linear,2022.0,0.0044323061292472765
+Tunisia,2025,gdp,129793830018.29543,estimated,dampened_exponential_log_linear,2022.0,0.0044323061292472765
 Tunisia,2025,greenhouse_gas_emissions,12.5,measured,source_ingest,2025.0,
 Tunisia,2025,hydro_electricity,0.01,measured,source_ingest,2025.0,
 Tunisia,2025,low_carbon_share_elec,4.034,measured,source_ingest,2025.0,
@@ -10390,7 +10390,7 @@ Uganda,2025,energy_poverty_electricity_rural (% of rural population),52.23055555
 Uganda,2025,energy_poverty_electricity_urban (% of urban population),19.380555555555475,estimated,linear_projection,2024.0,0.7902241647616118
 Uganda,2025,energy_poverty_multidimensional (% of total population),70.08511904761917,measured,source_ingest,2025.0,
 Uganda,2025,fossil_share_elec,2.8731111111111005,estimated,linear_projection,2024.0,0.003970831503850802
-Uganda,2025,gdp,112213985699.53322,estimated,dampened_exponential_log_linear,2022.0,0.9597830458654522
+Uganda,2025,gdp,115317312172.61829,estimated,dampened_exponential_log_linear,2022.0,0.9597830458654522
 Uganda,2025,greenhouse_gas_emissions,0.3623919037490827,estimated,dampened_exponential_log_linear,2024.0,0.5442402575094842
 Uganda,2025,hydro_electricity,5.303637457548168,estimated,dampened_exponential_log_linear,2024.0,0.9520738788749519
 Uganda,2025,low_carbon_share_elec,97.12688888888889,estimated,linear_projection,2024.0,0.0039708315038509134
@@ -10590,7 +10590,7 @@ Zambia,2025,energy_poverty_electricity_rural (% of rural population),75.63055555
 Zambia,2025,energy_poverty_electricity_urban (% of urban population),9.847222222222172,estimated,linear_projection,2024.0,0.6669438190571852
 Zambia,2025,energy_poverty_multidimensional (% of total population),68.71190476190486,measured,source_ingest,2025.0,
 Zambia,2025,fossil_share_elec,12.200083333333339,estimated,linear_projection,2024.0,0.002236371914914659
-Zambia,2025,gdp,71319811495.9173,estimated,dampened_exponential_log_linear,2022.0,0.8404706636237667
+Zambia,2025,gdp,72155737694.89932,estimated,dampened_exponential_log_linear,2022.0,0.8404706636237667
 Zambia,2025,greenhouse_gas_emissions,2.548449435315069,estimated,dampened_exponential_log_linear,2024.0,0.36163767700217786
 Zambia,2025,hydro_electricity,17.985261553108703,estimated,dampened_exponential_log_linear,2024.0,0.8310389210948314
 Zambia,2025,low_carbon_share_elec,87.79991666666665,estimated,linear_projection,2024.0,0.002236371914915436
@@ -10790,7 +10790,7 @@ Zimbabwe,2025,energy_poverty_electricity_rural (% of rural population),50.008333
 Zimbabwe,2025,energy_poverty_electricity_urban (% of urban population),14.261111111111113,estimated,linear_projection,2024.0,0.0011460880195597323
 Zimbabwe,2025,energy_poverty_multidimensional (% of total population),54.03749999999991,measured,source_ingest,2025.0,
 Zimbabwe,2025,fossil_share_elec,34.61024999999972,estimated,linear_projection,2024.0,0.31831310752837183
-Zimbabwe,2025,gdp,25910901630.99664,estimated,dampened_exponential_log_linear,2022.0,6.41667354199793e-05
+Zimbabwe,2025,gdp,25913563889.197624,estimated,dampened_exponential_log_linear,2022.0,6.41667354199793e-05
 Zimbabwe,2025,greenhouse_gas_emissions,3.946284107267454,estimated,dampened_exponential_log_linear,2024.0,0.0004507088651517499
 Zimbabwe,2025,hydro_electricity,6.11397573554098,estimated,dampened_exponential_log_linear,2024.0,0.6373216864131676
 Zimbabwe,2025,low_carbon_share_elec,65.38975000000028,estimated,linear_projection,2024.0,0.31831310752837183

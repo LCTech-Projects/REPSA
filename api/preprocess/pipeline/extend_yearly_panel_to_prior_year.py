@@ -458,6 +458,7 @@ def _write_metadata(
             "dampened_exponential_log_linear",
             "logistic_logit_linear",
             "linear_projection",
+            "linear_interpolation",
             "limit_year_population_growth_rate_exponential",
         ],
         "notes": (
