@@ -241,9 +241,9 @@ def project_metric(
     """
     Project a single metric to target_year.
 
-    Interior gaps (target between measured years) use linear interpolation
-    between the nearest bracketing observations — never carry the latest
-    measured value backward into earlier holes.
+    Gaps between measured years are filled by linear interpolation of the
+    nearest neighbours. The latest observation is not carried backward into
+    earlier missing years (avoids propagating a bad end-point into holes).
 
     Returns (projected_value, method, r_squared, base_year).
     """

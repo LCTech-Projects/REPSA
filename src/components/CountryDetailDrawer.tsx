@@ -1053,6 +1053,7 @@ export const CountryDetailDrawer = ({
         .attr("transform", "rotate(-45)");
 
       g.append("g").call(d3.axisLeft(y));
+      // Keep overlay copy aligned with per-capita series shown on this chart.
       addYearOverlayTooltip(
         g,
         chartWidth,

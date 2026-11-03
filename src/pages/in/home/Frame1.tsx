@@ -7,6 +7,7 @@ export const Frame1 = () => {
     const navigate = useNavigate();
 
     return (
+        {/* Stack below 1032px; top-align copy with the hero image in the row layout. */}
         <section className="w-full py-[60px] px-[22px] flex flex-col min-[1032px]:flex-row min-[1032px]:items-start gap-[20px] bg-[url('/images/bg1.png')] bg-cover bg-center bg-no-repeat">
             <div ref={textRef} className={`w-full min-[1032px]:w-1/2 ${textVisible ? 'reveal-up' : 'opacity-0'}`}>
                 <h2 className="text-blue-1 text-[2.25rem] lg:text-[3rem] font-semibold leading-11 lg:leading-15 tracking-tight">What is Energy Poverty?</h2>

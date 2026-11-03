@@ -33,12 +33,12 @@ def _cors_origins() -> list[str] | str:
 def create_app():
     app = Flask(__name__, static_folder=None)
     app.config.from_object(Config)
-    # Re-read env at factory time (Config class attrs are evaluated on import).
+    # Config.SQLALCHEMY_DATABASE_URI is fixed at import; refresh from env here.
     db_url = _database_url()
     if db_url:
         app.config["SQLALCHEMY_DATABASE_URI"] = db_url
     elif not app.config.get("SQLALCHEMY_DATABASE_URI"):
-        # CSV/API smoke tests and CI do not need Neon; auth routes still require a real DATABASE_URL in prod.
+        # In-memory SQLite for local/CI smoke tests. Production auth still needs DATABASE_URL.
         app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///:memory:"
 
     CORS(app, resources={r"/api/*": {"origins": _cors_origins()}})

@@ -59,7 +59,7 @@ def test_logistic_projection_stays_in_bounds():
 
 
 def test_interior_gap_uses_linear_interpolation_not_latest_carry():
-    """Chad-style hole: do not copy a later bad/latest point into an earlier gap."""
+    """Interior missing years interpolate neighbours; do not copy the series end-point."""
     years = [2018, 2020, 2024]
     values = [97.7, 98.4, 0.0]  # 2024 left as published WB anomaly
     projected, method, _r2, base_year = project_metric(

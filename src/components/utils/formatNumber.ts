@@ -1,4 +1,4 @@
-/** Shared display helpers for REPSA UI metrics. */
+/** Shared numeric display helpers for map, compare, and visualization views. */
 
 export function formatPopulation(people: number | null | undefined): string {
   if (people == null || !Number.isFinite(people) || people < 0) return "N/A";

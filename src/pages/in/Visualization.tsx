@@ -2500,6 +2500,7 @@ const YearlyCharts = ({ data }: { data: any }) => {
         .attr("transform", "rotate(-45)");
 
       g.append("g").call(d3.axisLeft(y));
+      // Year-hover overlay must match this chart's series (not rural/urban poverty).
       addYearOverlayTooltip(
         g,
         chartWidth,

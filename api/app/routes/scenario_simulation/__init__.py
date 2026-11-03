@@ -1,2 +1,2 @@
-# Scenario simulation routes
+# Scenario simulation HTTP routes (envelope + forecast).
 

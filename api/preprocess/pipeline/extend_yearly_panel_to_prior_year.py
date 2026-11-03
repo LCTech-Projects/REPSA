@@ -463,8 +463,9 @@ def _write_metadata(
         ],
         "notes": (
             "Years beyond last measured source values are statistically completed "
-            "using the same method family as /api/realtime. Treat estimated cells "
-            "as exploratory completions, not official statistics."
+            "using the same method family as /api/realtime. Interior gaps use "
+            "linear_interpolation between bracketing measured years. Treat "
+            "estimated cells as exploratory completions, not official statistics."
         ),
     }
     path.parent.mkdir(parents=True, exist_ok=True)

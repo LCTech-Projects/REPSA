@@ -12,7 +12,7 @@ API_ROOT = Path(__file__).resolve().parents[1]
 if str(API_ROOT) not in sys.path:
     sys.path.insert(0, str(API_ROOT))
 
-# Auth uses SQLAlchemy; smoke tests only need a throwaway DB.
+# Endpoint tests exercise CSV/API paths; a disposable SQLite URI satisfies Flask-SQLAlchemy.
 os.environ.setdefault("DATABASE_URL", "sqlite:///:memory:")
 
 
