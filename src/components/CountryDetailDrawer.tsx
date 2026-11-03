@@ -3,6 +3,7 @@ import { apiSlice } from "../app/appSlices/apiSlice";
 import { useAppDispatch } from "../app/hooks";
 import * as d3 from "d3";
 import { calculateYearTicks, getChartMargins, getChartSize } from "./utils/ChartUtils";
+import { formatPopulation } from "./utils/formatNumber";
 
 interface CountryDetailDrawerProps {
   countryName: string;
@@ -696,8 +697,7 @@ export const CountryDetailDrawer = ({
         x,
         details.time_series,
         (d) => {
-          const popMillions = (d.population || 0) / 1000000;
-          return `Year: ${d.year}<br/>Population: ${popMillions.toFixed(2)}M`;
+          return `Year: ${d.year}<br/>Population: ${formatPopulation(d.population)}`;
         },
       );
 
@@ -719,9 +719,10 @@ export const CountryDetailDrawer = ({
         .style("cursor", "pointer")
         .on("mouseover", function (event, d) {
           tooltip.transition().duration(200).style("opacity", 1);
-          const popMillions = (d.population || 0) / 1000000;
           tooltip
-            .html(`Year: ${d.year}<br/>Population: ${popMillions.toFixed(2)}M`)
+            .html(
+              `Year: ${d.year}<br/>Population: ${formatPopulation(d.population)}`,
+            )
             .style("left", event.pageX + 10 + "px")
             .style("top", event.pageY - 10 + "px");
           d3.select(this).attr("r", 6).attr("opacity", 1);
@@ -1513,16 +1514,6 @@ export const CountryDetailDrawer = ({
     };
   }, [details, chartDimensions]);
 
-  const formatNumber = (
-    value: number | null | undefined,
-    unit: string = "",
-  ): string => {
-    if (value === null || value === undefined) return "N/A";
-    if (value >= 1000000) return `${(value / 1000000).toFixed(1)}M${unit}`;
-    if (value >= 1000) return `${(value / 1000).toFixed(1)}K${unit}`;
-    return `${value.toFixed(1)}${unit}`;
-  };
-
   const formatPercentage = (value: number | null | undefined): string => {
     if (value === null || value === undefined) return "N/A";
     return `${value.toFixed(1)}%`;
@@ -1587,7 +1578,7 @@ export const CountryDetailDrawer = ({
                     Population
                   </div>
                   <div className="text-[2rem] font-inter font-bold text-black-1">
-                    {formatNumber(details.key_figures.population)}
+                    {formatPopulation(details.key_figures.population)}
                   </div>
                 </div>
                 <div className="bg-grey-1 rounded-[8px] p-4 flex-1 min-w-[200px]">
@@ -1628,7 +1619,7 @@ export const CountryDetailDrawer = ({
                 {/* CO2 Emission Chart */}
                 <div className="bg-white-1 border border-grey-1 rounded-[8px] p-4 flex-1 min-w-0 w-full max-w-full">
                   <h3 className="text-[0.875rem] font-inter font-semibold text-black-1 mb-4">
-                    CO2 Emission per Capita (gCO₂/kWh)
+                    CO₂ Intensity of Electricity (gCO₂/kWh)
                   </h3>
                   <div ref={containerRefs.co2Emission} className="w-full">
                     <svg
@@ -1641,7 +1632,7 @@ export const CountryDetailDrawer = ({
                 {/* Population Chart */}
                 <div className="bg-white-1 border border-grey-1 rounded-[8px] p-4 flex-1 min-w-0 w-full max-w-full">
                   <h3 className="text-[0.875rem] font-inter font-semibold text-black-1 mb-4">
-                    Population (Millions)
+                    Population
                   </h3>
                   <div ref={containerRefs.population} className="w-full">
                     <svg

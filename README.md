@@ -42,14 +42,14 @@ flowchart LR
 
 The API reads **energy data from the filesystem**, not from Postgres. Postgres is used **only for authentication**.
 
-**Maintainer pipeline:** `api/preprocess/` holds scripts to regenerate CSVs, reconstruct hourly demand from anchor profiles, retrain models, and produce validation charts. These scripts are **not required at runtime** (committed CSVs and joblib artefacts are served directly). The production Docker image excludes `api/preprocess/` via `.dockerignore`.
+**Maintainer pipeline:** offline scripts that regenerate CSVs, reconstruct hourly demand, retrain models, and produce validation charts live in `api/preprocess/` locally and are archived on Zenodo (see Data and models). They are **not required at runtime** and are excluded from git and from the production Docker image.
 
 **Data scope (committed runtime assets):**
 
 | Asset | Location | Coverage |
 |--------|----------|----------|
 | Yearly panel | `api/data/historical/yearly_historical_data.csv` | 54 African countries; population, demand, access, poverty, generation, renewable shares |
-| Hourly demand | `api/data/historical/hourly/*.csv` | 54 countries, 2016–2023; reconstructed from three anchor load shapes |
+| Hourly demand | `api/data/historical/hourly/*.csv` | 54 countries, 2016–2025; reconstructed from three feature-matched anchor load shapes |
 | Scenario model | `api/ml_models/scenario_builder.joblib` | Random Forest growth-panel model for scenario simulation |
 
 Combined data + models are ~360 MB in a full clone.
@@ -97,11 +97,9 @@ REPSA/
 │   ├── app/                # Flask application factory, routes, services
 │   ├── data/               # Historical CSVs (hourly per country, yearly panel)
 │   ├── ml_models/          # Trained joblib models (committed)
-│   ├── preprocess/         # Maintainer scripts (regenerate data, train, validate)
 │   └── requirements.txt
 ├── Dockerfile              # Multi-stage: Node build + Python runtime
 ├── railway.toml            # Railway deployment config
-├── scripts/                # e.g. Africa GeoJSON build
 └── index.html              # Vite entry
 ```
 
@@ -174,28 +172,33 @@ npm run dev
 
 Open the URL Vite prints (usually `http://localhost:5173`).
 
-### 5. Data and models
+### 5. Run tests
+
+From `api/` (with the virtualenv activated):
+
+```bash
+pip install -r requirements.txt
+pytest
+```
+
+CI runs the same pytest suite and `npm run build` on push/PR (`.github/workflows/ci.yml`).
+
+### 6. Data and models
 
 Historical CSVs and `scenario_builder.joblib` are included in git. After clone, the API can serve map, visualization, compare, scenario simulation, and downloads without running preprocess.
 
-**Maintainers** — extend the yearly panel, regenerate hourly profiles, retrain the scenario model, and refresh validation artefacts:
+**Offline preprocess archive (Zenodo):** the maintainer pipeline (`api/preprocess/`: raw inputs, normalized tables, figure/train scripts, validation charts) is **not** in this GitHub repository. Download the deposit, unpack as `api/preprocess/`, then regenerate runtime artefacts as needed:
 
 ```bash
-# Extend panel to prior calendar year (always refreshes OWID + World Bank first)
-python api/preprocess/scripts/extend_yearly_panel_to_prior_year.py --dry-run
-python api/preprocess/scripts/extend_yearly_panel_to_prior_year.py --in-place --regenerate-hourly
-
-# Offline: skip cloud refresh and use local raw CSVs
-python api/preprocess/scripts/extend_yearly_panel_to_prior_year.py --skip-refresh --in-place
-
-# Or regenerate hourly alone (see api/preprocess/README.md)
-python api/preprocess/scripts/generate_hourly_from_anchors.py
-
-# Scenario model + walk-forward validation charts
+# After unpacking the Zenodo archive to api/preprocess/
+python api/preprocess/pipeline/extend_yearly_panel_to_prior_year.py --dry-run
+python api/preprocess/pipeline/extend_yearly_panel_to_prior_year.py --in-place --regenerate-hourly
 python api/preprocess/train/scenario_builder.py
 ```
 
-Outputs include updated files under `api/data/historical/` (panel, provenance CSV, `panel_metadata.json`), `api/ml_models/scenario_builder.joblib`, and metrics under `api/preprocess/charts/yearly_global_growth_paper/`. Commit updated runtime artefacts after validation. The API caps historical years at **current calendar year − 1**.
+Replace this placeholder with the published DOI after deposit: `https://doi.org/10.5281/zenodo.XXXXXXX`.
+
+Commit updated files under `api/data/historical/` and `api/ml_models/` after validation. The API caps historical years at **current calendar year − 1**.
 
 ---
 
@@ -359,7 +362,7 @@ Never commit `.env` files. Rotate any keys that were exposed in chat or logs.
 
 When using REPSA in research or policy work, cite the platform and note which layer you used (yearly panel, hourly reconstruction, statistical nowcast, or scenario simulation). Methodology and data provenance are documented at `/in/methodology` and `/in/data-sources`.
 
-Acknowledge underlying data providers (World Bank, Our World in Data, Eskom, Nigeria suppressed-demand dataset, Morocco electricity-demand dataset, and others listed in the app). Hourly profiles for non-anchor countries are reconstructed model outputs, not measured system data.
+Acknowledge underlying data providers (World Bank, Our World in Data, Eskom, Nigeria suppressed-demand dataset, Algeria/Sonelgaz hourly consumption, and others listed in the app). Hourly profiles for non-anchor countries are reconstructed model outputs, not measured system data.
 
 ## License
 

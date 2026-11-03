@@ -1,15 +1,15 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Slider } from "../../components/inputs/Slider";
 import { FilterField } from "../../components/inputs/FilterField";
 import { FeedbackModal } from "../../components/modals/FeedbackModal";
 import { ScenarioExplorerCharts } from "../../components/scenario/ScenarioExplorerCharts";
 import {
   useGetAvailableCountriesQuery,
+  useGetCountryEnvelopeQuery,
   useSimulateScenarioMutation,
 } from "../../app/appSlices/apiSlice";
 import { ButtonSpinner } from "../../components/utils/ButtonSpinner";
 import type {
-  CountryEnvelope,
   ScenarioMode,
   ScenarioParameters,
   ScenarioResult,
@@ -31,7 +31,7 @@ export const Simulation = () => {
   const [scenarioMode, setScenarioMode] = useState<ScenarioMode>("explore");
   const [scenarioParams, setScenarioParams] =
     useState<ScenarioParameters>(DEFAULT_PARAMS);
-  const [scenarioCountry, setScenarioCountry] = useState("Algeria");
+  const [scenarioCountry, setScenarioCountry] = useState("Kenya");
   const [scenarioStartYear, setScenarioStartYear] = useState(2025);
   const [scenarioEndYear, setScenarioEndYear] = useState(2050);
   const [hasSimulated, setHasSimulated] = useState(false);
@@ -39,9 +39,6 @@ export const Simulation = () => {
   const [scenarioResult, setScenarioResult] = useState<ScenarioResult | null>(
     null,
   );
-  const [envelopeCache, setEnvelopeCache] = useState<
-    Record<string, CountryEnvelope>
-  >({});
   const [feedbackModal, setFeedbackModal] = useState({
     isOpen: false,
     type: "info" as "error" | "warning" | "info" | "success",
@@ -53,37 +50,48 @@ export const Simulation = () => {
   const [simulateScenario] = useSimulateScenarioMutation();
   const { data: countriesData } = useGetAvailableCountriesQuery();
   const availableCountries = countriesData?.data || [];
-  const envelope = envelopeCache[scenarioCountry];
+  const { data: envelopeResponse } = useGetCountryEnvelopeQuery({
+    country: scenarioCountry,
+  });
+  const envelope = envelopeResponse?.data;
 
-  const applyEnvelopeDefaults = (country: string) => {
-    const cached = envelopeCache[country]?.defaults;
-    if (!cached) return;
-    const d = cached as Partial<ScenarioParameters>;
+  useEffect(() => {
+    if (!envelope?.defaults) return;
+    const d = envelope.defaults;
     setScenarioParams((prev) => ({
       ...prev,
-      ...(d.renewable_target != null && { renewable_target: d.renewable_target }),
-      ...(d.energy_access_target != null && {
-        energy_access_target: d.energy_access_target,
-      }),
-      ...(d.clean_cooking_target != null && {
-        clean_cooking_target: d.clean_cooking_target,
-      }),
-      ...(d.population_growth_rate != null && {
-        population_growth_rate: d.population_growth_rate,
-      }),
+      renewable_target: Math.max(
+        d.renewable_target ?? prev.renewable_target,
+        envelope.slider_bounds?.renewable_target?.min ?? 0,
+      ),
+      energy_access_target: Math.max(
+        d.energy_access_target ?? prev.energy_access_target,
+        envelope.slider_bounds?.energy_access_target?.min ?? 0,
+      ),
+      clean_cooking_target: Math.max(
+        d.clean_cooking_target ?? prev.clean_cooking_target,
+        envelope.slider_bounds?.clean_cooking_target?.min ?? 0,
+      ),
+      population_growth_rate:
+        d.population_growth_rate ?? prev.population_growth_rate,
     }));
-  };
+  }, [envelope, scenarioCountry]);
 
   const showPolicySliders = scenarioMode !== "bau";
 
-  const sliderMax = (key: keyof ScenarioParameters, fallback: number) => {
-    const bound = envelope?.slider_bounds?.[key]?.max;
-    return bound != null ? Math.round(bound * 1000) / 10 : fallback;
+  const growthSliderMax = () => {
+    const bound = envelope?.slider_bounds?.population_growth_rate?.max;
+    return bound != null ? Math.round(bound * 1000) / 10 : 5;
   };
 
-  const sliderMin = (key: keyof ScenarioParameters, fallback: number) => {
+  const growthSliderMin = () => {
+    const bound = envelope?.slider_bounds?.population_growth_rate?.min;
+    return bound != null ? Math.round(bound * 1000) / 10 : 0;
+  };
+
+  const policyMin = (key: keyof ScenarioParameters) => {
     const bound = envelope?.slider_bounds?.[key]?.min;
-    return bound != null ? Math.round(bound * 1000) / 10 : fallback;
+    return bound != null ? bound : 0;
   };
 
   const handleSimulate = async () => {
@@ -91,9 +99,18 @@ export const Simulation = () => {
     try {
       const result = await simulateScenario({
         policy_metrics: {
-          renewable_target: scenarioParams.renewable_target,
-          energy_access_target: scenarioParams.energy_access_target,
-          clean_cooking_target: scenarioParams.clean_cooking_target,
+          renewable_target: Math.max(
+            policyMin("renewable_target"),
+            scenarioParams.renewable_target,
+          ),
+          energy_access_target: Math.max(
+            policyMin("energy_access_target"),
+            scenarioParams.energy_access_target,
+          ),
+          clean_cooking_target: Math.max(
+            policyMin("clean_cooking_target"),
+            scenarioParams.clean_cooking_target,
+          ),
           population_growth_rate: scenarioParams.population_growth_rate,
         },
         country: scenarioCountry,
@@ -104,12 +121,6 @@ export const Simulation = () => {
 
       if (result.success && result.data) {
         setScenarioResult(result.data);
-        if (result.data.country_envelope) {
-          setEnvelopeCache((prev) => ({
-            ...prev,
-            [scenarioCountry]: result.data.country_envelope,
-          }));
-        }
         setHasSimulated(true);
       } else {
         showFeedback(
@@ -138,7 +149,13 @@ export const Simulation = () => {
     message: string,
     details?: string,
   ) => {
-    setFeedbackModal({ isOpen: true, type, title, message, details: details || "" });
+    setFeedbackModal({
+      isOpen: true,
+      type,
+      title,
+      message,
+      details: details || "",
+    });
   };
 
   const formatPercentage = (value: number) => `${value.toFixed(1)}%`;
@@ -151,6 +168,10 @@ export const Simulation = () => {
           <h1 className="text-[1.5rem] md:text-[2rem] font-inter font-semibold text-black-1">
             Scenario Simulation
           </h1>
+          <p className="text-[0.875rem] text-grey-2 mt-1">
+            Policy targets cannot be set below the country&apos;s latest observed
+            access or renewable share.
+          </p>
         </div>
 
         {!hasSimulated ? (
@@ -189,7 +210,6 @@ export const Simulation = () => {
                   onValueChange={(value) => {
                     if (value && value !== scenarioCountry) {
                       setScenarioCountry(value);
-                      applyEnvelopeDefaults(value);
                     }
                   }}
                 />
@@ -228,50 +248,53 @@ export const Simulation = () => {
                   Assumptions
                 </h3>
                 <Slider
-                      label={`Renewable electricity target (${scenarioEndYear})`}
-                      value={scenarioParams.renewable_target}
-                      min={0}
-                      max={100}
-                      step={1}
-                      formatValue={formatPercentage}
-                      onChange={(value) =>
-                        setScenarioParams({ ...scenarioParams, renewable_target: value })
-                      }
-                    />
-                    <Slider
-                      label={`Electricity access target (${scenarioEndYear})`}
-                      value={scenarioParams.energy_access_target}
-                      min={0}
-                      max={100}
-                      step={1}
-                      formatValue={formatPercentage}
-                      onChange={(value) =>
-                        setScenarioParams({
-                          ...scenarioParams,
-                          energy_access_target: value,
-                        })
-                      }
-                    />
-                    <Slider
-                      label={`Clean cooking access target (${scenarioEndYear})`}
-                      value={scenarioParams.clean_cooking_target}
-                      min={0}
-                      max={100}
-                      step={1}
-                      formatValue={formatPercentage}
-                      onChange={(value) =>
-                        setScenarioParams({
-                          ...scenarioParams,
-                          clean_cooking_target: value,
-                        })
-                      }
-                    />
+                  label={`Renewable electricity target (${scenarioEndYear})`}
+                  value={scenarioParams.renewable_target}
+                  min={policyMin("renewable_target")}
+                  max={100}
+                  step={1}
+                  formatValue={formatPercentage}
+                  onChange={(value) =>
+                    setScenarioParams({
+                      ...scenarioParams,
+                      renewable_target: value,
+                    })
+                  }
+                />
+                <Slider
+                  label={`Electricity access target (${scenarioEndYear})`}
+                  value={scenarioParams.energy_access_target}
+                  min={policyMin("energy_access_target")}
+                  max={100}
+                  step={1}
+                  formatValue={formatPercentage}
+                  onChange={(value) =>
+                    setScenarioParams({
+                      ...scenarioParams,
+                      energy_access_target: value,
+                    })
+                  }
+                />
+                <Slider
+                  label={`Clean cooking access target (${scenarioEndYear})`}
+                  value={scenarioParams.clean_cooking_target}
+                  min={policyMin("clean_cooking_target")}
+                  max={100}
+                  step={1}
+                  formatValue={formatPercentage}
+                  onChange={(value) =>
+                    setScenarioParams({
+                      ...scenarioParams,
+                      clean_cooking_target: value,
+                    })
+                  }
+                />
                 {scenarioMode === "explore" && (
                   <Slider
                     label="Population growth rate"
                     value={scenarioParams.population_growth_rate * 100}
-                    min={Math.max(0, sliderMin("population_growth_rate", 0))}
-                    max={sliderMax("population_growth_rate", 5)}
+                    min={Math.max(0, growthSliderMin())}
+                    max={growthSliderMax()}
                     step={0.1}
                     formatValue={(v) => `${v.toFixed(1)}%/yr`}
                     onChange={(value) =>
@@ -368,7 +391,10 @@ export const Simulation = () => {
                     <div className="bg-grey-1 rounded p-3">
                       <span className="text-grey-2">Population growth</span>
                       <div className="font-semibold">
-                        {(scenarioParams.population_growth_rate * 100).toFixed(1)}%/yr
+                        {(scenarioParams.population_growth_rate * 100).toFixed(
+                          1,
+                        )}
+                        %/yr
                       </div>
                     </div>
                   )}
@@ -376,19 +402,82 @@ export const Simulation = () => {
               </div>
 
               <ScenarioExplorerCharts result={scenarioResult} />
+
+              {scenarioResult.validation && (
+                <div className="bg-white-1 border border-grey-1 rounded-[8px] p-6 space-y-4">
+                  <h3 className="text-[1.125rem] font-semibold text-black-1">
+                    Model validation (walk-forward)
+                  </h3>
+                  <p className="text-[0.875rem] text-grey-2">
+                    {scenarioResult.validation.note}
+                  </p>
+                  {scenarioResult.validation.uncertainty_method && (
+                    <p className="text-[0.875rem] text-grey-2">
+                      Uncertainty bands:{" "}
+                      {scenarioResult.validation.uncertainty_method}
+                    </p>
+                  )}
+                  {scenarioResult.validation.skill_vs_persistence &&
+                    scenarioResult.validation.skill_vs_persistence.length >
+                      0 && (
+                      <div className="overflow-x-auto">
+                        <table className="min-w-full text-[0.75rem] text-left">
+                          <thead>
+                            <tr className="border-b border-grey-1 text-grey-2">
+                              <th className="py-2 pr-3">Target</th>
+                              <th className="py-2 pr-3">Model RMSE</th>
+                              <th className="py-2 pr-3">Persistence RMSE</th>
+                              <th className="py-2">Skill vs persistence</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {scenarioResult.validation.skill_vs_persistence.map(
+                              (row) => (
+                                <tr
+                                  key={row.target}
+                                  className="border-b border-grey-1"
+                                >
+                                  <td className="py-2 pr-3">{row.target}</td>
+                                  <td className="py-2 pr-3">
+                                    {row.growth_rmse.toFixed(3)}
+                                  </td>
+                                  <td className="py-2 pr-3">
+                                    {row.persistence_rmse.toFixed(3)}
+                                  </td>
+                                  <td className="py-2">
+                                    {row.skill_score_rmse == null
+                                      ? "n/a"
+                                      : row.skill_score_rmse.toFixed(3)}
+                                  </td>
+                                </tr>
+                              ),
+                            )}
+                          </tbody>
+                        </table>
+                      </div>
+                    )}
+                  {scenarioResult.validation.limitations && (
+                    <ul className="list-disc pl-5 text-[0.75rem] text-grey-2 space-y-1">
+                      {scenarioResult.validation.limitations.map((item) => (
+                        <li key={item}>{item}</li>
+                      ))}
+                    </ul>
+                  )}
+                </div>
+              )}
             </div>
           )
         )}
-
-        <FeedbackModal
-          isOpen={feedbackModal.isOpen}
-          onClose={() => setFeedbackModal({ ...feedbackModal, isOpen: false })}
-          type={feedbackModal.type}
-          title={feedbackModal.title}
-          message={feedbackModal.message}
-          details={feedbackModal.details}
-        />
       </div>
+
+      <FeedbackModal
+        isOpen={feedbackModal.isOpen}
+        onClose={() => setFeedbackModal({ ...feedbackModal, isOpen: false })}
+        type={feedbackModal.type}
+        title={feedbackModal.title}
+        message={feedbackModal.message}
+        details={feedbackModal.details}
+      />
     </div>
   );
 };

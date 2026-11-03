@@ -41,7 +41,18 @@ export interface ScenarioResult {
   country_envelope?: CountryEnvelope;
   validation?: {
     metrics: Array<Record<string, unknown>>;
+    skill_vs_persistence?: Array<{
+      target: string;
+      growth_rmse: number;
+      persistence_rmse: number;
+      skill_score_rmse: number | null;
+      growth_r2?: number;
+      persistence_r2?: number;
+    }>;
     has_uncertainty_bands: boolean;
+    uncertainty_method?: string;
+    eps?: number;
+    limitations?: string[];
     note: string;
   };
   timeline: {
@@ -68,12 +79,12 @@ export const OUTPUT_CHARTS = [
   },
   {
     key: "energy_poverty_multidimensional",
-    title: "Multidimensional Energy Poverty (%)",
+    title: "Access-based Energy Poverty (%)",
     yLabel: "%",
   },
   {
     key: "carbon_intensity_elec",
     title: "Carbon Intensity of Electricity",
-    yLabel: "MtCO₂e/TWh",
+    yLabel: "gCO₂/kWh",
   },
 ] as const;

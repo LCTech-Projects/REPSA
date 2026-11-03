@@ -89,8 +89,7 @@ cython_debug/
 .vscode/
 *.code-workspace
 
-# Data files (generated locally via api/preprocess/, which is not in this repo)
-# Historical CSVs and api/ml_models/ are committed so clones and deploys work without preprocess.
+# Optional local-only data dirs (runtime historical CSVs and ml_models/ are committed)
 /data/realtime/
 /data/forecasts/
 /data/processed/
@@ -124,6 +123,8 @@ secret_key.txt
 # Cache files
 .cache
 *.cache
+.pytest_cache/
+pytest-cache-files-*/
 
 # Database files (if you add a database later)
 *.db

@@ -1,6 +1,6 @@
 from typing import Optional
 
-from flask import Blueprint, request, jsonify
+from flask import Blueprint, current_app, request, jsonify
 from app.services.scenario_simulation.scenario_simulator import ScenarioSimulator
 from app.utils.validators import validate_country
 
@@ -14,6 +14,26 @@ def get_simulator() -> ScenarioSimulator:
     if _simulator is None:
         _simulator = ScenarioSimulator()
     return _simulator
+
+
+@scenario_simulation_bp.route("/country-envelope", methods=["GET"])
+def country_envelope():
+    """Return slider defaults and bounds for a country (no simulation)."""
+    try:
+        country = request.args.get("country", "Algeria")
+        try:
+            country = validate_country(country)
+        except ValueError:
+            pass
+        simulator = get_simulator()
+        envelope = simulator.get_country_envelope(country)
+        return jsonify({"success": True, "data": envelope})
+    except Exception as e:
+        return jsonify({
+            "success": False,
+            "error": "Envelope Error",
+            "message": str(e),
+        }), 500
 
 
 @scenario_simulation_bp.route("/simulate-scenario", methods=["POST"])
@@ -116,25 +136,21 @@ def simulate_scenario():
             "message": f"Invalid input provided: {str(e)}. Please check your scenario parameters and try again.",
         }), 400
     except Exception as e:
-        import traceback
-        error_trace = traceback.format_exc()
+        current_app.logger.exception("Scenario simulation failed")
         error_type = type(e).__name__
         error_str = str(e)
 
-        print(f"Error in simulate_scenario: {error_type}: {error_str}")
-        print(f"Traceback: {error_trace}")
-
         error_message = "An unexpected error occurred while simulating your scenario."
 
-        if "FileNotFoundError" in error_type:
+        if error_type == "FileNotFoundError":
             error_message = "Required data files are missing."
-        elif "MemoryError" in error_type:
+        elif error_type == "MemoryError":
             error_message = "The scenario parameters are too large to process."
-        elif "KeyError" in error_type or "AttributeError" in error_type:
+        elif error_type in ("KeyError", "AttributeError"):
             error_message = "An error occurred while processing the scenario data."
-        elif "ValueError" in error_type:
+        elif error_type == "ValueError":
             error_message = f"Invalid data format: {error_str}."
-        elif "TypeError" in error_type:
+        elif error_type == "TypeError":
             error_message = "Data type error occurred during simulation."
 
         return jsonify({

@@ -183,23 +183,35 @@ def compute_country_envelope(country_df: pd.DataFrame) -> Dict[str, Any]:
     latest = country_df.sort_values("year").iloc[-1]
     pop_g = cagr("population", 0.02)
 
+    renew_now = float(latest.get("renewables_share_elec", 20.0) or 20.0)
+    access_now = float(
+        latest.get("Access to electricity (% of total population)", 70.0) or 70.0
+    )
+    clean_now = float(
+        latest.get(
+            "Access to Clean Fuels and Technologies for cooking (% of total population)",
+            40.0,
+        )
+        or 40.0
+    )
+
     defaults = {
-        "renewable_target": float(latest.get("renewables_share_elec", 20.0) or 20.0),
-        "energy_access_target": float(
-            latest.get("Access to electricity (% of total population)", 70.0) or 70.0
-        ),
-        "clean_cooking_target": float(
-            latest.get(
-                "Access to Clean Fuels and Technologies for cooking (% of total population)",
-                40.0,
-            )
-            or 40.0
-        ),
+        # Default targets stay at current levels so users raise ambition, not lower it.
+        "renewable_target": renew_now,
+        "energy_access_target": access_now,
+        "clean_cooking_target": clean_now,
         "population_growth_rate": pop_g,
     }
 
     slider_bounds = {
-        "population_growth_rate": {"min": max(-0.01, yoy_bounds("population")["min"]), "max": min(0.05, max(0.05, yoy_bounds("population")["p95"] * 1.2))},
+        "population_growth_rate": {
+            "min": max(-0.01, yoy_bounds("population")["min"]),
+            "max": min(0.05, max(0.05, yoy_bounds("population")["p95"] * 1.2)),
+        },
+        # Policy targets cannot be set below the country's latest observed share.
+        "renewable_target": {"min": renew_now, "max": 100.0},
+        "energy_access_target": {"min": access_now, "max": 100.0},
+        "clean_cooking_target": {"min": clean_now, "max": 100.0},
     }
 
     historical_cagr = {
@@ -267,5 +279,21 @@ def parameter_warnings(
         if hist_val is not None and abs(float(value) - float(hist_val)) > 0.03:
             warnings.append(
                 f"{param_key.replace('_', ' ')} differs from this country's historical CAGR ({float(hist_val)*100:.1f}%)."
+            )
+
+    for pct_key, label in (
+        ("renewable_target", "renewable electricity target"),
+        ("energy_access_target", "electricity access target"),
+        ("clean_cooking_target", "clean cooking access target"),
+    ):
+        value = params.get(pct_key)
+        if value is None:
+            continue
+        b = bounds.get(pct_key, {})
+        floor = b.get("min")
+        if floor is not None and float(value) + 1e-9 < float(floor):
+            warnings.append(
+                f"{label} ({float(value):.1f}%) is below the country's latest observed level "
+                f"({float(floor):.1f}%). The target was raised to the observed floor."
             )
     return warnings

@@ -1,5 +1,5 @@
 import re
-from datetime import datetime
+from datetime import datetime, timezone
 
 # Allowed country pattern: letters, spaces, hyphens, apostrophes, periods, parentheses & ampersand
 _COUNTRY_RE = re.compile(r"^[\w\-\.'\(\)&\s]+$", re.UNICODE)
@@ -35,7 +35,7 @@ def validate_year(year: int):
         year = int(year)
     except Exception:
         raise ValueError("Year must be an integer.")
-    now = datetime.utcnow().year
+    now = datetime.now(timezone.utc).year
     if year < 1900 or year > now + 1:
         raise ValueError(f"Year {year} is out of allowed range (1900 - {now+1}).")
     return year

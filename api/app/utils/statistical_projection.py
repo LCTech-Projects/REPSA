@@ -116,14 +116,61 @@ def project_absolute(
     growth_rate: float,
     target_year: int,
 ) -> float:
-    """Dampened exponential projection for absolute metrics."""
+    """Dampened exponential projection for absolute metrics.
+
+    Growth is applied year-by-year. The dampening factor for step k (years
+    ahead of the base year) multiplies only that step's growth rate, so the
+    projected path is monotonic in the horizon for a fixed growth sign:
+
+        v_{t+k} = v_{t+k-1} * exp(β * δ(k))
+
+    This replaces the previous closed form v * exp(δ(Δ)·β·Δ), which was
+    non-monotonic in Δ (e.g. a drop between five and six years ahead).
+    """
     if latest_value is None or np.isnan(latest_value) or latest_value <= 0:
         return 0.0
     years_diff = int(target_year) - int(latest_year)
     if years_diff <= 0:
         return float(latest_value)
-    effective_rate = float(growth_rate) * dampening_factor(years_diff)
-    return max(0.0, float(latest_value) * float(np.exp(effective_rate * years_diff)))
+
+    value = float(latest_value)
+    beta = float(growth_rate)
+    for step in range(1, years_diff + 1):
+        value *= float(np.exp(beta * dampening_factor(step)))
+    return max(0.0, value)
+
+
+def confidence_interval(
+    projected_value: float,
+    r2: Optional[float],
+    years_diff: int,
+) -> dict:
+    """Heuristic uncertainty margin around a point projection.
+
+    Not a calibrated statistical interval. Width grows with projection
+    distance and shrinks with higher fit R²; capped at 60% of |value|.
+    """
+    pv = float(projected_value) if projected_value is not None else 0.0
+    r2_val = 0.0 if r2 is None or (isinstance(r2, float) and np.isnan(r2)) else float(r2)
+
+    base_uncertainty = 0.05 + (0.03 * max(0, years_diff))
+    fit_factor = 1.0 + (1.0 - r2_val) * 0.6
+    total_unc = min(0.6, base_uncertainty * fit_factor)
+
+    margin = abs(pv) * total_unc
+    confidence = max(0.45, min(0.95, r2_val * (1.0 - max(0, years_diff) * 0.06)))
+
+    return {
+        "lower": float(max(0.0, pv - margin)),
+        "upper": float(pv + margin),
+        "confidence_level": float(confidence),
+        "uncertainty_pct": float(total_unc * 100.0),
+        "method": "heuristic_r2_horizon_scaled",
+        "note": (
+            "Indicative margin only: 5% base + 3% per projection year, "
+            "scaled by (1 + 0.6*(1-R²)), capped at 60%. Not a formal CI."
+        ),
+    }
 
 
 def project_percent_linear(

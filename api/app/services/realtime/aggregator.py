@@ -15,6 +15,17 @@ from app.utils.per_capita_units import (
     YEARLY_PER_CAPITA_KWH,
     YEARLY_PER_CAPITA_MWH,
 )
+from app.utils.statistical_projection import (
+    clamp as shared_clamp,
+    clean_timeseries as shared_clean_timeseries,
+    confidence_interval as shared_confidence_interval,
+    dampening_factor as shared_dampening_factor,
+    linear_fit_r2 as shared_linear_fit_r2,
+    log_linear_growth_rate as shared_log_linear_growth_rate,
+    project_absolute as shared_project_absolute,
+    project_percent_linear as shared_project_percent_linear,
+    project_percent_logistic as shared_project_percent_logistic,
+)
 
 
 class RealtimeAggregator:
@@ -87,202 +98,41 @@ class RealtimeAggregator:
         return float(min(1.0, max(0.0, elapsed / total)))
 
     # ---------------------------
-    # Projection helpers
+    # Projection helpers (thin wrappers over shared statistical_projection)
     # ---------------------------
     @staticmethod
     def _clamp(value: float, bounds: Optional[Tuple[float, float]]) -> float:
         if value is None or pd.isna(value):
             return 0.0
-        if not bounds:
-            return float(max(0.0, value))
-        lo, hi = bounds
-        return float(min(hi, max(lo, value)))
+        return shared_clamp(float(value), bounds)
 
     @staticmethod
     def _dampening_factor(years_diff: int) -> float:
-        """
-        Dampening reduces growth rates for long projections:
-        - 0-2 years: 100%
-        - 3-5 years: 70%
-        - 6+ years: 40%
-        """
-        if years_diff <= 2:
-            return 1.0
-        if years_diff <= 5:
-            return 0.7
-        return 0.4
+        return shared_dampening_factor(years_diff)
 
     @staticmethod
     def _clean_timeseries(years: List[int], values: List[float], kind: str) -> Tuple[List[int], List[float]]:
-        """
-        Clean timeseries based on metric type:
-        - Percent metrics: allow 0..100 (keep 0), drop NaN, drop negatives.
-        - Absolute metrics: require >0 (drop 0, negatives), drop NaN.
-        """
-        cleaned = []
-        for y, v in zip(years, values):
-            if pd.isna(v):
-                continue
-            try:
-                v = float(v)
-            except (TypeError, ValueError):
-                continue
-            if kind.startswith("percent"):
-                if v < 0:
-                    continue
-                cleaned.append((int(y), v))
-            else:
-                # absolute
-                if v <= 0:
-                    continue
-                cleaned.append((int(y), v))
-
-        if len(cleaned) < 1:
-            return [], []
-        cleaned.sort(key=lambda t: t[0])
-        ys, vs = zip(*cleaned)
-        return list(ys), list(vs)
+        return shared_clean_timeseries(years, values, kind)
 
     @staticmethod
     def _log_linear_growth_rate(years: List[int], values: List[float]) -> Tuple[float, float]:
-        """
-        Estimate exponential growth using log-linear regression:
-        log(v) = a + b*year. Returns (b, R²).
-        b is the continuous growth rate (per year).
-        """
-        if len(values) < 2:
-            return 0.0, 0.0
-
-        y = np.array(values, dtype=float)
-        x = np.array(years, dtype=float)
-
-        # guard: all positive already by cleaning
-        logy = np.log(y)
-
-        x_mean = x.mean()
-        y_mean = logy.mean()
-
-        denom = np.sum((x - x_mean) ** 2)
-        if denom == 0:
-            return 0.0, 0.0
-
-        b = float(np.sum((x - x_mean) * (logy - y_mean)) / denom)
-        pred = y_mean + b * (x - x_mean)
-
-        ss_res = float(np.sum((logy - pred) ** 2))
-        ss_tot = float(np.sum((logy - y_mean) ** 2))
-        r2 = 1.0 - (ss_res / ss_tot) if ss_tot > 0 else 0.0
-        r2 = float(max(0.0, min(1.0, r2)))
-        return b, r2
+        return shared_log_linear_growth_rate(years, values)
 
     @staticmethod
     def _linear_fit_r2(years: List[int], values: List[float]) -> Tuple[float, float, float]:
-        """Fit y = a + b*x. Return (a, b, R²)."""
-        if len(values) < 2:
-            v = float(values[-1]) if values else 0.0
-            return v, 0.0, 0.0
-
-        x = np.array(years, dtype=float)
-        y = np.array(values, dtype=float)
-
-        x_mean = x.mean()
-        y_mean = y.mean()
-
-        denom = np.sum((x - x_mean) ** 2)
-        if denom == 0:
-            return float(y_mean), 0.0, 0.0
-
-        b = float(np.sum((x - x_mean) * (y - y_mean)) / denom)
-        a = float(y_mean - b * x_mean)
-
-        y_hat = a + b * x
-        ss_res = float(np.sum((y - y_hat) ** 2))
-        ss_tot = float(np.sum((y - y_mean) ** 2))
-        r2 = 1.0 - (ss_res / ss_tot) if ss_tot > 0 else 0.0
-        r2 = float(max(0.0, min(1.0, r2)))
-        return a, b, r2
+        return shared_linear_fit_r2(years, values)
 
     def _project_absolute(self, latest_value: float, latest_year: int, growth_rate: float, target_year: int) -> float:
-        """Dampened exponential projection for absolute metrics."""
-        if latest_value is None or pd.isna(latest_value) or latest_value <= 0:
-            return 0.0
-        years_diff = int(target_year) - int(latest_year)
-        if years_diff <= 0:
-            return float(latest_value)
-
-        damp = self._dampening_factor(years_diff)
-        effective_rate = float(growth_rate) * damp
-        projected = float(latest_value) * float(np.exp(effective_rate * years_diff))
-        return max(0.0, projected)
+        return shared_project_absolute(latest_value, latest_year, growth_rate, target_year)
 
     def _project_percent_linear(self, years: List[int], values: List[float], target_year: int, bounds=(0.0, 100.0)) -> Tuple[float, float]:
-        """Linear projection for bounded percentages. Returns (projected_value, r2)."""
-        a, b, r2 = self._linear_fit_r2(years, values)
-        projected = float(a + b * float(target_year))
-        return self._clamp(projected, bounds), r2
+        return shared_project_percent_linear(years, values, target_year, bounds=bounds)
 
     def _project_percent_logistic(self, years: List[int], values: List[float], target_year: int, upper_bound: float = 100.0) -> Tuple[float, float]:
-        """
-        Simple logistic-style projection for access metrics:
-        We do a transform: z = log(y/(L-y)) and fit z ~ a + b*t where 0<y<L.
-        Then invert back. Returns (projected_value, pseudo_r2).
-
-        This avoids hardcoding R² and uses a data-driven fit.
-        """
-        if len(values) < 2:
-            v = float(values[-1]) if values else 0.0
-            return self._clamp(v, (0.0, upper_bound)), 0.0
-
-        L = float(upper_bound)
-        eps = 1e-6
-
-        # Keep only values strictly between (0, L) for logit transform
-        clean = []
-        for y, v in zip(years, values):
-            v = float(v)
-            v = min(L - eps, max(eps, v))
-            clean.append((int(y), v))
-
-        ys = [c[0] for c in clean]
-        vs = [c[1] for c in clean]
-
-        # logit transform
-        z = [float(np.log(v / (L - v))) for v in vs]
-
-        # fit z = a + b*year
-        a, b, r2 = self._linear_fit_r2(ys, z)
-
-        z_hat = float(a + b * float(target_year))
-        # inverse logit: y = L / (1 + exp(-z))
-        projected = L / (1.0 + float(np.exp(-z_hat)))
-        projected = self._clamp(projected, (0.0, L))
-        return projected, r2
+        return shared_project_percent_logistic(years, values, target_year, upper_bound=upper_bound)
 
     def _confidence_interval(self, projected_value: float, r2: Optional[float], years_diff: int) -> Dict[str, float]:
-        """
-        Confidence interval:
-        - wider for longer projections
-        - wider for low model fit
-        """
-        pv = float(projected_value) if projected_value is not None else 0.0
-        r2 = 0.0 if r2 is None or pd.isna(r2) else float(r2)
-
-        base_uncertainty = 0.05 + (0.03 * max(0, years_diff))  # 5% + 3% per year
-        fit_factor = 1.0 + (1.0 - r2) * 0.6  # up to +60% uncertainty for poor fit
-        total_unc = min(0.6, base_uncertainty * fit_factor)    # cap at 60%
-
-        margin = abs(pv) * total_unc
-        lower = max(0.0, pv - margin)
-        upper = pv + margin
-
-        confidence = max(0.45, min(0.95, r2 * (1.0 - max(0, years_diff) * 0.06)))
-
-        return {
-            "lower": float(lower),
-            "upper": float(upper),
-            "confidence_level": float(confidence),
-            "uncertainty_pct": float(total_unc * 100.0),
-        }
+        return shared_confidence_interval(projected_value, r2, years_diff)
 
     def _get_timeseries_from_country_data(self, country_data: pd.DataFrame, column: str) -> Tuple[List[int], List[float]]:
         """Extract (years, values) from already-filtered country_data."""
@@ -535,11 +385,22 @@ class RealtimeAggregator:
                     "logistic_logit_linear": "Electricity access. Uses logit transform with linear regression (data-driven) and inverse transform to keep within 0–100; R² computed on transformed fit.",
                 },
                 "dampening": {
-                    "0-2_years": "100% of estimated growth rate",
-                    "3-5_years": "70% of estimated growth rate",
-                    "6+_years": "40% of estimated growth rate",
+                    "description": (
+                        "Applied year-by-year: each step k ahead of the base year uses "
+                        "growth rate β·δ(k), so longer horizons remain monotonic for a fixed β."
+                    ),
+                    "0-2_years": "δ=1.0 (100% of estimated growth rate)",
+                    "3-5_years": "δ=0.7 (70% of estimated growth rate)",
+                    "6+_years": "δ=0.4 (40% of estimated growth rate)",
+                    "basis": (
+                        "Heuristic settings that reduce growth-rate persistence for longer "
+                        "gaps; not estimated confidence intervals."
+                    ),
                 },
-                "confidence_intervals": "Intervals widen with lower R² and longer projection distance.",
+                "confidence_intervals": (
+                    "Heuristic margins only: 5% base + 3% per projection year, scaled by "
+                    "(1 + 0.6·(1−R²)), capped at 60% of |value|. Not formal statistical CIs."
+                ),
                 "data_sources": [
                     "World Bank Open Data - Population, electricity access, energy poverty metrics",
                     "Our World in Data (OWID) - Historical energy and electricity statistics",

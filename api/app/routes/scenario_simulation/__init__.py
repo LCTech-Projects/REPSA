@@ -1,2 +1,2 @@
-# Story Mode Routes
+# Scenario simulation routes
 

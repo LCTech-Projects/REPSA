@@ -37,7 +37,7 @@ class ScenarioSimulator:
         self,
         yearly_data_path: Optional[str] = None,
         default_country: str = "Algeria",
-        verbose: bool = True,
+        verbose: bool = False,
     ):
         self.verbose = verbose
         self.default_country = default_country
@@ -95,10 +95,8 @@ class ScenarioSimulator:
             feature_columns = bundle.get("feature_columns", [])
             target_columns = bundle.get("target_columns", [])
             eps = float(bundle.get("eps", 1e-6))
-            intensity_pipeline = bundle.get("intensity_pipeline") or bundle.get("ghg_pipeline")
-            intensity_feature_columns = bundle.get("intensity_feature_columns") or bundle.get(
-                "ghg_feature_columns", []
-            )
+            intensity_pipeline = bundle.get("intensity_pipeline")
+            intensity_feature_columns = bundle.get("intensity_feature_columns", [])
 
             if pipeline is None or not feature_columns or not target_columns:
                 return
@@ -116,10 +114,10 @@ class ScenarioSimulator:
             self.validation_metrics = bundle.get("validation_metrics", []) or []
 
             if self.verbose:
-                print(f"✅ Loaded scenario builder model: {model_path}")
+                print(f"Loaded scenario builder model: {model_path}")
         except Exception as e:
             if self.verbose:
-                print(f"⚠️ Could not load scenario builder model: {e}")
+                print(f"Could not load scenario builder model: {e}")
 
     def _country_df(self, country: str) -> pd.DataFrame:
         if self.historical_data is None or self.historical_data.empty:
@@ -145,10 +143,56 @@ class ScenarioSimulator:
         return compute_country_envelope(country_df)
 
     def get_validation_summary(self) -> Dict[str, Any]:
+        metrics = list(self.validation_metrics or [])
+        by_model: Dict[str, List[Dict[str, Any]]] = {}
+        for row in metrics:
+            model = str(row.get("model", "unknown"))
+            by_model.setdefault(model, []).append(row)
+
+        skill_vs_persistence: List[Dict[str, Any]] = []
+        growth_rows = {
+            str(r.get("target")): r for r in by_model.get("growth_model", [])
+        }
+        persist_rows = {
+            str(r.get("target")): r for r in by_model.get("persistence", [])
+        }
+        for target, g_row in growth_rows.items():
+            p_row = persist_rows.get(target)
+            if not p_row:
+                continue
+            g_rmse = float(g_row.get("rmse") or 0.0)
+            p_rmse = float(p_row.get("rmse") or 0.0)
+            skill = None if p_rmse <= 0 else 1.0 - (g_rmse / p_rmse)
+            skill_vs_persistence.append(
+                {
+                    "target": target,
+                    "growth_rmse": g_rmse,
+                    "persistence_rmse": p_rmse,
+                    "skill_score_rmse": skill,
+                    "growth_r2": g_row.get("r2"),
+                    "persistence_r2": p_row.get("r2"),
+                }
+            )
+
         return {
-            "metrics": self.validation_metrics,
+            "metrics": metrics,
+            "skill_vs_persistence": skill_vs_persistence,
             "has_uncertainty_bands": bool(self.residual_quantiles),
-            "note": "Walk-forward validation on the historical panel.",
+            "uncertainty_method": (
+                "Empirical residual quantiles (q10–q90) from walk-forward "
+                "one-step residuals; nominal 80% coverage. Not RF tree dispersion."
+            ),
+            "eps": self.growth_panel_eps,
+            "limitations": [
+                "Pooled R² is dominated by cross-country level differences; use RMSE/MAE and skill vs persistence.",
+                "Random Forests do not extrapolate beyond the training feature range.",
+                "One-step walk-forward skill understates multi-decade recursive scenario error.",
+                "Validation feeds contemporaneous drivers where available (conditional on known drivers).",
+            ],
+            "note": (
+                "Walk-forward validation on measured historical outcomes "
+                f"(ε={self.growth_panel_eps} in log-growth transforms)."
+            ),
         }
 
     def _calculate_growth_rate(self, data: pd.DataFrame, column: str) -> float:
@@ -329,9 +373,34 @@ class ScenarioSimulator:
             renew_target = None
             pop_growth = pop_growth_hist
         else:
-            access_target = scenario_params.get("energy_access_target")
-            clean_target = scenario_params.get("clean_cooking_target")
-            renew_target = scenario_params.get("renewable_target")
+            # Clamp policy targets to at least the latest observed country levels.
+            access_target = max(
+                access_base,
+                _clamp_pct(
+                    _safe_float(
+                        scenario_params.get("energy_access_target"),
+                        access_base,
+                    )
+                ),
+            )
+            clean_target = max(
+                clean_base,
+                _clamp_pct(
+                    _safe_float(
+                        scenario_params.get("clean_cooking_target"),
+                        clean_base,
+                    )
+                ),
+            )
+            renew_target = max(
+                renew_base,
+                _clamp_pct(
+                    _safe_float(
+                        scenario_params.get("renewable_target"),
+                        renew_base,
+                    )
+                ),
+            )
             pop_growth = float(
                 scenario_params.get("population_growth_rate", pop_growth_hist) or pop_growth_hist
             )

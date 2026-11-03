@@ -2,10 +2,10 @@ from flask import Blueprint, request, jsonify, send_file
 from app.services.historical.yearly.electricity_demand import HistoricalService
 from app.utils.validators import validate_year, validate_year_range, validate_country
 
-electricity_demand_bp = Blueprint('electricity_demand', __name__)  # Changed from historical_bp
+electricity_demand_bp = Blueprint('electricity_demand', __name__)
 service = HistoricalService()
 
-@electricity_demand_bp.route('/electricity-demand', methods=['GET'])  # Changed from @historical_bp.route
+@electricity_demand_bp.route('/electricity-demand', methods=['GET'])
 def get_electricity_demand():
     """
     Get electricity demand data for countries

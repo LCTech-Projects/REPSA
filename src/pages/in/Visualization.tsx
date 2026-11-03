@@ -21,6 +21,7 @@ import { FilterField } from "../../components/inputs/FilterField";
 import { AnimatedNumber } from "../../components/AnimatedNumber";
 import * as d3 from "d3";
 import { calculateYearTicks, getChartMargins, getChartSize } from "../../components/utils/ChartUtils";
+import { formatEnergyAmount, formatPopulation } from "../../components/utils/formatNumber";
 
 type ViewMode = "yearly" | "hourly";
 type DataMode = "historical" | "realtime";
@@ -1064,8 +1065,9 @@ export const Visualization = () => {
                   energy_poverty: "%",
                   electricity_demand: "TWh",
                   electricity_generation: "TWh",
-                  electricity_demand_per_capita: "MWh/person",
-                  electricity_demand_per_capita_current: "MWh/person",
+                  // Live estimate converts annual MWh to kWh/person for readability
+                  electricity_demand_per_capita: "kWh/person",
+                  electricity_demand_per_capita_current: "kWh/person",
                   population: "people",
                 };
 
@@ -1137,7 +1139,17 @@ export const Visualization = () => {
                             </h4>
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                               {Object.entries(data.live_counters).map(
-                                ([key, counter]: [string, any]) => (
+                                ([key, counter]: [string, any]) => {
+                                  const rawValue =
+                                    typeof liveRealtimeCounterValues[key] ===
+                                    "number"
+                                      ? liveRealtimeCounterValues[key]
+                                      : counter.value;
+                                  const isEnergy =
+                                    key === "electricity_demand" ||
+                                    key === "electricity_generation";
+                                  const isPopulation = key === "population";
+                                  return (
                                   <div
                                     key={key}
                                     className="bg-grey-1 rounded p-4"
@@ -1146,26 +1158,24 @@ export const Visualization = () => {
                                       {key.replace(/_/g, " ")}
                                     </div>
                                     <div className="text-[1.5rem] font-inter font-bold text-black-1">
-                                      {typeof (typeof liveRealtimeCounterValues[
-                                        key
-                                      ] === "number"
-                                        ? liveRealtimeCounterValues[key]
-                                        : counter.value) === "number" ? (
+                                      {typeof rawValue === "number" ? (
+                                        isEnergy ? (
+                                          formatEnergyAmount(rawValue, "MWh", 4)
+                                        ) : isPopulation ? (
+                                          formatPopulation(rawValue)
+                                        ) : (
                                         <AnimatedNumber
-                                          value={
-                                            typeof liveRealtimeCounterValues[
-                                              key
-                                            ] === "number"
-                                              ? liveRealtimeCounterValues[key]
-                                              : counter.value
+                                          value={rawValue}
+                                          decimals={
+                                            counter.unit === "%" ? 1 : 0
                                           }
-                                          decimals={0}
                                           unit={counter.unit}
                                           duration={2500}
                                           animateOnce={TICKING_LIVE_COUNTER_KEYS.includes(
                                             key as (typeof TICKING_LIVE_COUNTER_KEYS)[number],
                                           )}
                                         />
+                                        )
                                       ) : (
                                         <>
                                           {counter.value}
@@ -1181,7 +1191,8 @@ export const Visualization = () => {
                                       </div>
                                     )}
                                   </div>
-                                ),
+                                  );
+                                },
                               )}
                             </div>
                           </div>
@@ -2123,8 +2134,7 @@ const YearlyCharts = ({ data }: { data: any }) => {
         x,
         timeSeries,
         (d: any) => {
-          const popMillions = (d.population || 0) / 1000000;
-          return `Year: ${d.year}<br/>Population: ${popMillions.toFixed(2)}M`;
+          return `Year: ${d.year}<br/>Population: ${formatPopulation(d.population)}`;
         },
       );
 
@@ -2146,9 +2156,10 @@ const YearlyCharts = ({ data }: { data: any }) => {
         .style("cursor", "pointer")
         .on("mouseover", function (event, d: any) {
           tooltip.transition().duration(200).style("opacity", 1);
-          const popMillions = (d.population || 0) / 1000000;
           tooltip
-            .html(`Year: ${d.year}<br/>Population: ${popMillions.toFixed(2)}M`)
+            .html(
+              `Year: ${d.year}<br/>Population: ${formatPopulation(d.population)}`,
+            )
             .style("left", event.pageX + 10 + "px")
             .style("top", event.pageY - 10 + "px");
           d3.select(this).attr("r", 6).attr("opacity", 1);
@@ -2876,13 +2887,13 @@ const YearlyCharts = ({ data }: { data: any }) => {
         </div>
       </ChartCard>
 
-      <ChartCard title="CO2 Emission per Capita (gCO₂/kWh)">
+      <ChartCard title="CO₂ Intensity of Electricity (gCO₂/kWh)">
         <div ref={containerRefs.co2Emission} className="w-full">
           <svg ref={chartRefs.co2Emission} className="w-full h-auto"></svg>
         </div>
       </ChartCard>
 
-      <ChartCard title="Population (Millions)">
+      <ChartCard title="Population">
         <div ref={containerRefs.population} className="w-full">
           <svg ref={chartRefs.population} className="w-full h-auto"></svg>
         </div>
@@ -3050,17 +3061,6 @@ const HourlyCharts = ({ data }: { data: any }) => {
       hourlyRecords.length === 0 ||
       Object.keys(chartDimensions).length === 0
     ) {
-      console.log("HourlyCharts render effect: No data or dimensions", {
-        hasData: !!data,
-        recordsLength: Array.isArray(hourlyRecords) ? hourlyRecords.length : 0,
-        dimensionsKeys: Object.keys(chartDimensions).length,
-        dataStructure: data ? Object.keys(data) : null,
-        dataDataStructure: data?.data
-          ? Array.isArray(data.data)
-            ? "array"
-            : Object.keys(data.data)
-          : null,
-      });
       return;
     }
 

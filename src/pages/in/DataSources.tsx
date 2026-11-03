@@ -55,7 +55,7 @@ const references = [
         </a>
       </>
     ),
-    use: "Measured hourly electricity demand for South Africa, used as the 2024 anchor profile for hourly reconstruction.",
+    use: "Measured hourly electricity demand for South Africa, used as the 2024 anchor profile for countries matched to it under the multi-criteria assignment rules.",
   },
   {
     id: "nigeria",
@@ -74,27 +74,26 @@ const references = [
         .
       </>
     ),
-    use: "Reference hourly demand shape for Nigeria, used as the 2016 anchor profile assigned to neighbouring countries by geographic proximity.",
+    use: "Reference hourly demand shape for Nigeria (2016 suppressed demand), assigned only to low-access, low-consumption countries under the multi-criteria matching rules.",
   },
   {
-    id: "morocco",
+    id: "algeria",
     citation: (
       <>
-        M. Bensalah, A. Hair, R. Rabie, and H. Derrouz,
-        &ldquo;High-resolution smart meter load dataset collected from multiple
-        cities in Morocco,&rdquo; <em>Data Brief</em>, vol. 62, Oct. 2025, doi:{" "}
+        F. Rania, &ldquo;Load Consumption Data Algeria,&rdquo; Mendeley Data,
+        V1, 2023, doi:{" "}
         <a
-          href="https://doi.org/10.1016/j.dib.2025.112067"
+          href="https://doi.org/10.17632/z5x2d3mhw7.1"
           target="_blank"
           rel="noopener noreferrer"
           className="text-blue-1 hover:underline"
         >
-          10.1016/j.dib.2025.112067
+          10.17632/z5x2d3mhw7.1
         </a>
         .
       </>
     ),
-    use: "High resolution smart meter load data for Morocco, used as the 2023 anchor profile for hourly reconstruction in North and West Africa.",
+    use: "Sonelgaz hourly electricity consumption for Algeria (2008–2020), used as the 2019 anchor profile for countries matched to it by electricity access, demand intensity, income, urbanization, and sector structure.",
   },
 ] as const;
 
@@ -135,16 +134,26 @@ const DataSources = () => (
         api/data/historical/hourly/
       </code>{" "}
       combine yearly totals from the references above with transferred anchor
-      shapes from ESKOM, Nigeria, and Morocco. The scenario builder model is
+      shapes from ESKOM, Nigeria, and Algeria. The scenario builder model is
       trained offline from the same harmonised history.
+    </p>
+    <p className={prose}>
+      Access-based energy poverty indicators are derived, not survey MEPI
+      scores: electricity poverty is{" "}
+      <code className="text-[0.875rem] bg-grey-1 px-1 rounded">
+        100 − electricity access
+      </code>
+      , and the multidimensional access indicator averages electricity and
+      clean-cooking deprivation. See Methodology for formulas and limits.
     </p>
 
     <h2 className={sectionHeading}>Coverage and limitations</h2>
     <p className={prose}>
       Coverage varies by country and indicator. Some series stop before the
       latest calendar year because upstream sources have not published updates.
-      Hourly reconstruction inherits uncertainty from anchor choice and from
-      yearly totals. Realtime counters are extrapolations, not live metering.
+      Hourly reconstruction inherits uncertainty from feature-based anchor
+      choice and from yearly totals. Realtime counters are extrapolations, not
+      live metering.
       Always check the year filter on charts and read the methodology notes
       before citing a number in a formal report.
     </p>

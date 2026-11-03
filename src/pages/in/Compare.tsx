@@ -10,6 +10,7 @@ import { SelectIcon } from "../../components/Icons";
 import * as d3 from "d3";
 import { getChartMargins, getChartSize } from "../../components/utils/ChartUtils";
 import { useSidebar, SIDEBAR_WIDTH_COLLAPSED } from "../../app/SidebarContext";
+import { formatPopulation } from "../../components/utils/formatNumber";
 
 type ChartType = "line" | "bar" | "pie";
 type Metric =
@@ -28,7 +29,7 @@ type Metric =
 
 const METRIC_LABELS: Record<Metric, string> = {
   electricity_access: "Electricity Access",
-  co2_emissions: "CO2 Emissions",
+  co2_emissions: "CO₂ Intensity of Electricity",
   population: "Population",
   electricity_demand: "Electricity Demand",
   electricity_generation: "Electricity Generation",
@@ -36,20 +37,20 @@ const METRIC_LABELS: Record<Metric, string> = {
   electricity_demand_per_capita_with_access:
     "Electricity Demand Per Capita with Access",
   clean_cooking_access: "Clean Cooking Access",
-  energy_poverty: "Energy Poverty",
-  energy_poverty_multidimensional: "Energy Poverty Multidimensional",
-  energy_poverty_rural: "Energy Poverty Rural",
-  energy_poverty_urban: "Energy Poverty Urban",
+  energy_poverty: "Electricity Poverty (100 − access)",
+  energy_poverty_multidimensional: "Access-based Energy Poverty (avg)",
+  energy_poverty_rural: "Rural Electricity Poverty",
+  energy_poverty_urban: "Urban Electricity Poverty",
 };
 
 const METRIC_UNITS: Record<Metric, string> = {
   electricity_access: "%",
   co2_emissions: "gCO₂/kWh",
-  population: "M",
+  population: "people",
   electricity_demand: "TWh",
   electricity_generation: "TWh",
-  electricity_demand_per_capita: "MWh",
-  electricity_demand_per_capita_with_access: "MWh",
+  electricity_demand_per_capita: "MWh/person",
+  electricity_demand_per_capita_with_access: "MWh/person",
   clean_cooking_access: "%",
   energy_poverty: "%",
   energy_poverty_multidimensional: "%",
@@ -844,35 +845,35 @@ export const Compare = () => {
                         </span>
                       </div>
                       <div className="text-[0.75rem] font-inter text-grey-2">
-                        CO2:{" "}
+                        CO₂ intensity:{" "}
                         <span className="text-black-1 font-semibold">
-                          {yearData.carbon_intensity
-                            ? `${yearData.carbon_intensity.toFixed(1)}t`
+                          {yearData.carbon_intensity != null
+                            ? `${yearData.carbon_intensity.toFixed(1)} gCO₂/kWh`
                             : "N/A"}
                         </span>
                       </div>
                       <div className="text-[0.75rem] font-inter text-grey-2">
                         Population:{" "}
                         <span className="text-black-1 font-semibold">
-                          {yearData.population
-                            ? `${(yearData.population / 1000000).toFixed(0)}M`
-                            : "N/A"}
+                          {formatPopulation(yearData.population)}
                         </span>
                       </div>
                       <div className="text-[0.75rem] font-inter text-grey-2">
                         Renewable:{" "}
                         <span className="text-black-1 font-semibold">
-                          {yearData.renewable_share
+                          {yearData.renewable_share != null
                             ? `${yearData.renewable_share.toFixed(0)}%`
                             : "N/A"}
                         </span>
                       </div>
                       <div className="text-[0.75rem] font-inter text-grey-2">
-                        EPI:{" "}
+                        Electricity poverty:{" "}
                         <span className="text-black-1 font-semibold">
-                          {yearData.energy_poverty
-                            ? `${yearData.energy_poverty.toFixed(0)}`
-                            : "N/A"}
+                          {yearData.energy_poverty != null
+                            ? `${yearData.energy_poverty.toFixed(1)}%`
+                            : yearData.electricity_access != null
+                              ? `${(100 - yearData.electricity_access).toFixed(1)}%`
+                              : "N/A"}
                         </span>
                       </div>
                     </div>

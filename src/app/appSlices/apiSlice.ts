@@ -74,6 +74,12 @@ export const apiSlice = createApi({
         params: { country },
       }),
     }),
+    getCountryEnvelope: builder.query<any, { country: string }>({
+      query: ({ country }) => ({
+        url: `/api/scenario-simulation/country-envelope`,
+        params: { country },
+      }),
+    }),
     simulateScenario: builder.mutation<
       any,
       {
@@ -100,5 +106,6 @@ export const {
   useGetAvailableCountriesQuery,
   useGetAvailableDatesQuery,
   useGetRealtimeDataQuery,
+  useGetCountryEnvelopeQuery,
   useSimulateScenarioMutation,
 } = apiSlice;
