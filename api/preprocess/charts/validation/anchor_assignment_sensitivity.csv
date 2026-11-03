@@ -1,0 +1,55 @@
+country,haversine,climate,full,haversine_vs_full,climate_vs_full
+Algeria,Algeria,Algeria,Algeria,False,False
+Angola,South Africa,Nigeria,Nigeria,True,False
+Benin,Nigeria,Nigeria,Nigeria,False,False
+Botswana,South Africa,Algeria,South Africa,False,True
+Burkina Faso,Nigeria,Nigeria,Nigeria,False,False
+Burundi,Nigeria,South Africa,Nigeria,False,True
+Cameroon,Nigeria,Nigeria,Nigeria,False,False
+Cape Verde,Algeria,Nigeria,Algeria,False,True
+Central African Republic,Nigeria,Nigeria,Nigeria,False,False
+Chad,Nigeria,Nigeria,Nigeria,False,False
+Comoros,South Africa,Nigeria,Algeria,True,True
+Congo,Nigeria,Nigeria,Nigeria,False,False
+Cote d'Ivoire,Nigeria,Nigeria,Nigeria,False,False
+Democratic Republic of the Congo,Nigeria,Nigeria,Nigeria,False,False
+Djibouti,Nigeria,Nigeria,Algeria,True,True
+Egypt,Algeria,Algeria,Algeria,False,False
+Equatorial Guinea,Nigeria,Nigeria,Algeria,True,True
+Eritrea,Nigeria,Nigeria,Nigeria,False,False
+Eswatini,South Africa,South Africa,South Africa,False,False
+Ethiopia,Nigeria,South Africa,Nigeria,False,True
+Gabon,Nigeria,Nigeria,Algeria,True,True
+Gambia,Algeria,Nigeria,Nigeria,True,False
+Ghana,Nigeria,Nigeria,Algeria,True,True
+Guinea,Nigeria,Nigeria,Nigeria,False,False
+Guinea-Bissau,Algeria,Nigeria,Nigeria,True,False
+Kenya,Nigeria,Nigeria,Nigeria,False,False
+Lesotho,South Africa,South Africa,Nigeria,True,True
+Liberia,Nigeria,Nigeria,Nigeria,False,False
+Libya,Algeria,Algeria,Algeria,False,False
+Madagascar,South Africa,Algeria,Nigeria,True,True
+Malawi,South Africa,Nigeria,Nigeria,True,False
+Mali,Algeria,Nigeria,Nigeria,True,False
+Mauritania,Algeria,Nigeria,Nigeria,True,False
+Mauritius,South Africa,Nigeria,South Africa,False,True
+Morocco,Algeria,Algeria,Algeria,False,False
+Mozambique,South Africa,Nigeria,Nigeria,True,False
+Namibia,South Africa,Algeria,South Africa,False,True
+Niger,Nigeria,Nigeria,Nigeria,False,False
+Nigeria,Nigeria,Nigeria,Nigeria,False,False
+Rwanda,Nigeria,South Africa,Nigeria,False,True
+Sao Tome and Principe,Nigeria,Nigeria,Algeria,True,True
+Senegal,Algeria,Nigeria,Algeria,False,True
+Seychelles,South Africa,Nigeria,Algeria,True,True
+Sierra Leone,Nigeria,Nigeria,Nigeria,False,False
+Somalia,Nigeria,Nigeria,Nigeria,False,False
+South Africa,South Africa,South Africa,South Africa,False,False
+South Sudan,Nigeria,Nigeria,Nigeria,False,False
+Sudan,Nigeria,Nigeria,Nigeria,False,False
+Tanzania,South Africa,Nigeria,Nigeria,True,False
+Togo,Nigeria,Nigeria,Nigeria,False,False
+Tunisia,Algeria,Algeria,Algeria,False,False
+Uganda,Nigeria,Nigeria,Nigeria,False,False
+Zambia,South Africa,South Africa,Nigeria,True,True
+Zimbabwe,South Africa,Algeria,Nigeria,True,True

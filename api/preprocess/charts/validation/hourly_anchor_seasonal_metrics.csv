@@ -1,0 +1,4 @@
+country,anchor_reference_year,recon_comparison_year,monthly_pearson_r,monthly_profile_mape_pct
+South Africa,2024,2024,1.0,1.2600879301429488e-14
+Nigeria,2016,2016,1.0,4.316458202818376e-15
+Algeria,2019,2019,1.0,6.953204581531209e-15

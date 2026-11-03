@@ -1,0 +1,19 @@
+model,split,target,r2,rmse,mae
+growth_model,walkforward_pooled,electricity_demand (TWh),0.9980158401354756,1.9407234793511696,0.6673124745456025
+growth_model,walkforward_pooled,electricity_demand_per_capita (MWh),0.9955976408841679,0.06280548643274339,0.032822294979501086
+growth_model,walkforward_pooled,electricity_demand_per_capita_with_access (MWh),0.9909259150129248,0.09358028524195934,0.05620504792836224
+growth_model,walkforward_pooled,energy_poverty_electricity (% of total population),0.9641134863570102,5.060746805895229,1.9881003434307811
+growth_model,walkforward_pooled,energy_poverty_multidimensional (% of total population),0.997729898311714,1.3659352852598452,0.7679345535228363
+growth_model,walkforward_pooled,carbon_intensity_elec,0.9773304714642617,35.26843106666835,22.060226173496773
+persistence,walkforward_pooled,electricity_demand (TWh),0.998610628217024,1.6239945485865594,0.6788625592417062
+persistence,walkforward_pooled,electricity_demand_per_capita (MWh),0.9964164962522732,0.05666420262860396,0.03103763706471196
+persistence,walkforward_pooled,electricity_demand_per_capita_with_access (MWh),0.9908968038172706,0.09373027571175284,0.05563217998134102
+persistence,walkforward_pooled,energy_poverty_electricity (% of total population),0.9909112851844172,2.5468315042225456,1.6578199052132705
+persistence,walkforward_pooled,energy_poverty_multidimensional (% of total population),0.9971840970590458,1.521305056794785,1.0657582938388628
+persistence,walkforward_pooled,carbon_intensity_elec,0.9787202290528041,34.170266876169194,18.959905213270144
+country_growth,walkforward_pooled,electricity_demand (TWh),0.9988276978056198,1.4917468134242393,0.6168070722424811
+country_growth,walkforward_pooled,electricity_demand_per_capita (MWh),0.9954603294470784,0.06377743059042595,0.034640350960849234
+country_growth,walkforward_pooled,electricity_demand_per_capita_with_access (MWh),0.989591511772512,0.10022516295626467,0.06089211916751572
+country_growth,walkforward_pooled,energy_poverty_electricity (% of total population),0.9935228321525864,2.150015302251328,1.1482791943552426
+country_growth,walkforward_pooled,energy_poverty_multidimensional (% of total population),0.9985421919503893,1.094605535675,0.5783885755640138
+country_growth,walkforward_pooled,carbon_intensity_elec,0.97166919918198,39.42705345076303,23.499704247390948

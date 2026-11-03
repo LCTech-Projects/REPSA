@@ -1,0 +1,2 @@
+check,records_compared,countries,years,mean_relative_error_pct,max_relative_error_pct
+Hourly annual consistency (sum_h d_hat = D),540,54,2016-2025,2.3656124203016854e-15,2.0071607211540484e-14

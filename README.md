@@ -42,7 +42,7 @@ flowchart LR
 
 The API reads **energy data from the filesystem**, not from Postgres. Postgres is used **only for authentication**.
 
-**Maintainer pipeline:** offline scripts that regenerate CSVs, reconstruct hourly demand, retrain models, and produce validation charts live in `api/preprocess/` locally and are archived on Zenodo (see Data and models). They are **not required at runtime** and are excluded from git and from the production Docker image.
+**Maintainer pipeline:** `api/preprocess/` holds scripts to regenerate CSVs, reconstruct hourly demand from anchor profiles, retrain models, and produce validation charts. These scripts are **not required at runtime** (committed CSVs and joblib artefacts are served directly). Large upstream downloads under `api/preprocess/data/raw/` stay local-only (see Data and models). The production Docker image excludes `api/preprocess/` via `.dockerignore`.
 
 **Data scope (committed runtime assets):**
 
@@ -97,6 +97,7 @@ REPSA/
 │   ├── app/                # Flask application factory, routes, services
 │   ├── data/               # Historical CSVs (hourly per country, yearly panel)
 │   ├── ml_models/          # Trained joblib models (committed)
+│   ├── preprocess/         # Maintainer scripts (regenerate data, train, validate)
 │   └── requirements.txt
 ├── Dockerfile              # Multi-stage: Node build + Python runtime
 ├── railway.toml            # Railway deployment config
@@ -187,18 +188,17 @@ CI runs the same pytest suite and `npm run build` on push/PR (`.github/workflows
 
 Historical CSVs and `scenario_builder.joblib` are included in git. After clone, the API can serve map, visualization, compare, scenario simulation, and downloads without running preprocess.
 
-**Offline preprocess archive (Zenodo):** the maintainer pipeline (`api/preprocess/`: raw inputs, normalized tables, figure/train scripts, validation charts) is **not** in this GitHub repository. Download the deposit, unpack as `api/preprocess/`, then regenerate runtime artefacts as needed:
+**Maintainers** — extend the yearly panel, regenerate hourly profiles, retrain the scenario model, and refresh validation artefacts:
 
 ```bash
-# After unpacking the Zenodo archive to api/preprocess/
 python api/preprocess/pipeline/extend_yearly_panel_to_prior_year.py --dry-run
 python api/preprocess/pipeline/extend_yearly_panel_to_prior_year.py --in-place --regenerate-hourly
+python api/preprocess/pipeline/extend_yearly_panel_to_prior_year.py --skip-refresh --in-place
+python api/preprocess/pipeline/generate_hourly_from_anchors.py
 python api/preprocess/train/scenario_builder.py
 ```
 
-Replace this placeholder with the published DOI after deposit: `https://doi.org/10.5281/zenodo.XXXXXXX`.
-
-Commit updated files under `api/data/historical/` and `api/ml_models/` after validation. The API caps historical years at **current calendar year − 1**.
+Upstream raw downloads (`api/preprocess/data/raw/`) are gitignored; place them locally (or from the Zenodo raw archive: `https://doi.org/10.5281/zenodo.XXXXXXX`) before rebuilds that need them. Commit updated runtime artefacts under `api/data/historical/` and `api/ml_models/` after validation. The API caps historical years at **current calendar year − 1**.
 
 ---
 

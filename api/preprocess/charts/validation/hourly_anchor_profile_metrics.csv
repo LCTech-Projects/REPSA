@@ -1,0 +1,4 @@
+country,reference_source,anchor_reference_year,recon_comparison_year,same_calendar_year,diurnal_pearson_r,diurnal_profile_mape_pct,monthly_pearson_r,monthly_profile_mape_pct
+South Africa,Eskom residual demand,2024,2024,True,1.0,3.0099016297204305e-14,1.0,1.2600879301429488e-14
+Nigeria,Mendeley suppressed national demand,2016,2016,True,1.0,1.0668779266349036e-14,1.0,4.316458202818376e-15
+Algeria,Sonelgaz hourly consumption,2019,2019,True,0.9999999999999999,1.9061644125238267e-14,1.0,6.953204581531209e-15

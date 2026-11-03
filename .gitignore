@@ -32,15 +32,15 @@ dist-ssr
 *.bak
 *.csv.bak
 
-# Offline maintainer pipeline (not required at runtime; archived on Zenodo)
-api/preprocess/
+# Large offline upstream downloads (re-fetch locally; not needed to run the app)
+api/preprocess/data/raw/**
+!api/preprocess/data/raw/README.md
+
+# Local Zenodo packaging
 REPSA_preprocess_zenodo.zip
 *_zenodo.zip
+*.zenodo.zip
 
 # Pytest
 .pytest_cache/
 api/pytest-cache-files-*/
-
-# Local Zenodo packaging
-REPSA_preprocess_zenodo.zip
-*.zenodo.zip
