@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import os
 import sys
 from pathlib import Path
 
@@ -10,6 +11,9 @@ import pytest
 API_ROOT = Path(__file__).resolve().parents[1]
 if str(API_ROOT) not in sys.path:
     sys.path.insert(0, str(API_ROOT))
+
+# Auth uses SQLAlchemy; smoke tests only need a throwaway DB.
+os.environ.setdefault("DATABASE_URL", "sqlite:///:memory:")
 
 
 @pytest.fixture()
