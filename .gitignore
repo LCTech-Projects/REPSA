@@ -34,7 +34,13 @@ dist-ssr
 
 # Offline maintainer pipeline (not required at runtime; archived on Zenodo)
 api/preprocess/
+REPSA_preprocess_zenodo.zip
+*_zenodo.zip
 
 # Pytest
 .pytest_cache/
 api/pytest-cache-files-*/
+
+# Local Zenodo packaging
+REPSA_preprocess_zenodo.zip
+*.zenodo.zip
