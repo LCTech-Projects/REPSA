@@ -1,0 +1,163 @@
+country,year,comparison,full_anchor,alt_anchor,anchor_changed,norm_peak_abs_diff,load_factor_abs_diff,diurnal_pearson_r
+Algeria,2023,haversine_vs_full,Algeria,Algeria,False,0.0,0.0,1.0
+Algeria,2023,forced_south_africa_vs_full,Algeria,South Africa,True,0.42611774072247544,0.1669431728947054,0.47489051765784873
+Algeria,2023,forced_nigeria_vs_full,Algeria,Nigeria,True,0.13476797693016174,0.04369708701006647,-0.8689825774385568
+Angola,2023,haversine_vs_full,Nigeria,South Africa,True,0.2913497637923139,0.12324608588463892,-0.1542167751948743
+Angola,2023,forced_south_africa_vs_full,Nigeria,South Africa,True,0.2913497637923139,0.12324608588463892,-0.1542167751948743
+Angola,2023,forced_algeria_vs_full,Nigeria,Algeria,True,0.1347679769301613,0.04369708701006647,-0.8689825774385574
+Benin,2023,haversine_vs_full,Nigeria,Nigeria,False,0.0,0.0,0.9999999999999999
+Benin,2023,forced_south_africa_vs_full,Nigeria,South Africa,True,0.2913497637923137,0.12324608588463892,-0.15421677519487476
+Benin,2023,forced_algeria_vs_full,Nigeria,Algeria,True,0.13476797693016174,0.04369708701006647,-0.8689825774385576
+Botswana,2023,haversine_vs_full,South Africa,South Africa,False,0.0,0.0,1.0
+Botswana,2023,forced_nigeria_vs_full,South Africa,Nigeria,True,0.2913497637923137,0.12324608588463892,-0.15421677519487345
+Botswana,2023,forced_algeria_vs_full,South Africa,Algeria,True,0.4261177407224752,0.1669431728947054,0.4748905176578484
+Burkina Faso,2023,haversine_vs_full,Nigeria,Nigeria,False,0.0,0.0,1.0
+Burkina Faso,2023,forced_south_africa_vs_full,Nigeria,South Africa,True,0.2913497637923139,0.12324608588463892,-0.15421677519487434
+Burkina Faso,2023,forced_algeria_vs_full,Nigeria,Algeria,True,0.13476797693016151,0.04369708701006647,-0.8689825774385573
+Burundi,2023,haversine_vs_full,Nigeria,Nigeria,False,0.0,0.0,0.9999999999999999
+Burundi,2023,forced_south_africa_vs_full,Nigeria,South Africa,True,0.2913497637923139,0.12324608588463892,-0.15421677519487403
+Burundi,2023,forced_algeria_vs_full,Nigeria,Algeria,True,0.13476797693016107,0.04369708701006636,-0.8689825774385572
+Cameroon,2023,haversine_vs_full,Nigeria,Nigeria,False,0.0,0.0,0.9999999999999999
+Cameroon,2023,forced_south_africa_vs_full,Nigeria,South Africa,True,0.2913497637923137,0.12324608588463892,-0.15421677519487406
+Cameroon,2023,forced_algeria_vs_full,Nigeria,Algeria,True,0.13476797693016174,0.04369708701006647,-0.8689825774385571
+Cape Verde,2023,haversine_vs_full,Algeria,Algeria,False,0.0,0.0,1.0
+Cape Verde,2023,forced_south_africa_vs_full,Algeria,South Africa,True,0.4261177407224752,0.16694317289470528,0.47489051765784907
+Cape Verde,2023,forced_nigeria_vs_full,Algeria,Nigeria,True,0.1347679769301613,0.04369708701006636,-0.8689825774385562
+Central African Republic,2023,haversine_vs_full,Nigeria,Nigeria,False,0.0,0.0,1.0
+Central African Republic,2023,forced_south_africa_vs_full,Nigeria,South Africa,True,0.2913497637923137,0.12324608588463881,-0.15421677519487242
+Central African Republic,2023,forced_algeria_vs_full,Nigeria,Algeria,True,0.1347679769301613,0.04369708701006636,-0.8689825774385574
+Chad,2023,haversine_vs_full,Nigeria,Nigeria,False,0.0,0.0,0.9999999999999999
+Chad,2023,forced_south_africa_vs_full,Nigeria,South Africa,True,0.2913497637923137,0.12324608588463892,-0.15421677519487303
+Chad,2023,forced_algeria_vs_full,Nigeria,Algeria,True,0.13476797693016151,0.04369708701006647,-0.8689825774385573
+Comoros,2023,haversine_vs_full,Algeria,South Africa,True,0.426117740722475,0.16694317289470517,0.47489051765784807
+Comoros,2023,forced_south_africa_vs_full,Algeria,South Africa,True,0.426117740722475,0.16694317289470517,0.47489051765784807
+Comoros,2023,forced_nigeria_vs_full,Algeria,Nigeria,True,0.1347679769301613,0.04369708701006636,-0.8689825774385574
+Congo,2023,haversine_vs_full,Nigeria,Nigeria,False,0.0,0.0,1.0
+Congo,2023,forced_south_africa_vs_full,Nigeria,South Africa,True,0.2913497637923139,0.12324608588463892,-0.1542167751948731
+Congo,2023,forced_algeria_vs_full,Nigeria,Algeria,True,0.13476797693016151,0.04369708701006647,-0.8689825774385573
+Cote d'Ivoire,2023,haversine_vs_full,Nigeria,Nigeria,False,0.0,0.0,1.0
+Cote d'Ivoire,2023,forced_south_africa_vs_full,Nigeria,South Africa,True,0.2913497637923135,0.12324608588463881,-0.15421677519487328
+Cote d'Ivoire,2023,forced_algeria_vs_full,Nigeria,Algeria,True,0.13476797693016174,0.04369708701006647,-0.8689825774385563
+Democratic Republic of the Congo,2023,haversine_vs_full,Nigeria,Nigeria,False,0.0,0.0,0.9999999999999999
+Democratic Republic of the Congo,2023,forced_south_africa_vs_full,Nigeria,South Africa,True,0.2913497637923135,0.12324608588463881,-0.15421677519487445
+Democratic Republic of the Congo,2023,forced_algeria_vs_full,Nigeria,Algeria,True,0.13476797693016196,0.04369708701006658,-0.8689825774385571
+Djibouti,2023,haversine_vs_full,Algeria,Nigeria,True,0.1347679769301613,0.04369708701006636,-0.8689825774385567
+Djibouti,2023,forced_south_africa_vs_full,Algeria,South Africa,True,0.426117740722475,0.16694317289470528,0.47489051765784845
+Djibouti,2023,forced_nigeria_vs_full,Algeria,Nigeria,True,0.1347679769301613,0.04369708701006636,-0.8689825774385567
+Egypt,2023,haversine_vs_full,Algeria,Algeria,False,0.0,0.0,1.0
+Egypt,2023,forced_south_africa_vs_full,Algeria,South Africa,True,0.426117740722475,0.16694317289470517,0.4748905176578482
+Egypt,2023,forced_nigeria_vs_full,Algeria,Nigeria,True,0.1347679769301613,0.04369708701006636,-0.8689825774385576
+Equatorial Guinea,2023,haversine_vs_full,Algeria,Nigeria,True,0.13476797693016174,0.04369708701006658,-0.8689825774385571
+Equatorial Guinea,2023,forced_south_africa_vs_full,Algeria,South Africa,True,0.4261177407224752,0.1669431728947054,0.47489051765784834
+Equatorial Guinea,2023,forced_nigeria_vs_full,Algeria,Nigeria,True,0.13476797693016174,0.04369708701006658,-0.8689825774385571
+Eritrea,2023,haversine_vs_full,Nigeria,Nigeria,False,0.0,0.0,1.0
+Eritrea,2023,forced_south_africa_vs_full,Nigeria,South Africa,True,0.2913497637923135,0.12324608588463881,-0.15421677519487326
+Eritrea,2023,forced_algeria_vs_full,Nigeria,Algeria,True,0.13476797693016174,0.04369708701006658,-0.8689825774385567
+Eswatini,2023,haversine_vs_full,South Africa,South Africa,False,0.0,0.0,1.0
+Eswatini,2023,forced_nigeria_vs_full,South Africa,Nigeria,True,0.2913497637923137,0.12324608588463892,-0.15421677519487328
+Eswatini,2023,forced_algeria_vs_full,South Africa,Algeria,True,0.42611774072247477,0.16694317289470528,0.47489051765784845
+Ethiopia,2023,haversine_vs_full,Nigeria,Nigeria,False,0.0,0.0,0.9999999999999999
+Ethiopia,2023,forced_south_africa_vs_full,Nigeria,South Africa,True,0.2913497637923137,0.12324608588463881,-0.154216775194873
+Ethiopia,2023,forced_algeria_vs_full,Nigeria,Algeria,True,0.13476797693016174,0.04369708701006658,-0.868982577438557
+Gabon,2023,haversine_vs_full,Algeria,Nigeria,True,0.13476797693016174,0.04369708701006647,-0.8689825774385577
+Gabon,2023,forced_south_africa_vs_full,Algeria,South Africa,True,0.42611774072247544,0.1669431728947054,0.47489051765784857
+Gabon,2023,forced_nigeria_vs_full,Algeria,Nigeria,True,0.13476797693016174,0.04369708701006647,-0.8689825774385577
+Gambia,2023,haversine_vs_full,Nigeria,Algeria,True,0.13476797693016174,0.04369708701006658,-0.8689825774385568
+Gambia,2023,forced_south_africa_vs_full,Nigeria,South Africa,True,0.2913497637923137,0.12324608588463881,-0.15421677519487328
+Gambia,2023,forced_algeria_vs_full,Nigeria,Algeria,True,0.13476797693016174,0.04369708701006658,-0.8689825774385568
+Ghana,2023,haversine_vs_full,Algeria,Nigeria,True,0.13476797693016174,0.04369708701006647,-0.8689825774385572
+Ghana,2023,forced_south_africa_vs_full,Algeria,South Africa,True,0.42611774072247544,0.1669431728947054,0.47489051765784857
+Ghana,2023,forced_nigeria_vs_full,Algeria,Nigeria,True,0.13476797693016174,0.04369708701006647,-0.8689825774385572
+Guinea,2023,haversine_vs_full,Nigeria,Nigeria,False,0.0,0.0,0.9999999999999999
+Guinea,2023,forced_south_africa_vs_full,Nigeria,South Africa,True,0.2913497637923139,0.12324608588463892,-0.15421677519487254
+Guinea,2023,forced_algeria_vs_full,Nigeria,Algeria,True,0.1347679769301613,0.04369708701006636,-0.8689825774385562
+Guinea-Bissau,2023,haversine_vs_full,Nigeria,Algeria,True,0.1347679769301613,0.04369708701006636,-0.8689825774385568
+Guinea-Bissau,2023,forced_south_africa_vs_full,Nigeria,South Africa,True,0.2913497637923139,0.12324608588463903,-0.15421677519487342
+Guinea-Bissau,2023,forced_algeria_vs_full,Nigeria,Algeria,True,0.1347679769301613,0.04369708701006636,-0.8689825774385568
+Kenya,2023,haversine_vs_full,Nigeria,Nigeria,False,0.0,0.0,1.0
+Kenya,2023,forced_south_africa_vs_full,Nigeria,South Africa,True,0.2913497637923137,0.12324608588463892,-0.15421677519487495
+Kenya,2023,forced_algeria_vs_full,Nigeria,Algeria,True,0.13476797693016151,0.04369708701006647,-0.8689825774385581
+Lesotho,2023,haversine_vs_full,Nigeria,South Africa,True,0.29134976379231414,0.12324608588463892,-0.15421677519487256
+Lesotho,2023,forced_south_africa_vs_full,Nigeria,South Africa,True,0.29134976379231414,0.12324608588463892,-0.15421677519487256
+Lesotho,2023,forced_algeria_vs_full,Nigeria,Algeria,True,0.13476797693016151,0.04369708701006647,-0.8689825774385563
+Liberia,2023,haversine_vs_full,Nigeria,Nigeria,False,0.0,0.0,1.0
+Liberia,2023,forced_south_africa_vs_full,Nigeria,South Africa,True,0.2913497637923137,0.12324608588463881,-0.15421677519487317
+Liberia,2023,forced_algeria_vs_full,Nigeria,Algeria,True,0.13476797693016174,0.04369708701006658,-0.8689825774385568
+Libya,2023,haversine_vs_full,Algeria,Algeria,False,0.0,0.0,1.0
+Libya,2023,forced_south_africa_vs_full,Algeria,South Africa,True,0.4261177407224752,0.16694317289470528,0.47489051765784823
+Libya,2023,forced_nigeria_vs_full,Algeria,Nigeria,True,0.1347679769301613,0.04369708701006636,-0.8689825774385574
+Madagascar,2023,haversine_vs_full,Nigeria,South Africa,True,0.29134976379231414,0.12324608588463914,-0.15421677519487334
+Madagascar,2023,forced_south_africa_vs_full,Nigeria,South Africa,True,0.29134976379231414,0.12324608588463914,-0.15421677519487334
+Madagascar,2023,forced_algeria_vs_full,Nigeria,Algeria,True,0.13476797693016151,0.04369708701006647,-0.8689825774385571
+Malawi,2023,haversine_vs_full,Nigeria,South Africa,True,0.2913497637923137,0.12324608588463892,-0.15421677519487328
+Malawi,2023,forced_south_africa_vs_full,Nigeria,South Africa,True,0.2913497637923137,0.12324608588463892,-0.15421677519487328
+Malawi,2023,forced_algeria_vs_full,Nigeria,Algeria,True,0.13476797693016085,0.04369708701006625,-0.868982577438557
+Mali,2023,haversine_vs_full,Nigeria,Algeria,True,0.13476797693016151,0.04369708701006647,-0.8689825774385568
+Mali,2023,forced_south_africa_vs_full,Nigeria,South Africa,True,0.2913497637923137,0.12324608588463881,-0.1542167751948732
+Mali,2023,forced_algeria_vs_full,Nigeria,Algeria,True,0.13476797693016151,0.04369708701006647,-0.8689825774385568
+Mauritania,2023,haversine_vs_full,Nigeria,Algeria,True,0.13476797693016107,0.04369708701006625,-0.8689825774385571
+Mauritania,2023,forced_south_africa_vs_full,Nigeria,South Africa,True,0.2913497637923137,0.12324608588463892,-0.1542167751948739
+Mauritania,2023,forced_algeria_vs_full,Nigeria,Algeria,True,0.13476797693016107,0.04369708701006625,-0.8689825774385571
+Mauritius,2023,haversine_vs_full,South Africa,South Africa,False,0.0,0.0,1.0
+Mauritius,2023,forced_nigeria_vs_full,South Africa,Nigeria,True,0.2913497637923139,0.12324608588463892,-0.15421677519487434
+Mauritius,2023,forced_algeria_vs_full,South Africa,Algeria,True,0.42611774072247544,0.1669431728947054,0.4748905176578484
+Morocco,2023,haversine_vs_full,Algeria,Algeria,False,0.0,0.0,1.0
+Morocco,2023,forced_south_africa_vs_full,Algeria,South Africa,True,0.4261177407224752,0.1669431728947054,0.4748905176578488
+Morocco,2023,forced_nigeria_vs_full,Algeria,Nigeria,True,0.13476797693016151,0.04369708701006647,-0.8689825774385576
+Mozambique,2023,haversine_vs_full,Nigeria,South Africa,True,0.2913497637923137,0.12324608588463892,-0.1542167751948737
+Mozambique,2023,forced_south_africa_vs_full,Nigeria,South Africa,True,0.2913497637923137,0.12324608588463892,-0.1542167751948737
+Mozambique,2023,forced_algeria_vs_full,Nigeria,Algeria,True,0.13476797693016151,0.04369708701006647,-0.8689825774385568
+Namibia,2023,haversine_vs_full,South Africa,South Africa,False,0.0,0.0,1.0
+Namibia,2023,forced_nigeria_vs_full,South Africa,Nigeria,True,0.29134976379231414,0.12324608588463903,-0.15421677519487198
+Namibia,2023,forced_algeria_vs_full,South Africa,Algeria,True,0.4261177407224752,0.16694317289470528,0.4748905176578482
+Niger,2023,haversine_vs_full,Nigeria,Nigeria,False,0.0,0.0,1.0
+Niger,2023,forced_south_africa_vs_full,Nigeria,South Africa,True,0.2913497637923137,0.12324608588463892,-0.15421677519487426
+Niger,2023,forced_algeria_vs_full,Nigeria,Algeria,True,0.13476797693016151,0.04369708701006647,-0.8689825774385572
+Nigeria,2023,haversine_vs_full,Nigeria,Nigeria,False,0.0,0.0,0.9999999999999999
+Nigeria,2023,forced_south_africa_vs_full,Nigeria,South Africa,True,0.2913497637923137,0.12324608588463892,-0.15421677519487362
+Nigeria,2023,forced_algeria_vs_full,Nigeria,Algeria,True,0.13476797693016151,0.04369708701006647,-0.868982577438557
+Rwanda,2023,haversine_vs_full,Nigeria,Nigeria,False,0.0,0.0,0.9999999999999999
+Rwanda,2023,forced_south_africa_vs_full,Nigeria,South Africa,True,0.2913497637923139,0.12324608588463892,-0.15421677519487403
+Rwanda,2023,forced_algeria_vs_full,Nigeria,Algeria,True,0.13476797693016107,0.04369708701006636,-0.8689825774385572
+Sao Tome and Principe,2023,haversine_vs_full,Algeria,Nigeria,True,0.13476797693016151,0.04369708701006647,-0.8689825774385573
+Sao Tome and Principe,2023,forced_south_africa_vs_full,Algeria,South Africa,True,0.4261177407224752,0.1669431728947054,0.47489051765784823
+Sao Tome and Principe,2023,forced_nigeria_vs_full,Algeria,Nigeria,True,0.13476797693016151,0.04369708701006647,-0.8689825774385573
+Senegal,2023,haversine_vs_full,Algeria,Algeria,False,0.0,0.0,1.0
+Senegal,2023,forced_south_africa_vs_full,Algeria,South Africa,True,0.426117740722475,0.16694317289470528,0.47489051765784873
+Senegal,2023,forced_nigeria_vs_full,Algeria,Nigeria,True,0.13476797693016151,0.04369708701006647,-0.8689825774385569
+Seychelles,2023,haversine_vs_full,Algeria,South Africa,True,0.42611774072247566,0.16694317289470562,0.47489051765784823
+Seychelles,2023,forced_south_africa_vs_full,Algeria,South Africa,True,0.42611774072247566,0.16694317289470562,0.47489051765784823
+Seychelles,2023,forced_nigeria_vs_full,Algeria,Nigeria,True,0.13476797693016151,0.04369708701006647,-0.8689825774385571
+Sierra Leone,2023,haversine_vs_full,Nigeria,Nigeria,False,0.0,0.0,0.9999999999999999
+Sierra Leone,2023,forced_south_africa_vs_full,Nigeria,South Africa,True,0.2913497637923137,0.12324608588463892,-0.15421677519487356
+Sierra Leone,2023,forced_algeria_vs_full,Nigeria,Algeria,True,0.13476797693016151,0.04369708701006647,-0.8689825774385574
+Somalia,2023,haversine_vs_full,Nigeria,Nigeria,False,0.0,0.0,0.9999999999999999
+Somalia,2023,forced_south_africa_vs_full,Nigeria,South Africa,True,0.2913497637923137,0.12324608588463892,-0.15421677519487356
+Somalia,2023,forced_algeria_vs_full,Nigeria,Algeria,True,0.13476797693016151,0.04369708701006647,-0.8689825774385574
+South Africa,2023,haversine_vs_full,South Africa,South Africa,False,0.0,0.0,1.0
+South Africa,2023,forced_nigeria_vs_full,South Africa,Nigeria,True,0.2913497637923137,0.12324608588463892,-0.15421677519487267
+South Africa,2023,forced_algeria_vs_full,South Africa,Algeria,True,0.42611774072247544,0.1669431728947055,0.4748905176578488
+South Sudan,2023,haversine_vs_full,Nigeria,Nigeria,False,0.0,0.0,1.0
+South Sudan,2023,forced_south_africa_vs_full,Nigeria,South Africa,True,0.2913497637923137,0.12324608588463881,-0.15421677519487242
+South Sudan,2023,forced_algeria_vs_full,Nigeria,Algeria,True,0.1347679769301613,0.04369708701006636,-0.8689825774385574
+Sudan,2023,haversine_vs_full,Nigeria,Nigeria,False,0.0,0.0,1.0
+Sudan,2023,forced_south_africa_vs_full,Nigeria,South Africa,True,0.2913497637923137,0.12324608588463892,-0.15421677519487434
+Sudan,2023,forced_algeria_vs_full,Nigeria,Algeria,True,0.1347679769301613,0.04369708701006636,-0.8689825774385573
+Tanzania,2023,haversine_vs_full,Nigeria,South Africa,True,0.2913497637923139,0.12324608588463892,-0.1542167751948722
+Tanzania,2023,forced_south_africa_vs_full,Nigeria,South Africa,True,0.2913497637923139,0.12324608588463892,-0.1542167751948722
+Tanzania,2023,forced_algeria_vs_full,Nigeria,Algeria,True,0.1347679769301613,0.04369708701006636,-0.8689825774385567
+Togo,2023,haversine_vs_full,Nigeria,Nigeria,False,0.0,0.0,1.0
+Togo,2023,forced_south_africa_vs_full,Nigeria,South Africa,True,0.2913497637923139,0.12324608588463892,-0.15421677519487292
+Togo,2023,forced_algeria_vs_full,Nigeria,Algeria,True,0.1347679769301613,0.04369708701006636,-0.8689825774385569
+Tunisia,2023,haversine_vs_full,Algeria,Algeria,False,0.0,0.0,1.0
+Tunisia,2023,forced_south_africa_vs_full,Algeria,South Africa,True,0.426117740722475,0.1669431728947054,0.4748905176578482
+Tunisia,2023,forced_nigeria_vs_full,Algeria,Nigeria,True,0.13476797693016107,0.04369708701006636,-0.8689825774385569
+Uganda,2023,haversine_vs_full,Nigeria,Nigeria,False,0.0,0.0,0.9999999999999999
+Uganda,2023,forced_south_africa_vs_full,Nigeria,South Africa,True,0.2913497637923137,0.12324608588463892,-0.15421677519487387
+Uganda,2023,forced_algeria_vs_full,Nigeria,Algeria,True,0.13476797693016151,0.04369708701006647,-0.8689825774385572
+Zambia,2023,haversine_vs_full,Nigeria,South Africa,True,0.2913497637923137,0.12324608588463892,-0.15421677519487365
+Zambia,2023,forced_south_africa_vs_full,Nigeria,South Africa,True,0.2913497637923137,0.12324608588463892,-0.15421677519487365
+Zambia,2023,forced_algeria_vs_full,Nigeria,Algeria,True,0.13476797693016151,0.04369708701006647,-0.8689825774385573
+Zimbabwe,2023,haversine_vs_full,Nigeria,South Africa,True,0.2913497637923135,0.12324608588463881,-0.1542167751948743
+Zimbabwe,2023,forced_south_africa_vs_full,Nigeria,South Africa,True,0.2913497637923135,0.12324608588463881,-0.1542167751948743
+Zimbabwe,2023,forced_algeria_vs_full,Nigeria,Algeria,True,0.13476797693016174,0.04369708701006658,-0.868982577438557

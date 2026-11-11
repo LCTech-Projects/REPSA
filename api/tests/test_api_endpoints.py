@@ -31,7 +31,7 @@ def test_country_envelope(client):
     assert data["defaults"]["energy_access_target"] >= data["slider_bounds"]["energy_access_target"]["min"] - 1e-6
 
 
-def test_hourly_electricity_demand_csv_shape(client):
+def test_hourly_electricity_demand_json_shape(client):
     resp = client.get(
         "/api/historical/hourly-electricity-demand",
         query_string={"country": "Nigeria", "year": 2024},
@@ -51,3 +51,18 @@ def test_hourly_electricity_demand_csv_shape(client):
     sample = rows[0]
     keys = {str(k).lower() for k in sample.keys()}
     assert any("demand" in k for k in keys)
+
+
+def test_hourly_electricity_demand_csv_download(client):
+    resp = client.get(
+        "/api/historical/hourly-electricity-demand",
+        query_string={"country": "Nigeria", "year": 2023, "format": "csv"},
+    )
+    assert resp.status_code == 200
+    assert "text/csv" in (resp.content_type or "")
+    text = resp.data.decode("utf-8", errors="replace")
+    lines = [ln for ln in text.splitlines() if ln.strip()]
+    assert len(lines) >= 25  # header + at least one day of hours
+    header = lines[0].lower()
+    assert "datetime" in header or "date" in header
+    assert "demand" in header

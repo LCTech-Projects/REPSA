@@ -1,0 +1,8 @@
+evidence_type,scope,metric,value,interpretation
+Annual conservation,"54 countries, 2016-2025",mean |sum_h - annual| / annual,2.37e-15%,Numerical consistency only; not temporal-shape accuracy
+Cross-anchor transfer,"3 measured anchors × other shapes, reference years",median diurnal Pearson r (cross only),-0.149,Shape agreement when a foreign anchor is imposed
+Cross-anchor transfer,"3 measured anchors × other shapes, reference years",median |Δ load factor| (cross only),0.123,Absolute load-factor change vs measured truth
+Cross-anchor transfer,"3 measured anchors × other shapes, reference years",median peak MAPE % (cross only),19.0,Peak demand error under foreign-shape transfer
+Assignment sensitivity,"haversine vs full, year 2023",countries with different anchor,19/54,Assignment method disagreement
+Assignment sensitivity,"haversine vs full (changed only), year 2023",median |Δ norm. peak| / median diurnal r,0.291 / -0.154,Magnitude of profile change when assignment flips
+Forced-anchor sensitivity,"each alt anchor vs full, year 2023",median |Δ norm. peak| across forced swaps,0.135,Typical peak-shape shift if a different anchor is forced

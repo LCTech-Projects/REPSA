@@ -44,3 +44,8 @@ REPSA_preprocess_zenodo.zip
 # Pytest
 .pytest_cache/
 api/pytest-cache-files-*/
+
+# Manuscript / review drafts (keep outside the public repo)
+*.docx
+_softx_*
+*_sections_dump.txt
